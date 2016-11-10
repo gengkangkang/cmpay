@@ -224,6 +224,7 @@
   </dependencies>
     
   <build>
+   <finalName>pay-web-cashier</finalName>
     <plugins>
        <plugin>  
                 <groupId>org.mybatis.generator</groupId>  

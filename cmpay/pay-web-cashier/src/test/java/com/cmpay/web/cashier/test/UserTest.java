@@ -6,8 +6,8 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.cmpay.web.cashier.gateway.model.TestUser;
-import com.cmpay.web.cashier.gateway.service.UserService;
+import com.cmpay.cashier.model.TestUser;
+import com.cmpay.cashier.service.UserService;
 
 /**
  * @author gengkangkang

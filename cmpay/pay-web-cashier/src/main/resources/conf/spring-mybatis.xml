@@ -73,11 +73,11 @@
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
         <property name="dataSource" ref="dataSource" />  
         <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->  
-        <property name="mapperLocations" value="classpath:com/cmpay/web/cashier/gateway/mapping/*.xml" />  
+        <property name="mapperLocations" value="classpath:com/cmpay/cashier/mapping/*.xml" />  
     </bean>  
   
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
-        <property name="basePackage" value="com.cmpay.web.cashier.gateway.dao" />  
+        <property name="basePackage" value="com.cmpay.cashier.dao" />  
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />  
     </bean>  
   
@@ -106,7 +106,7 @@
     <!-- Spring aop事务管理 -->  
     <aop:config>  
         <aop:pointcut id="transactionPointcut"  
-            expression="execution(* com.cmpay.web.cashier.gateway.service..*Impl.*(..))" />  
+            expression="execution(* com.cmpay.cashier.service..*Impl.*(..))" />  
         <aop:advisor pointcut-ref="transactionPointcut"  
             advice-ref="transactionAdvice" />  
     </aop:config>  

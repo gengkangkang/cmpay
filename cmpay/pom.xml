@@ -41,6 +41,7 @@
 		<pay-web-boss.version>0.0.1-SNAPSHOT</pay-web-boss.version>
 		<pay-web-cashier.version>0.0.1-SNAPSHOT</pay-web-cashier.version>
 		<pay-common-security.version>0.0.1-SNAPSHOT</pay-common-security.version>
+		<pay-service-weixin.version>0.0.1-SNAPSHOT</pay-service-weixin.version>
 		
 		
 		
@@ -310,7 +311,7 @@
     <version>19.0</version>
 </dependency>
  
- <!-- 生成二维码 -->
+ <!-- ��ɶ�ά�� -->
  <dependency>
     <groupId>com.google.zxing</groupId>
     <artifactId>core</artifactId>
@@ -392,5 +393,6 @@
     
     <module>pay-service-quartz</module>
     <module>pay-common-security</module>
+    <module>pay-service-weixin</module>
   </modules>
 </project>

@@ -1,6 +1,6 @@
-package com.cmpay.service.weixin.service;
+package com.cmpay.weixin.service;
 
-import com.cmpay.service.weixin.model.TestUser;
+import com.cmpay.weixin.model.TestUser;
 
 /**
  * @author gengkangkang

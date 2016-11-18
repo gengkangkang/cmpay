@@ -327,6 +327,13 @@
 		<artifactId>dom4j</artifactId>
 		<version>1.6.1</version>
 	</dependency>
+	
+	<dependency>
+    <groupId>joda-time</groupId>
+    <artifactId>joda-time</artifactId>
+    <version>2.9.5</version>
+</dependency>
+	
 			
      </dependencies> 
   </dependencyManagement>  
@@ -378,9 +385,9 @@
  
   <modules>
   	<module>pay-common-utils</module>
-  	<module>pay-service-chinapay</module>
+  	<!-- <module>pay-service-chinapay</module>
     <module>pay-service-llpay</module>
-    <module>pay-service-jytpay</module>
+    <module>pay-service-jytpay</module> -->
     <module>pay-service-trade</module>  
     <module>pay-service-fee</module>
     <module>pay-service-rule</module>

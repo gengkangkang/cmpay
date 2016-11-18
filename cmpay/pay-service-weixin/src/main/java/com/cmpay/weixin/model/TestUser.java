@@ -1,4 +1,4 @@
-package com.cmpay.service.weixin.model;
+package com.cmpay.weixin.model;
 
 public class TestUser {
     private String id;

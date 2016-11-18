@@ -1,13 +1,11 @@
-package com.cmpay.service.weixin.service.impl;
+package com.cmpay.weixin.service.impl;
 
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.cmpay.service.weixin.dao.TestUserMapper;
-import com.cmpay.service.weixin.model.TestUser;
-import com.cmpay.service.weixin.service.DemoService;
+import com.cmpay.weixin.model.TestUser;
+import com.cmpay.weixin.service.DemoService;
 
 
 /**
@@ -21,14 +19,13 @@ import com.cmpay.service.weixin.service.DemoService;
 public class DemoServiceImpl implements DemoService {
 
 	private Logger logger=Logger.getLogger(this.getClass());
-	@Autowired
-	private TestUserMapper testUserMapper;
 
 	@Override
 	public void test(TestUser record) {
-		testUserMapper.insert(record);
+		// TODO Auto-generated method stub
 
 	}
+
 
 
 }

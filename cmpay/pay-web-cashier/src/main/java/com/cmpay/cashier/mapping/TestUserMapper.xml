@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.cmpay.web.cashier.gateway.dao.TestUserMapper">
-  <resultMap id="BaseResultMap" type="com.cmpay.web.cashier.gateway.model.TestUser">
+<mapper namespace="com.cmpay.cashier.dao.TestUserMapper">
+  <resultMap id="BaseResultMap" type="com.cmpay.cashier.model.TestUser">
     <result column="ID" jdbcType="VARCHAR" property="id" />
     <result column="NAME" jdbcType="VARCHAR" property="name" />
     <result column="SEX" jdbcType="VARCHAR" property="sex" />
   </resultMap>
-  <insert id="insert" parameterType="com.cmpay.web.cashier.gateway.model.TestUser">
+  <insert id="insert" parameterType="com.cmpay.cashier.model.TestUser">
     insert into TEST_USER (ID, NAME, SEX
       )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.cmpay.web.cashier.gateway.model.TestUser">
+  <insert id="insertSelective" parameterType="com.cmpay.cashier.model.TestUser">
     insert into TEST_USER
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">

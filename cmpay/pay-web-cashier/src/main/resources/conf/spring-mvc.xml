@@ -25,6 +25,11 @@
 	   <bean class="com.cmpay.cashier.filter.IpFilter"/>
 	</mvc:interceptors> -->
 	
+	<mvc:resources location="/pay_files/" mapping="/pay_files/**"/> 
+	<mvc:resources location="/images/" mapping="/images/**"/>
+    <mvc:resources location="/js/" mapping="/js/**"/>
+        
+	
 	<bean id="stringHttpMessageConverter"  
         class="org.springframework.http.converter.StringHttpMessageConverter">  
         <constructor-arg value="UTF-8" index="0"></constructor-arg><!-- 避免出现乱码 -->  
@@ -53,7 +58,7 @@
         class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
         <property name="viewClass"  
             value="org.springframework.web.servlet.view.JstlView" />  
-        <property name="prefix" value="/WEB-INF/jsp" />  
+        <property name="prefix" value="/jsp/" />  
         <property name="suffix" value=".jsp" />  
     </bean>  
   

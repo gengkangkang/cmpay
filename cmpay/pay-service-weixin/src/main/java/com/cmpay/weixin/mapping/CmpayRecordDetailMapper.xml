@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.cmpay.service.weixin.dao.CmpayRecordDetailMapper" >
-  <resultMap id="BaseResultMap" type="com.cmpay.service.weixin.model.CmpayRecordDetail" >
+<mapper namespace="com.cmpay.weixin.dao.CmpayRecordDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.cmpay.weixin.model.CmpayRecordDetail" >
     <id column="ID" property="id" jdbcType="VARCHAR" />
     <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
     <result column="INCHANNEL" property="inchannel" jdbcType="VARCHAR" />
@@ -102,7 +102,7 @@
     RESP_CODE, RESP_MSG, THIRD_RESP_CODE, THIRD_MSG, CREATE_TIME, MODIFY_TIME, VERSION, 
     REMARK, FIELD1, FIELD2, FIELD3
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.cmpay.service.weixin.model.CmpayRecordDetailExample" >
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.cmpay.weixin.model.CmpayRecordDetailExample" >
     select
     <if test="distinct" >
       distinct
@@ -126,13 +126,13 @@
     delete from CMPAY_RECORD_DETAIL
     where ID = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.cmpay.service.weixin.model.CmpayRecordDetailExample" >
+  <delete id="deleteByExample" parameterType="com.cmpay.weixin.model.CmpayRecordDetailExample" >
     delete from CMPAY_RECORD_DETAIL
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.cmpay.service.weixin.model.CmpayRecordDetail" >
+  <insert id="insert" parameterType="com.cmpay.weixin.model.CmpayRecordDetail" >
     insert into CMPAY_RECORD_DETAIL (ID, ORDER_ID, INCHANNEL, 
       MER_NO, USER_ID, CARD_NO, 
       ORIG_ORDER_NO, TRANS_AMT, TRANS_TYPE, 
@@ -158,7 +158,7 @@
       #{remark,jdbcType=VARCHAR}, #{field1,jdbcType=VARCHAR}, #{field2,jdbcType=VARCHAR}, 
       #{field3,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.cmpay.service.weixin.model.CmpayRecordDetail" >
+  <insert id="insertSelective" parameterType="com.cmpay.weixin.model.CmpayRecordDetail" >
     insert into CMPAY_RECORD_DETAIL
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -369,7 +369,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.cmpay.service.weixin.model.CmpayRecordDetailExample" resultType="java.lang.Integer" >
+  <select id="countByExample" parameterType="com.cmpay.weixin.model.CmpayRecordDetailExample" resultType="java.lang.Integer" >
     select count(*) from CMPAY_RECORD_DETAIL
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -525,7 +525,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.cmpay.service.weixin.model.CmpayRecordDetail" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.cmpay.weixin.model.CmpayRecordDetail" >
     update CMPAY_RECORD_DETAIL
     <set >
       <if test="orderId != null" >
@@ -630,7 +630,7 @@
     </set>
     where ID = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.cmpay.service.weixin.model.CmpayRecordDetail" >
+  <update id="updateByPrimaryKey" parameterType="com.cmpay.weixin.model.CmpayRecordDetail" >
     update CMPAY_RECORD_DETAIL
     set ORDER_ID = #{orderId,jdbcType=VARCHAR},
       INCHANNEL = #{inchannel,jdbcType=VARCHAR},

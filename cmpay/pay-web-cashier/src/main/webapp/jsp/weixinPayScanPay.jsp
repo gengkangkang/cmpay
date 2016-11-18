@@ -9,7 +9,7 @@
 %>
 <html>
 <head>
-    <title>龙果支付</title>
+    <title>统一支付</title>
     <script type="text/javascript" src="${path}js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="${path}js/jquery.qrcode.min.js"></script>
     <link href="${path}/pay_files/pay.css" rel="stylesheet" type="text/css">
@@ -20,12 +20,12 @@
         setTimeout(function() {
                     Push();
                 },
-                2000);
+                6000);
         /*1轮询读取函数*/
         setInterval(function() {
                     Push();
                 },
-                1000);
+                3000);
 
         /*请求函数的ajax*/
         function Push() {
@@ -36,7 +36,7 @@
 
             times--;
             var queryUrl = $("#queryUrl").val();
-            $.ajax({
+/*             $.ajax({
                 type: "GET",
                 dataType : "json",
                 contentType:"application/x-www-form-urlencoded; charset=UTF-8",
@@ -55,7 +55,7 @@
                 error : function(data) {
                     console.error("系统异常！" + data);
                 }
-            });
+            }); */
 
         }
 
@@ -78,11 +78,11 @@
 <div class="wrap_header">
     <div class="header clearfix">
         <div class="logo_panel clearfix">
-            <div class="logo fl"><img src="${path}pay_files/logo.png" alt="logo"></div>
+            <div class="logo fl"><img src="${path}pay_files/cmiglogo.png" alt="logo"></div>
             <div class="lg_txt">| 收银台</div>
         </div>
         <div class="fr tip_panel">
-            <div class="txt">欢迎使用龙果支付付款</div>
+            <div class="txt">欢迎使用统一支付付款</div>
             <a href="">常见问题</a>
         </div>
     </div>
@@ -124,8 +124,8 @@
         <ul class="con-content">
         </ul>
     </div>
-    <div class="copyright">Copyright © 2015-2016 广州市领课网络科技有限公司版权所有</div>
-    <p class="yue"><a href="http://www.miitbeian.gov.cn/" target="_blank">粤ICP备16009964号</a></p>
+    <div class="copyright">Copyright © 2015-2016 中民物业有限责任公司版权所有</div>
+    <p class="yue"><a href="http://www.cm-inv.com" target="_blank">沪ICP备66666号</a></p>
 </div>
 
   <script type="text/javascript">

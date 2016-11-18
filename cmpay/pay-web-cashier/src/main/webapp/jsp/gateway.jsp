@@ -11,7 +11,7 @@
 %>
 <html>
 <head>
-    <title>龙果支付收银台</title>
+    <title>统一支付收银台</title>
     <link href="${path}pay_files/pay.css" rel="stylesheet" type="text/css">
 </head>
 <body>
@@ -19,11 +19,11 @@
 <div class="wrap_header">
     <div class="header clearfix">
         <div class="logo_panel clearfix">
-            <div class="logo fl"><img src="${path}pay_files/logo.png" alt=""></div>
+            <div class="logo fl"><img src="${path}pay_files/cmiglogo.png" alt=""></div>
             <div class="lg_txt">| 收银台</div>
         </div>
         <div class="fr tip_panel">
-            <div class="txt">欢迎使用龙果支付付款</div>
+            <div class="txt">欢迎使用统一支付付款</div>
             <a href="">常见问题</a>
         </div>
     </div>
@@ -41,20 +41,22 @@
     <div class="bd">
         <ul class="sele_pay_type">
             <span class="lb">请选择支付方式：</span>
-            <c:forEach items="${payGateWayPageShowVo.payWayEnumMap}" var="payWay" >
                 <li>
                     <label>
-                        <a href="${path}scanPay/toPay/${payGateWayPageShowVo.merchantOrderNo}/${payWay.key}/${payGateWayPageShowVo.payKey}" style="font-size: 30px">
-                            <c:if test="${payWay.key == 'WEIXIN'}">
-                                <img src="${path}images/logo2.png" alt="${payWay.value.desc}" />
-                            </c:if>
-                            <c:if test="${payWay.key == 'ALIPAY'}">
-                                <img src="${path}images/logo.png" alt="${payWay.value.desc}" />
-                            </c:if>
+                        <a href="${path}payment/toPay/${payGateWayPageShowVo.merchantOrderNo}/${payGateWayPageShowVo.productName}" style="font-size: 30px">
+                                <img src="${path}images/logo2.png" alt="微信支付" />
                         </a>
                     </label>
                 </li>
-            </c:forEach>
+                
+                 <li>
+                    <label>
+                        <a href="#" style="font-size: 30px">
+
+                                <img src="${path}images/logo.png" alt="支付宝支付" />
+                        </a>
+                    </label>
+                </li>
         </ul>
     </div>
 </div>
@@ -69,8 +71,8 @@
         <ul class="con-content">
         </ul>
     </div>
-    <div class="copyright">Copyright © 2015-2016 广州市领课网络科技有限公司版权所有</div>
-    <p class="yue"><a href="http://www.miitbeian.gov.cn/" target="_blank">粤ICP备16009964号</a></p>
+    <div class="copyright">Copyright © 2015-2016 中民物业有限责任公司版权所有</div>
+    <p class="yue"><a href="http://www.miitbeian.gov.cn/" target="_blank">沪ICP备66666666号</a></p>
 </div>
 
 </body>

@@ -1,9 +1,10 @@
-package com.cmpay.service.weixin.dao;
+package com.cmpay.weixin.dao;
 
-import com.cmpay.service.weixin.model.CmpayRecordDetail;
-import com.cmpay.service.weixin.model.CmpayRecordDetailExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import com.cmpay.weixin.model.CmpayRecordDetail;
+import com.cmpay.weixin.model.CmpayRecordDetailExample;
 
 public interface CmpayRecordDetailMapper {
     int countByExample(CmpayRecordDetailExample example);

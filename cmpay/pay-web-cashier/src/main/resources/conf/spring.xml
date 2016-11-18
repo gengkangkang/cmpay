@@ -11,7 +11,11 @@
   
     <!--自动扫描含有@Service将其注入为bean -->  
     <context:component-scan base-package="com.cmpay.cashier.service" />
+    <context:component-scan base-package="com.cmpay.weixin.service" />
+    
     
     <import resource="classpath:conf/spring-consumer.xml" />
+    
+  	<bean id="exceptionResolver" class="com.cmpay.cashier.exception.ExceptionResolver"></bean>
   
 </beans> 

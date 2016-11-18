@@ -1,9 +1,11 @@
-package com.cmpay.service.weixin.dao;
+package com.cmpay.weixin.dao;
 
-import com.cmpay.service.weixin.model.CmpayRecord;
-import com.cmpay.service.weixin.model.CmpayRecordExample;
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
+
+import com.cmpay.weixin.model.CmpayRecord;
+import com.cmpay.weixin.model.CmpayRecordExample;
 
 public interface CmpayRecordMapper {
     int countByExample(CmpayRecordExample example);
@@ -19,6 +21,9 @@ public interface CmpayRecordMapper {
     List<CmpayRecord> selectByExample(CmpayRecordExample example);
 
     CmpayRecord selectByPrimaryKey(String id);
+    CmpayRecord selectByOrderId(CmpayRecord record);
+    CmpayRecord selectByCmpayOrderId(String orderId);
+
 
     int updateByExampleSelective(@Param("record") CmpayRecord record, @Param("example") CmpayRecordExample example);
 

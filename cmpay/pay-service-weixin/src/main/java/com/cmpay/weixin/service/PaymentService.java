@@ -1,6 +1,7 @@
 package com.cmpay.weixin.service;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import com.cmpay.weixin.vo.PayPageShowVo;
 import com.cmpay.weixin.vo.ScanPayResultVo;
@@ -36,5 +37,12 @@ public interface PaymentService {
     * @return
     */
 	public ScanPayResultVo unifiedorder(String cmpayOrder,String productName);
+
+	/**
+	 * 接受微信异步通知
+	 * @param notifyMap
+	 * @return
+	 */
+	public String acceptWXNotify(Map<String, String> notifyMap);
 
 }

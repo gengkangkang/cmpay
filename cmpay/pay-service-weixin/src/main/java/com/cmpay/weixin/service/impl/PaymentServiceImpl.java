@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,8 @@ import com.cmpay.weixin.model.CmpayChannelConfig;
 import com.cmpay.weixin.model.CmpayChannelConfigExample;
 import com.cmpay.weixin.model.CmpayRecord;
 import com.cmpay.weixin.model.CmpayRecordDetail;
+import com.cmpay.weixin.model.CmpayRecordDetailExample;
+import com.cmpay.weixin.model.CmpayRecordExample;
 import com.cmpay.weixin.service.PaymentService;
 import com.cmpay.weixin.utils.WeiXinPayUtils;
 import com.cmpay.weixin.vo.PayPageShowVo;
@@ -41,7 +44,8 @@ import com.cmpay.weixin.vo.ScanPayResultVo;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
-	private Logger logger=Logger.getLogger(this.getClass());
+    private  Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
+
 
 	@Value("#{env['wx_notify_url']}")
 	private String wx_notify_url;
@@ -230,6 +234,89 @@ public class PaymentServiceImpl implements PaymentService {
 		weiXinPrePay.setSpbillCreateIp(orderIp);// 下单IP
 
 		return weiXinPrePay;
+	}
+
+	@Override
+	@Transactional
+	public String acceptWXNotify(Map<String, String> notifyMap) {
+        logger.info("接收到微信支付结果参数[{}]",notifyMap);
+
+        String return_code=notifyMap.get("return_code");
+        if(StringUtils.equals(return_code, WXConstants.WXSUCCESS)){
+        	 String returnStr = null;
+             String orderNo = notifyMap.get("out_trade_no");
+             //根据订单号获取微信支付订单信息
+    	     CmpayRecordDetailExample cmpayRecordDetailExample=new CmpayRecordDetailExample();
+    	     cmpayRecordDetailExample.createCriteria().andOrderIdEqualTo(orderNo);
+    	     List<CmpayRecordDetail> cmpayRecordDetaillist=cmpayRecordDetailMapper.selectByExample(cmpayRecordDetailExample);
+    	     if(cmpayRecordDetaillist.size()==0){
+               logger.info("{}订单不存在！！！",orderNo);
+               throw new TradeBizException(TradeBizException.TRADE_ORDER_ERROR,",非法订单,订单不存在");
+    	     }
+    	     if(cmpayRecordDetaillist.size()>1){
+                 logger.info("{}订单记录存在多条，怎么插入进去的！！！",orderNo);
+                 throw new TradeBizException(TradeBizException.TRADE_ORDER_ERROR,",非法订单,订单不存在");
+      	     }
+    	     CmpayRecordDetail cmpayRecordDetail=cmpayRecordDetaillist.get(0);
+    	        if (PayStatusEnum.SUCC.name().equals(cmpayRecordDetail.getPayStatus())){
+    	            logger.info("{}订单状态为成功状态！",orderNo);
+    	            return WXConstants.WX_RETURN_SUCCESS;
+    	        }
+
+    	   //校验报文签名信息
+    		     //根据商户号，支付渠道编码查询参数，暂时存放在数据库，后续存在redis中
+    		     CmpayChannelConfigExample cmpayChannelConfigExample=new CmpayChannelConfigExample();
+    		     cmpayChannelConfigExample.createCriteria().andMerNoEqualTo(cmpayRecordDetail.getMerNo()).andPaychannelNoEqualTo(cmpayRecordDetail.getPayChannel());
+    		     List<CmpayChannelConfig> ccclist=cmpayChannelConfigMapper.selectByExample(cmpayChannelConfigExample);
+    	         if(ccclist==null || ccclist.size()==0){
+    		         logger.info(" 获取支付参数异常！！！");
+    	        	 throw new TradeBizException(TradeBizException.TRADE_PAYCHANNEL_CONFIG_ERROR,"获取支付参数异常");
+    	         }
+
+    	         String partnerKey = ccclist.get(0).getPartnerkey();
+
+    	         String sign = notifyMap.remove("sign");
+
+    	            if (WeiXinPayUtils.notifySign(notifyMap, sign, partnerKey)){
+    	                if (WXConstants.WXSUCCESS.equals(notifyMap.get("result_code"))){
+    	                    cmpayRecordDetail.setPayStatus(PayStatusEnum.SUCC.name());
+    	                    cmpayRecordDetail.setPayOrderTime(notifyMap.get("time_end"));
+    	                    cmpayRecordDetail.setThirdRespCode(notifyMap.get("result_code"));
+    	                    cmpayRecordDetailMapper.updateByPrimaryKeySelective(cmpayRecordDetail);
+    	                    //同时更新预付订单状态
+    	            		CmpayRecordExample cmpayRecordExample=new CmpayRecordExample();
+    	            		cmpayRecordExample.createCriteria().andOrderIdEqualTo(cmpayRecordDetail.getOrderId());
+    	            		CmpayRecord cmpayRecord=new CmpayRecord();
+    	            		cmpayRecord.setPayStatus(PayStatusEnum.SUCC.name());
+    	            		cmpayRecordMapper.updateByExampleSelective(cmpayRecord, cmpayRecordExample);
+
+    	                    return WXConstants.WX_RETURN_SUCCESS;
+    	                }else{
+    	                	//失败，更新订单
+    	                	logger.info("{}订单支付失败",orderNo);
+    	                	 cmpayRecordDetail.setPayStatus(PayStatusEnum.FAIL.name());
+     	                     cmpayRecordDetail.setPayOrderTime(notifyMap.get("time_end"));
+     	                     cmpayRecordDetail.setThirdRespCode(notifyMap.get("result_code"));
+     	                     cmpayRecordDetailMapper.updateByPrimaryKeySelective(cmpayRecordDetail);
+     	                    //同时更新预付订单状态
+     	            		CmpayRecordExample cmpayRecordExample=new CmpayRecordExample();
+     	            		cmpayRecordExample.createCriteria().andOrderIdEqualTo(cmpayRecordDetail.getOrderId());
+     	            		CmpayRecord cmpayRecord=new CmpayRecord();
+     	            		cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
+     	            		cmpayRecordMapper.updateByExampleSelective(cmpayRecord, cmpayRecordExample);
+     	                    return WXConstants.WX_RETURN_SUCCESS;
+    	                }
+    	            }else{
+    	            	logger.error("微信通知验证签名失败！！！");
+    	                return WXConstants.WX_RETURN_FAIL;
+    	            }
+
+
+        }else{
+        	//通讯异常，通知报文，应该不会出现该情况
+        	logger.error("这种情况要是发生，那就是微信瓦特了！！！！！！！");
+        	return WXConstants.WX_RETURN_FAIL;
+        }
 	}
 
 }

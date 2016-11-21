@@ -22,7 +22,15 @@ public class WXConstants {
 	public static String ALIPAY="30";
 
 
-
+//微信返回报文常量
+	public static String WX_RETURN_SUCCESS = "<xml>\n" +
+            "  <return_code><![CDATA[SUCCESS]]></return_code>\n" +
+            "  <return_msg><![CDATA[OK]]></return_msg>\n" +
+            "</xml>";
+	public static String WX_RETURN_FAIL = "<xml>\n" +
+            "  <return_code><![CDATA[FAIL]]></return_code>\n" +
+            "  <return_msg><![CDATA[接受失败]]></return_msg>\n" +
+            "</xml>";
 
 
 }

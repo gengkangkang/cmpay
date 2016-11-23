@@ -41,6 +41,7 @@
 		<pay-web-boss.version>0.0.1-SNAPSHOT</pay-web-boss.version>
 		<pay-web-cashier.version>0.0.1-SNAPSHOT</pay-web-cashier.version>
 		<pay-common-security.version>0.0.1-SNAPSHOT</pay-common-security.version>
+		<pay-service-weixin.version>0.0.1-SNAPSHOT</pay-service-weixin.version>
 		
 		
 		
@@ -252,6 +253,18 @@
     <version>1.2.16</version>
 </dependency>
 
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.21</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.7.21</version>
+			</dependency>
+
+
 	<dependency>
         <groupId>com.oracle</groupId>
          <artifactId>ojdbc6</artifactId>
@@ -310,7 +323,7 @@
     <version>19.0</version>
 </dependency>
  
- <!-- 生成二维码 -->
+ <!-- ��ɶ�ά�� -->
  <dependency>
     <groupId>com.google.zxing</groupId>
     <artifactId>core</artifactId>
@@ -326,6 +339,13 @@
 		<artifactId>dom4j</artifactId>
 		<version>1.6.1</version>
 	</dependency>
+	
+	<dependency>
+    <groupId>joda-time</groupId>
+    <artifactId>joda-time</artifactId>
+    <version>2.9.5</version>
+</dependency>
+	
 			
      </dependencies> 
   </dependencyManagement>  
@@ -377,9 +397,9 @@
  
   <modules>
   	<module>pay-common-utils</module>
-  	<module>pay-service-chinapay</module>
+  	<!-- <module>pay-service-chinapay</module>
     <module>pay-service-llpay</module>
-    <module>pay-service-jytpay</module>
+    <module>pay-service-jytpay</module> -->
     <module>pay-service-trade</module>  
     <module>pay-service-fee</module>
     <module>pay-service-rule</module>
@@ -392,5 +412,6 @@
     
     <module>pay-service-quartz</module>
     <module>pay-common-security</module>
+    <module>pay-service-weixin</module>
   </modules>
 </project>

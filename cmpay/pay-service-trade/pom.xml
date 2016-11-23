@@ -176,6 +176,11 @@
         <artifactId>pay-facade-trade</artifactId>
         <version>${pay-facade-trade.version}</version>        
       </dependency> 
+      <dependency>
+        <groupId>com.cmpay</groupId>
+        <artifactId>pay-common-utils</artifactId>
+        <version>${pay-common-utils.version}</version>        
+      </dependency>       
     
   </dependencies>
   

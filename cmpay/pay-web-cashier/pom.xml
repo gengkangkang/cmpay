@@ -172,6 +172,14 @@
     <groupId>log4j</groupId>
     <artifactId>log4j</artifactId>
 </dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+			</dependency>
   
   <dependency>
     <groupId>org.apache.commons</groupId>
@@ -220,10 +228,16 @@
         <artifactId>pay-common-utils</artifactId>
         <version>${pay-common-utils.version}</version>        
       </dependency> 
+      <dependency>
+        <groupId>com.cmpay</groupId>
+        <artifactId>pay-service-weixin</artifactId>
+        <version>${pay-service-weixin.version}</version>        
+      </dependency> 
     
   </dependencies>
     
   <build>
+   <finalName>pay-web-cashier</finalName>
     <plugins>
        <plugin>  
                 <groupId>org.mybatis.generator</groupId>  

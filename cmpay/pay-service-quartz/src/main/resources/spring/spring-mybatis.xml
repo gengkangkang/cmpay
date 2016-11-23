@@ -53,21 +53,6 @@
     </bean> 
     
 	
-<!-- 	 <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-		<property name="driverClassName" value="#{env['jdbcDriver']}" />
-		<property name="testOnBorrow" value="true"/>
-		<property name="testOnReturn" value="false"/>
-		<property name="testWhileIdle" value="true"/>
-		<property name="validationQuery" value="select 1 from dual"/>
-		<property name="maxActive" value="20"/>
-		<property name="maxIdle" value="10"/>
-		<property name="minIdle" value="1"/>
-		<property name="minEvictableIdleTimeMillis" value="1800000"/>
-		<property name="url" value="#{env['url']}" />
-		<property name="username" value="#{env['username']}" />
-		<property name="password" value="#{env['password']}" />
-	</bean> -->
-
   
     <!-- myBatis文件 -->  
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
@@ -79,7 +64,19 @@
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
         <property name="basePackage" value="com.cmpay.service.quartz.dao" />  
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />  
+    </bean> 
+    
+            <!-- myBatis文件 -->  
+    <bean id="sqlSessionFactory1" class="org.mybatis.spring.SqlSessionFactoryBean">  
+        <property name="dataSource" ref="dataSource" />  
+        <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->  
+        <property name="mapperLocations" value="classpath*:com/cmpay/weixin/mapping/*.xml" />  
     </bean>  
+  
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
+        <property name="basePackage" value="com.cmpay.weixin.dao" />  
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory1" />  
+    </bean>   
   
     <!-- 配置事务管理器 -->  
     <bean id="transactionManager"  

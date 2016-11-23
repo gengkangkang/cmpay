@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import com.cmpay.weixin.vo.PayPageShowVo;
+import com.cmpay.weixin.vo.QueryResult;
 import com.cmpay.weixin.vo.ScanPayResultVo;
 
 /**
@@ -45,4 +46,15 @@ public interface PaymentService {
 	 */
 	public String acceptWXNotify(Map<String, String> notifyMap);
 
+	/**
+	 * 查询微信待处理中订单
+	 */
+	public void QueryWXOrder();
+
+	/**
+	 * 根据订单号查询订单状态
+	 * @param orderId
+	 * @return
+	 */
+	public QueryResult OrderQuery(String orderId);
 }

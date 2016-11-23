@@ -36,7 +36,7 @@
 
             times--;
             var queryUrl = $("#queryUrl").val();
-/*             $.ajax({
+             $.ajax({
                 type: "GET",
                 dataType : "json",
                 contentType:"application/x-www-form-urlencoded; charset=UTF-8",
@@ -44,18 +44,18 @@
                 url: queryUrl,
                 //请求成功完成后要执行的方法
                 success: function(result){
-                    if("YES" == result.status){
+                    if("0000" == result.code){
                         times = 0;
                         $("#weixinDiv").css("display","none");//隐藏
                         $("#sucDiv").css("display","block");//显示
-                        $("#returnMerchnatA").attr("href",result.returnUrl);
-                        jump(5,result.returnUrl);
+                        $("#returnMerchnatA").attr("href",result.return_url);
+                        jump(5,result.return_url);
                     }
                 },
                 error : function(data) {
-                    console.error("系统异常！" + data);
+                    console.error("系统通讯异常！" + data);
                 }
-            }); */
+            }); 
 
         }
 

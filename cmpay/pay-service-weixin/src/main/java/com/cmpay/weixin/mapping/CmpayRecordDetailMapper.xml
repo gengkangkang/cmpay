@@ -122,6 +122,13 @@
     from CMPAY_RECORD_DETAIL
     where ID = #{id,jdbcType=VARCHAR}
   </select>
+    <select id="selectByCmpayOrderId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from CMPAY_RECORD_DETAIL
+    where ORDER_ID = #{orderId,jdbcType=VARCHAR}
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
     delete from CMPAY_RECORD_DETAIL
     where ID = #{id,jdbcType=VARCHAR}

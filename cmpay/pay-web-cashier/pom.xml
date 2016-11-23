@@ -228,7 +228,7 @@
         <artifactId>pay-common-utils</artifactId>
         <version>${pay-common-utils.version}</version>        
       </dependency> 
-            <dependency>
+      <dependency>
         <groupId>com.cmpay</groupId>
         <artifactId>pay-service-weixin</artifactId>
         <version>${pay-service-weixin.version}</version>        

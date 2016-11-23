@@ -21,6 +21,7 @@ import com.cmpay.common.util.WXConstants;
 import com.cmpay.weixin.dao.CmpayChannelConfigMapper;
 import com.cmpay.weixin.dao.CmpayRecordDetailMapper;
 import com.cmpay.weixin.dao.CmpayRecordMapper;
+import com.cmpay.weixin.entity.WXQueryBean;
 import com.cmpay.weixin.entity.WeiXinPrePay;
 import com.cmpay.weixin.exception.TradeBizException;
 import com.cmpay.weixin.model.CmpayChannelConfig;
@@ -32,6 +33,7 @@ import com.cmpay.weixin.model.CmpayRecordExample;
 import com.cmpay.weixin.service.PaymentService;
 import com.cmpay.weixin.utils.WeiXinPayUtils;
 import com.cmpay.weixin.vo.PayPageShowVo;
+import com.cmpay.weixin.vo.QueryResult;
 import com.cmpay.weixin.vo.ScanPayResultVo;
 
 /**
@@ -51,6 +53,8 @@ public class PaymentServiceImpl implements PaymentService {
 	private String wx_notify_url;
 	@Value("#{env['wx_prepay_url']}")
 	private String wx_prepay_url;
+	@Value("#{env['wx_orderQuery']}")
+	private String wx_orderQuery;
 
 	@Autowired
 	private CmpayRecordMapper cmpayRecordMapper;
@@ -220,7 +224,7 @@ public class PaymentServiceImpl implements PaymentService {
 		weiXinPrePay.setAppid(appId);
 		weiXinPrePay.setMchId(mchId);
 		weiXinPrePay.setBody(productName);// 商品描述
-		weiXinPrePay.setAttach(remark);// 支付备注
+//		weiXinPrePay.setAttach(remark);// 支付备注
 		weiXinPrePay.setOutTradeNo(orderNo);// 订单号
 
 		Integer totalFee = orderPrice.multiply(BigDecimal.valueOf(100d)).intValue();
@@ -282,6 +286,7 @@ public class PaymentServiceImpl implements PaymentService {
     	                    cmpayRecordDetail.setPayStatus(PayStatusEnum.SUCC.name());
     	                    cmpayRecordDetail.setPayOrderTime(notifyMap.get("time_end"));
     	                    cmpayRecordDetail.setThirdRespCode(notifyMap.get("result_code"));
+    	                    cmpayRecordDetail.setThirdOrderNo(notifyMap.get("transaction_id"));
     	                    cmpayRecordDetailMapper.updateByPrimaryKeySelective(cmpayRecordDetail);
     	                    //同时更新预付订单状态
     	            		CmpayRecordExample cmpayRecordExample=new CmpayRecordExample();
@@ -297,6 +302,7 @@ public class PaymentServiceImpl implements PaymentService {
     	                	 cmpayRecordDetail.setPayStatus(PayStatusEnum.FAIL.name());
      	                     cmpayRecordDetail.setPayOrderTime(notifyMap.get("time_end"));
      	                     cmpayRecordDetail.setThirdRespCode(notifyMap.get("result_code"));
+     	                     cmpayRecordDetail.setThirdOrderNo(notifyMap.get("transaction_id"));
      	                     cmpayRecordDetailMapper.updateByPrimaryKeySelective(cmpayRecordDetail);
      	                    //同时更新预付订单状态
      	            		CmpayRecordExample cmpayRecordExample=new CmpayRecordExample();
@@ -317,6 +323,140 @@ public class PaymentServiceImpl implements PaymentService {
         	logger.error("这种情况要是发生，那就是微信瓦特了！！！！！！！");
         	return WXConstants.WX_RETURN_FAIL;
         }
+	}
+
+	@Override
+	@Transactional
+	public void QueryWXOrder() {
+
+		//1.查询处理中的订单
+		 CmpayRecordDetailExample cmpayRecordDetailExample=new CmpayRecordDetailExample();
+	     cmpayRecordDetailExample.createCriteria().andPayChannelEqualTo(PayWayEnum.CMPAY0004.name()).andPayStatusEqualTo(PayStatusEnum.DEALING.name());
+	     List<CmpayRecordDetail> cmpayRecordDetaillist=cmpayRecordDetailMapper.selectByExample(cmpayRecordDetailExample);
+	     if(!(cmpayRecordDetaillist.size()>0)){
+	    	 logger.info("没有处理中的订单");
+	    	 return;
+	     }
+
+	     //根据商户号，支付渠道编码查询参数，暂时存放在数据库，后续存在redis中
+	     CmpayChannelConfigExample cmpayChannelConfigExample=new CmpayChannelConfigExample();
+	     cmpayChannelConfigExample.createCriteria().andMerNoEqualTo(cmpayRecordDetaillist.get(0).getMerNo()).andPaychannelNoEqualTo(cmpayRecordDetaillist.get(0).getPayChannel());
+	     List<CmpayChannelConfig> ccclist=cmpayChannelConfigMapper.selectByExample(cmpayChannelConfigExample);
+         if(ccclist==null || ccclist.size()==0){
+	         logger.info(" 获取支付参数异常！！！");
+	         return;
+//        	 throw new TradeBizException(TradeBizException.TRADE_PAYCHANNEL_CONFIG_ERROR,"获取支付参数异常");
+         }
+         String appid = ccclist.get(0).getAppid();
+         String mchid = ccclist.get(0).getThirdMerid();
+         String partnerKey = ccclist.get(0).getPartnerkey();
+
+	     for(CmpayRecordDetail cmpayRecordDetail:cmpayRecordDetaillist){
+	    	 //量少的时候暂时用for循环处理，量大时可以考虑走队列、多线程处理
+            logger.info("订单[{}]开始查询",cmpayRecordDetail.getOrderId());
+            try{
+	    	 CmpayRecordDetail crd=new CmpayRecordDetail();
+	    	 WXQueryBean wxQueryBean=new WXQueryBean();
+	    	 wxQueryBean.setAppid(appid);
+	    	 wxQueryBean.setMch_id(mchid);
+	    	 wxQueryBean.setOut_trade_no(cmpayRecordDetail.getOrderId());
+	    	 wxQueryBean.setNonce_str(CmpayUtils.getUUID());
+	    	 String queryXML=WeiXinPayUtils.getWXQueryOrderXml(wxQueryBean, partnerKey);
+	    	 logger.info("微信订单查询xml为[{}]",queryXML);
+	    	 Map<String, String> queryResult = WeiXinPayUtils.httpXmlRequestString(wx_orderQuery, "POST", queryXML);
+	    	 logger.info("微信订单查询返回结果[{}]",queryResult);
+
+	         if (WXConstants.WXSUCCESS.equals(queryResult.get("return_code"))) {
+
+
+		         String sign = queryResult.remove("sign");
+		         queryResult.remove("attach");
+
+ 	            if (WeiXinPayUtils.notifySign(queryResult, sign, partnerKey)){
+ 	                if (WXConstants.WXSUCCESS.equals(queryResult.get("result_code"))){
+ 	                	logger.info("查询订单支付成功");
+ 	                    cmpayRecordDetail.setPayStatus(PayStatusEnum.SUCC.name());
+ 	                    cmpayRecordDetail.setPayOrderTime(queryResult.get("time_end"));
+ 	                    cmpayRecordDetail.setThirdRespCode(queryResult.get("result_code"));
+ 	                    cmpayRecordDetail.setThirdOrderNo(queryResult.get("transaction_id"));
+ 	                    cmpayRecordDetailMapper.updateByPrimaryKeySelective(cmpayRecordDetail);
+ 	                    //同时更新预付订单状态
+ 	            		CmpayRecordExample cmpayRecordExample=new CmpayRecordExample();
+ 	            		cmpayRecordExample.createCriteria().andOrderIdEqualTo(cmpayRecordDetail.getOrderId());
+ 	            		CmpayRecord cmpayRecord=new CmpayRecord();
+ 	            		cmpayRecord.setPayStatus(PayStatusEnum.SUCC.name());
+ 	            		cmpayRecordMapper.updateByExampleSelective(cmpayRecord, cmpayRecordExample);
+
+
+ 	                }else{
+ 	                	//失败，更新订单
+ 	                	logger.info("查询订单支付失败");
+ 	                	 cmpayRecordDetail.setPayStatus(PayStatusEnum.FAIL.name());
+  	                     cmpayRecordDetail.setPayOrderTime(queryResult.get("time_end"));
+  	                     cmpayRecordDetail.setThirdRespCode(queryResult.get("result_code"));
+  	                     cmpayRecordDetail.setThirdOrderNo(queryResult.get("transaction_id"));
+  	                     cmpayRecordDetailMapper.updateByPrimaryKeySelective(cmpayRecordDetail);
+  	                    //同时更新预付订单状态
+  	            		CmpayRecordExample cmpayRecordExample=new CmpayRecordExample();
+  	            		cmpayRecordExample.createCriteria().andOrderIdEqualTo(cmpayRecordDetail.getOrderId());
+  	            		CmpayRecord cmpayRecord=new CmpayRecord();
+  	            		cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
+  	            		cmpayRecordMapper.updateByExampleSelective(cmpayRecord, cmpayRecordExample);
+
+ 	                }
+
+
+ 	            }else{
+ 	            	logger.error("查询微信订单验证签名失败！！！");
+
+ 	            }
+
+
+	         }else{
+	        	 logger.info("查询订单请求微信异常：return_code="+queryResult.get("return_code")+",return_msg="+queryResult.get("return_msg")+",err_code="+queryResult.get("err_code")+",err_code_des="+queryResult.get("err_code_des"));
+
+	         }
+
+            }catch(Exception e){
+                 logger.error("查询订单出现异常");
+                 e.printStackTrace();
+            }
+	     }
+	}
+
+	@Override
+	public QueryResult OrderQuery(String orderId) {
+
+		String code=null;
+		String msg=null;
+		String return_url=null;
+  		CmpayRecordDetail cmpayRecordDetail=cmpayRecordDetailMapper.selectByCmpayOrderId(orderId);
+        if(null!=cmpayRecordDetail){
+      	  return_url=cmpayRecordDetail.getReturnUrl();
+
+              if(StringUtils.equals(cmpayRecordDetail.getPayStatus(), PayStatusEnum.SUCC.name())){
+            	  code=WXConstants.SUCCESS_CODE;
+            	  msg=WXConstants.SUCCESS_MSG;
+              }else if(StringUtils.equals(cmpayRecordDetail.getPayStatus(), PayStatusEnum.FAIL.name())){
+            	  code=WXConstants.FAILED_CODE;
+            	  msg=WXConstants.FAILED_MSG;
+              }else{
+            	  code=WXConstants.PROCESS_CODE;
+            	  msg=WXConstants.PROCESS_MSG;
+              }
+
+        }else{
+        	logger.info("订单不存在！！！！！");
+        	code=WXConstants.FAILED_CODE;
+        	msg="订单不存在";
+        }
+
+        QueryResult queryResult=new QueryResult();
+        queryResult.setCode(code);
+        queryResult.setMsg(msg);
+        queryResult.setReturn_url(return_url);
+
+		return queryResult;
 	}
 
 }

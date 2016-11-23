@@ -22,6 +22,7 @@ import org.dom4j.io.SAXReader;
 
 import com.cmpay.common.util.CmpayUtils;
 import com.cmpay.common.util.WXConstants;
+import com.cmpay.weixin.entity.WXQueryBean;
 import com.cmpay.weixin.entity.WeiXinPrePay;
 
 /**
@@ -80,6 +81,58 @@ public class WeiXinPayUtils {
 //            	e.printStackTrace();
 //            }
 //            LOG.info("请求返回报文："+sb.toString());
+            // 读取输入流
+            SAXReader reader = new SAXReader();
+            Document document = reader.read(inputStreamReader);
+            // 得到xml根元素
+            Element root = document.getRootElement();
+            // 得到根元素的所有子节点
+            @SuppressWarnings("unchecked")
+            List<Element> elementList = root.elements();
+            // 遍历所有子节点
+            for (Element e : elementList) {
+                map.put(e.getName(), e.getText());
+            }
+            inputStreamReader.close();
+            inputStream.close();
+            inputStream = null;
+            urlCon.disconnect();
+        } catch (MalformedURLException e) {
+            LOG.error(e.getMessage());
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+        return map;
+    }
+
+    public static Map<String, String> httpXmlRequestString(String requestUrl, String requestMethod, String xmlStr) {
+        // 将解析结果存储在HashMap中
+        Map<String, String> map = new HashMap<String, String>();
+        try {
+            HttpsURLConnection urlCon = (HttpsURLConnection) (new URL(requestUrl)).openConnection();
+            urlCon.setDoInput(true);
+            urlCon.setDoOutput(true);
+            // 设置请求方式（GET/POST）
+            urlCon.setRequestMethod(requestMethod);
+
+            if ("GET".equalsIgnoreCase(requestMethod)) {
+                urlCon.connect();
+            }
+
+            urlCon.setRequestProperty("Content-Length", String.valueOf(xmlStr.getBytes().length));
+            urlCon.setUseCaches(false);
+            // 设置为gbk可以解决服务器接收时读取的数据中文乱码问题
+            if (null != xmlStr) {
+                OutputStream outputStream = urlCon.getOutputStream();
+                outputStream.write(xmlStr.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+            }
+            InputStream inputStream = urlCon.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+
             // 读取输入流
             SAXReader reader = new SAXReader();
             Document document = reader.read(inputStreamReader);
@@ -196,8 +249,10 @@ public class WeiXinPayUtils {
 
 
     public static boolean notifySign(Map<String, String> result , String sign , String  partnerKey) {
+        System.out.println("result="+result.toString()+",sign="+sign);
         String argNotifySign = getStringByStringMap(result) + "&key=" + partnerKey;
         String notifySign = CmpayUtils.encodeMD5(argNotifySign).toUpperCase();
+        System.out.println("生产的签名为："+notifySign);
         if (notifySign.equals(sign)){
             return true;
         }else{
@@ -291,6 +346,43 @@ public class WeiXinPayUtils {
         inputStream = null;
 
         return map;
+    }
+
+
+    public static String getWXQueryOrderXml(WXQueryBean wxQueryBean, String partnerKey){
+
+        String sign=getWXQueryOrderSign(wxQueryBean, partnerKey);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<xml><appid>").append(wxQueryBean.getAppid()).append("</appid>");
+        sb.append("<mch_id>").append(wxQueryBean.getMch_id()).append("</mch_id>");
+        sb.append("<out_trade_no>").append(wxQueryBean.getOut_trade_no()).append("</out_trade_no>");
+        sb.append("<nonce_str>").append(wxQueryBean.getNonce_str()).append("</nonce_str>");
+        sb.append("<sign>").append(sign).append("</sign>");
+        if(StringUtils.isNotBlank(wxQueryBean.getSign_type())){
+        sb.append("<sign_type>").append(wxQueryBean.getSign_type()).append("</sign_type>");
+          }
+        sb.append("</xml>");
+
+        return sb.toString();
+    }
+
+    private static String getWXQueryOrderSign(WXQueryBean wxQueryBean,String partnerKey){
+
+        Map<String, Object> prePayMap = new HashMap<String, Object>();
+        prePayMap.put("appid", wxQueryBean.getAppid());// 公众账号ID
+        prePayMap.put("mch_id", wxQueryBean.getMch_id()); // 商户号
+        prePayMap.put("out_trade_no", wxQueryBean.getOut_trade_no());
+        prePayMap.put("nonce_str", wxQueryBean.getNonce_str()); // 随机字符串
+        if(StringUtils.isNotBlank(wxQueryBean.getSign_type())){
+            prePayMap.put("sign_type", wxQueryBean.getSign_type()); // 随机字符串
+        }
+
+        String argPreSign = getStringByMap(prePayMap) + "&key=" + partnerKey;
+        System.out.println("参与签名的字符串："+argPreSign);
+        String preSign = CmpayUtils.encodeMD5(argPreSign).toUpperCase();
+        System.out.println("签名为："+preSign);
+        return preSign;
     }
 
 }

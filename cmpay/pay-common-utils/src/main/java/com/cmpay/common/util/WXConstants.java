@@ -33,4 +33,17 @@ public class WXConstants {
             "</xml>";
 
 
+	//定义统一返回码
+   public static String SUCCESS_CODE="0000";
+   public static String SUCCESS_MSG="交易成功";
+   public static String FAILED_CODE="9901";
+   public static String FAILED_MSG="交易失败";
+   public static String EXCEPTION_CODE="9999";
+   public static String EXCEPTION_MSG="系统异常";
+   public static String PROCESS_CODE="8801";
+   public static String PROCESS_MSG="处理中";
+
+
+
+
 }

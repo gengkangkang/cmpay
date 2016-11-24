@@ -374,35 +374,39 @@ public class PaymentServiceImpl implements PaymentService {
 
  	            if (WeiXinPayUtils.notifySign(queryResult, sign, partnerKey)){
  	                if (WXConstants.WXSUCCESS.equals(queryResult.get("result_code"))){
- 	                	logger.info("查询订单支付成功");
- 	                    cmpayRecordDetail.setPayStatus(PayStatusEnum.SUCC.name());
- 	                    cmpayRecordDetail.setPayOrderTime(queryResult.get("time_end"));
- 	                    cmpayRecordDetail.setThirdRespCode(queryResult.get("result_code"));
- 	                    cmpayRecordDetail.setThirdOrderNo(queryResult.get("transaction_id"));
- 	                    cmpayRecordDetailMapper.updateByPrimaryKeySelective(cmpayRecordDetail);
- 	                    //同时更新预付订单状态
+ 	                	//看交易状态
  	            		CmpayRecordExample cmpayRecordExample=new CmpayRecordExample();
  	            		cmpayRecordExample.createCriteria().andOrderIdEqualTo(cmpayRecordDetail.getOrderId());
  	            		CmpayRecord cmpayRecord=new CmpayRecord();
- 	            		cmpayRecord.setPayStatus(PayStatusEnum.SUCC.name());
+
+ 	                	if(WXConstants.WXSUCCESS.equals(queryResult.get("trade_state"))){
+ 	 	                	logger.info("查询订单支付成功");
+ 	 	                    cmpayRecordDetail.setPayStatus(PayStatusEnum.SUCC.name());
+ 	 	                    //同时更新预付订单状态
+ 	 	            		cmpayRecord.setPayStatus(PayStatusEnum.SUCC.name());
+ 	                	}else if(WXConstants.WXNOTPAY.equals(queryResult.get("trade_state")) ||WXConstants.WXCLOSED.equals(queryResult.get("trade_state"))
+ 	                			||WXConstants.WXPAYERROR.equals(queryResult.get("trade_state"))||WXConstants.WXREFUND.equals(queryResult.get("trade_state"))||WXConstants.WXREVOKED.equals(queryResult.get("trade_state"))){
+ 	                		 cmpayRecordDetail.setPayStatus(PayStatusEnum.FAIL.name());
+  	 	            		 cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
+ 	                	}else{
+ 	                		//处理中，继续等待查询
+ 	                		logger.info("订单在处理中，继续等待===");
+ 	                		continue;
+ 	                	}
+
+ 	                    cmpayRecordDetail.setPayOrderTime(queryResult.get("time_end"));
+ 	                    cmpayRecordDetail.setThirdRespCode(queryResult.get("trade_state"));
+ 	                    cmpayRecordDetail.setThirdMsg(queryResult.get("trade_state_desc"));
+ 	                    cmpayRecordDetail.setThirdOrderNo(queryResult.get("transaction_id"));
+ 	                    cmpayRecordDetailMapper.updateByPrimaryKeySelective(cmpayRecordDetail);
+
  	            		cmpayRecordMapper.updateByExampleSelective(cmpayRecord, cmpayRecordExample);
 
 
  	                }else{
- 	                	//失败，更新订单
- 	                	logger.info("查询订单支付失败");
- 	                	 cmpayRecordDetail.setPayStatus(PayStatusEnum.FAIL.name());
-  	                     cmpayRecordDetail.setPayOrderTime(queryResult.get("time_end"));
-  	                     cmpayRecordDetail.setThirdRespCode(queryResult.get("result_code"));
-  	                     cmpayRecordDetail.setThirdOrderNo(queryResult.get("transaction_id"));
-  	                     cmpayRecordDetailMapper.updateByPrimaryKeySelective(cmpayRecordDetail);
-  	                    //同时更新预付订单状态
-  	            		CmpayRecordExample cmpayRecordExample=new CmpayRecordExample();
-  	            		cmpayRecordExample.createCriteria().andOrderIdEqualTo(cmpayRecordDetail.getOrderId());
-  	            		CmpayRecord cmpayRecord=new CmpayRecord();
-  	            		cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
-  	            		cmpayRecordMapper.updateByExampleSelective(cmpayRecord, cmpayRecordExample);
-
+ 	                	//暂时不做处理
+ 	                	logger.info("查询订单支付业务结果失败");
+                         continue;
  	                }
 
 
@@ -457,6 +461,13 @@ public class PaymentServiceImpl implements PaymentService {
         queryResult.setReturn_url(return_url);
 
 		return queryResult;
+	}
+
+	@Override
+	public void doExpireOrder() {
+      logger.info("-------------------开始处理超时过期订单---------------------");
+      int r=cmpayRecordMapper.updateExpireOrder();
+      logger.info("超时订单处理结果[{}]条",r);
 	}
 
 }

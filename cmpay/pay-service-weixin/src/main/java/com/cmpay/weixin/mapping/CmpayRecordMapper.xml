@@ -491,4 +491,12 @@
       FIELD3 = #{field3,jdbcType=VARCHAR}
     where ID = #{id,jdbcType=VARCHAR}
   </update>
+  
+  <update id="updateExpireOrder" parameterType="com.cmpay.weixin.model.CmpayRecord" >
+    update CMPAY_RECORD
+    set PAY_STATUS ='CANCEL',
+        REMARK='订单过期'
+    where PAY_STATUS='WAIT' AND SYSDATE>=EXPIRE_TIME
+  </update>
+  
 </mapper>

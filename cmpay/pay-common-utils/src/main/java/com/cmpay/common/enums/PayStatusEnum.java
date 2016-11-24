@@ -11,7 +11,8 @@ public enum PayStatusEnum {
 	WAIT("未支付"),
 	SUCC("成功"),
 	DEALING("处理中"),
-	FAIL("失败");
+	FAIL("失败"),
+	CANCEL("取消");
 
    private PayStatusEnum(String value){
 	   this.value=value;

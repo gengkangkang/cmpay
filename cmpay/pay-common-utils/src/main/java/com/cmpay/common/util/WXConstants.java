@@ -15,7 +15,13 @@ public class WXConstants {
 	public static String TRADETYPE_APP="APP";  //APP支付
 	public static String TRADETYPE_MICROPAY="MICROPAY";  //刷卡支付
 
-	public static String WXSUCCESS="SUCCESS";
+	public static String WXSUCCESS="SUCCESS"; //成功
+	public static String WXPAYERROR="PAYERROR"; //支付失败
+	public static String WXUSERPAYING="USERPAYING";//用户支付中
+	public static String WXNOTPAY="NOTPAY";//未支付
+	public static String WXCLOSED="CLOSED";//已关闭
+	public static String WXREFUND="REFUND";//转入退款
+	public static String WXREVOKED="REVOKED";//已撤销（刷卡支付）
 
 	public static String WXPAY="10";
 	public static String KJPAY="20";

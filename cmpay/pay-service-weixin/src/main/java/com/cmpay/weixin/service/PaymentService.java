@@ -57,4 +57,10 @@ public interface PaymentService {
 	 * @return
 	 */
 	public QueryResult OrderQuery(String orderId);
+
+	/**
+	 * 处理超时过期订单
+	 */
+	public void doExpireOrder();
+
 }

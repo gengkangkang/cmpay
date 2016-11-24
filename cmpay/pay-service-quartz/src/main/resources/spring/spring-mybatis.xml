@@ -14,7 +14,7 @@
     <bean id="env"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="locations"
-			value="#{systemProperties['/env/*.properties'] ?: 'classpath:/conf/*.properties'}" />
+			value="#{systemProperties['env.files'] ?: 'classpath:/conf/*.properties'}" />
 		<property name="fileEncoding" value="UTF-8" ></property>
 	</bean>
   

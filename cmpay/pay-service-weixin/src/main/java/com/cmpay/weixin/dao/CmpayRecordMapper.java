@@ -32,4 +32,7 @@ public interface CmpayRecordMapper {
     int updateByPrimaryKeySelective(CmpayRecord record);
 
     int updateByPrimaryKey(CmpayRecord record);
+
+    int updateExpireOrder();
+
 }

@@ -18,21 +18,8 @@
 
  <dependencies>
   
-<dependency>
-    <groupId>javax.servlet</groupId>
-    <artifactId>javax.servlet-api</artifactId>
-    <version>3.1.0</version>
-    <scope>provided</scope>
-</dependency>
-  
-            <dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-aop</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-aspects</artifactId>
-			</dependency>
+
+
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
@@ -124,10 +111,6 @@
             <artifactId>commons-io</artifactId>  
         </dependency>  
   
-        <dependency>  
-            <groupId>commons-fileupload</groupId>  
-            <artifactId>commons-fileupload</artifactId>  
-        </dependency> 
 
     <dependency>
       <groupId>junit</groupId>
@@ -169,6 +152,10 @@
 		<groupId>dom4j</groupId>
 		<artifactId>dom4j</artifactId>
 	</dependency>
+	<dependency>
+    <groupId>jaxen</groupId>
+    <artifactId>jaxen</artifactId>
+</dependency>
   <dependency>
     <groupId>com.101tec</groupId>
     <artifactId>zkclient</artifactId>
@@ -188,8 +175,8 @@
     <!-- 引入接口模块 -->
       <dependency>
         <groupId>com.cmpay</groupId>
-        <artifactId>pay-facade-trade</artifactId>
-        <version>${pay-facade-trade.version}</version>        
+        <artifactId>pay-common-utils</artifactId>
+        <version>${pay-common-utils.version}</version>        
       </dependency> 
     
   </dependencies>

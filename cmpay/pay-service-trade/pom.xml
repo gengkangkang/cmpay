@@ -18,14 +18,7 @@
 
 
  <dependencies>
-  
-<dependency>
-    <groupId>javax.servlet</groupId>
-    <artifactId>javax.servlet-api</artifactId>
-    <version>3.1.0</version>
-    <scope>provided</scope>
-</dependency>
-  
+    
             <dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
@@ -180,6 +173,11 @@
         <groupId>com.cmpay</groupId>
         <artifactId>pay-common-utils</artifactId>
         <version>${pay-common-utils.version}</version>        
+      </dependency> 
+      <dependency>
+        <groupId>com.cmpay</groupId>
+        <artifactId>pay-service-bank</artifactId>
+        <version>${pay-service-bank.version}</version>        
       </dependency>       
     
   </dependencies>

@@ -339,13 +339,32 @@
 		<artifactId>dom4j</artifactId>
 		<version>1.6.1</version>
 	</dependency>
+	<dependency>
+ <groupId>jaxen</groupId>
+    <artifactId>jaxen</artifactId>
+    <version>1.1.1</version>
+</dependency>
 	
 	<dependency>
     <groupId>joda-time</groupId>
     <artifactId>joda-time</artifactId>
     <version>2.9.5</version>
 </dependency>
-	
+        <dependency>
+	        <groupId>commons-net</groupId>
+	         <artifactId>commons-net</artifactId>
+	         <version>3.2</version>
+        </dependency>
+        <dependency>
+		  <groupId>chinapay</groupId>
+		  <artifactId>netpay-client</artifactId>
+		  <version>1.0.0</version>
+		</dependency>
+		<dependency>  
+            <groupId>commons-beanutils</groupId>  
+            <artifactId>commons-beanutils</artifactId>  
+            <version>1.8.3</version>  
+        </dependency> 	
 			
      </dependencies> 
   </dependencyManagement>  
@@ -397,13 +416,16 @@
  
   <modules>
   	<module>pay-common-utils</module>
-  	<!-- <module>pay-service-chinapay</module>
+  	<module>pay-common-security</module>  	
+    <module>pay-service-chinapay</module>
     <module>pay-service-llpay</module>
-    <module>pay-service-jytpay</module> -->
+    <module>pay-service-jytpay</module>
+    <module>pay-service-weixin</module>
+    <module>pay-service-bank</module>  
+    
     <module>pay-service-trade</module>  
     <module>pay-service-fee</module>
     <module>pay-service-rule</module>
-    <module>pay-service-bank</module>  
     <module>pay-facade-trade</module>    
   	<module>pay-web-gateway</module>
     <module>pay-web-cashier</module>
@@ -411,7 +433,6 @@
 
     
     <module>pay-service-quartz</module>
-    <module>pay-common-security</module>
-    <module>pay-service-weixin</module>
+
   </modules>
 </project>

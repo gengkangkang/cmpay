@@ -3,19 +3,19 @@ package com.cmpay.service.chinapay.model;
 import java.io.Serializable;
 
 public class CpAuthBgRespDef implements Serializable{
-	
-	private static final long serialVersionUID = 966666236636901357L;
-	
+
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * 验证应答码
 	 */
 	private String respCode;
-	
+
 	/**
 	 * 应答信息
 	 */
 	private String respMsg;
-	
+
 	/**
 	 * 签名验证通过结果
 	 */
@@ -43,5 +43,11 @@ public class CpAuthBgRespDef implements Serializable{
 
 	public void setSignVerified(Boolean signVerified) {
 		this.signVerified = signVerified;
+	}
+
+	@Override
+	public String toString() {
+		return "CpAuthBgRespDef [respCode=" + respCode + ", respMsg=" + respMsg + ", signVerified=" + signVerified
+				+ "]";
 	}
 }

@@ -1,17 +1,18 @@
 package com.cmpay.common.enums;
 /**
+ * 卡认证渠道
  * @author gengkangkang
  * @E-mail gengkangkang@cm-inv.com
  *
- * 2016年11月16日 上午10:40:11
+ * 2016年11月28日 下午2:11:13
  *
  */
-public enum PayWayEnum {
-	CMPAY0004("微信支付"),
-	KJ("快捷支付"),
-	ZF("支付宝");
+public enum AuthChannelEnum {
 
-   private PayWayEnum(String value){
+	CMPAY0001("银联"),
+	CMPAY0002("金运通");
+
+   private AuthChannelEnum(String value){
 	   this.value=value;
    }
 
@@ -26,13 +27,12 @@ public enum PayWayEnum {
 	}
 
     public static boolean contains(String type){
-        for(PayWayEnum payWayEnum : PayWayEnum.values()){
-            if(payWayEnum.name().equals(type)){
+        for(AuthChannelEnum authChannelEnum : AuthChannelEnum.values()){
+            if(authChannelEnum.name().equals(type)){
                 return true;
             }
         }
         return false;
     }
-
 
 }

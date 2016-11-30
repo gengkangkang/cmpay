@@ -7,48 +7,46 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import com.cmpay.common.enums.IdTypeEnum;
+import com.cmpay.common.enums.SignCardTypeEnum;
 import com.cmpay.service.chinapay.model.CpAuthBgRespDef;
-import com.cmpay.service.chinapay.model.IdType;
-import com.cmpay.service.chinapay.model.SignCardTypeDef;
-import com.cmpay.service.chinapay.service.ChinapaySignService;
+import com.cmpay.service.chinapay.service.ChinapayService;
 import com.cmpay.service.chinapay.util.ChinapayUtil;
 import com.cmpay.service.chinapay.util.CpAuthSignUtil;
 import com.cmpay.service.chinapay.util.HttpClient;
 
 /**
- * 签约交易
+ *  银联相关服务
  *
- * @author shenxw
+ * @author gengkangkang
+ * @E-mail gengkangkang@cm-inv.com
+ *
+ * 2016年11月25日 下午4:01:27
+ *
  */
 @Service
-@Transactional
-public class ChinapaySignServiceImpl implements ChinapaySignService {
-
-	// public static String encoding = "UTF-8";
-
-	private ChinaPayParamFactory paramFactory;
+public class ChinapayServiceImpl implements ChinapayService {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	/**
-	 * 银联后台认证
-	 *
-	 * @param cardNo
-	 * @param idNo
-	 * @param cardType
-	 * @param custName
-	 * @return
-	 * @throws Exception
-	 */
+//	@Value("#{env['appSysId']}")
+//	private String appSysId;
+//	@Value("#{env['authPrivateKey']}")
+//	private String authPrivateKey;
+	@Value("#{env['backgroudAuthReqUrl']}")
+	private String backgroudAuthReqUrl;
+	@Value("#{env['authEncoding']}")
+	private String authEncoding;
+
 	@Override
-	public CpAuthBgRespDef bgAuth(String cardNo, IdType idType, String idNo, SignCardTypeDef cardType, String custName, String cardPhone) {
+	public CpAuthBgRespDef bgAuth(String appSysId,String authPrivateKey,String cardNo, IdTypeEnum idType, String idNo, SignCardTypeEnum cardType, String custName, String cardPhone) {
 		CpAuthBgRespDef authBgRespDef = new CpAuthBgRespDef();
 		Map<String, String> paramMap = new HashMap<String, String>();
 		// 系统编号
-		paramMap.put("appSysId", paramFactory.getAppSysId());
+		paramMap.put("appSysId", appSysId);
 		// paramMap.put("serviceType", "1028"); // shenxw 该字段没有在接口文档里
 		paramMap.put("signMethod", "MD5");
 		paramMap.put("save", "false");
@@ -61,9 +59,9 @@ public class ChinapaySignServiceImpl implements ChinapaySignService {
 
 		// FIXME:Tiger
 		String dcType = "";
-		if (SignCardTypeDef.DEBIT == cardType) {
+		if (SignCardTypeEnum.DEBIT == cardType) {
 			dcType = "0";
-		} else if (SignCardTypeDef.CREDIT == cardType) {
+		} else if (SignCardTypeEnum.CREDIT == cardType) {
 			dcType = "1";
 		}
 		paramMap.put("dcType", dcType);
@@ -74,17 +72,17 @@ public class ChinapaySignServiceImpl implements ChinapaySignService {
 		removeKey.add("signature");
 		String signedMsg = CpAuthSignUtil.getURLParam(paramMap, true, removeKey);
 		// 测试密钥88888888
-		paramMap.put("signature", CpAuthSignUtil.sign(signedMsg, paramFactory.getAuthPrivateKey()));
+		paramMap.put("signature", CpAuthSignUtil.sign(signedMsg, authPrivateKey));
 
 		// String usrName = (String) paramMap.get("usrName");
 
 		logger.info("请求信息Map:{}" + paramMap);
-		Map<String, String> resMap = submitUrl(paramMap, paramFactory.getBackgroudAuthReqUrl());
+		Map<String, String> resMap = submitUrl(paramMap, backgroudAuthReqUrl);
 		logger.info("返回信息Map:" + resMap);
 
 		String signedMsgResp = CpAuthSignUtil.getURLParam(resMap, true, removeKey);
 		// 测试密钥88888888
-		String verify = CpAuthSignUtil.sign(signedMsgResp, paramFactory.getAuthPrivateKey());
+		String verify = CpAuthSignUtil.sign(signedMsgResp, authPrivateKey);
 		if (verify.equalsIgnoreCase(resMap.get("signature"))) {
 			logger.info("验签通过");
 			authBgRespDef.setSignVerified(true);
@@ -111,21 +109,21 @@ public class ChinapaySignServiceImpl implements ChinapaySignService {
 	 * @param idType
 	 * @return
 	 */
-	private String getCpIdType(IdType idType) {
+	private String getCpIdType(IdTypeEnum idType) {
 		String cpIdType = "01";
-		if (IdType.I == idType) {
+		if (IdTypeEnum.I == idType) {
 			cpIdType = "01";
-		} else if (IdType.B == idType) {
+		} else if (IdTypeEnum.B == idType) {
 			cpIdType = "02";
-		} else if (IdType.P == idType) {
+		} else if (IdTypeEnum.P == idType) {
 			cpIdType = "03";
-		} else if (IdType.H == idType) {
+		} else if (IdTypeEnum.H == idType) {
 			cpIdType = "04";
-		} else if (IdType.W == idType) {
+		} else if (IdTypeEnum.W == idType) {
 			cpIdType = "05";
-		} else if (IdType.C == idType) {
+		} else if (IdTypeEnum.C == idType) {
 			cpIdType = "06";
-		} else if (IdType.S == idType) {
+		} else if (IdTypeEnum.S == idType) {
 			cpIdType = "07";
 		} else {
 			cpIdType = "99";
@@ -141,7 +139,7 @@ public class ChinapaySignServiceImpl implements ChinapaySignService {
 		 */
 		HttpClient hc = new HttpClient(requestUrl, 30000, 30000);
 		try {
-			int status = hc.send(submitFromData, paramFactory.getAuthEncoding());
+			int status = hc.send(submitFromData, authEncoding);
 			if (200 == status) {
 				resultString = hc.getResult();
 			}
@@ -157,14 +155,6 @@ public class ChinapaySignServiceImpl implements ChinapaySignService {
 
 		}
 		return resData;
-	}
-
-	public ChinaPayParamFactory getParamFactory() {
-		return paramFactory;
-	}
-
-	public void setParamFactory(ChinaPayParamFactory paramFactory) {
-		this.paramFactory = paramFactory;
 	}
 
 }

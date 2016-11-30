@@ -31,5 +31,9 @@
      <!-- 声明需要暴露的服务接口 -->
     <dubbo:service interface="com.cmpay.facade.trade.TestService" ref="testService" 
                    cluster="failover" retries="1" loadbalance="random" />
+                   
+    <!-- 卡认证服务 -->               
+     <bean id="upayService" class="com.cmpay.service.trade.service.impl.UpayServiceImpl" />
+     <dubbo:service interface="com.cmpay.facade.trade.UpayService" ref="upayService" cluster="failfast" loadbalance="random" connections="1000" retries="0" timeout="30000"></dubbo:service>
  
 </beans>

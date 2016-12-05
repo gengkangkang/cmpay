@@ -183,7 +183,7 @@
   </dependencies>
   
   <build>
- 
+   <finalName>pay-service-trade</finalName>
   <resources>  
     <resource>
     	<targetPath>${project.build.directory}/classes</targetPath>  

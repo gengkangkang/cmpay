@@ -12,12 +12,16 @@
  
     <!-- 使用zk中心暴露服务地址 -->
    <!-- <dubbo:registry address="zookeeper://127.0.0.1:2181" />  --> 
-    <dubbo:registry protocol="zookeeper" address="10.17.5.45:2181,10.17.5.46:2181,10.17.5.47:2181"  />
+<!--     <dubbo:registry protocol="zookeeper" address="10.17.5.45:2181,10.17.5.46:2181,10.17.5.47:2181"  />  --> 
+   <dubbo:registry protocol="zookeeper" address="#{env['common.zkcluster']}"  />
     	<!-- 监控中心配置，protocol="registry"，表示从注册中心发现监控中心地址 -->
 	<dubbo:monitor protocol="registry"/>
  
     <!-- 用dubbo协议在20880端口暴露服务 -->
     <dubbo:protocol name="dubbo" port="20880" />
+    
+    <dubbo:provider timeout="30000" retries="0"/> 
+    
    
  <!-- 服务端配置集群模式，暂定规则如下：
  1、读操作采用Failover Cluster模式，重试次数retries="1"，负载算法Random LoadBalance

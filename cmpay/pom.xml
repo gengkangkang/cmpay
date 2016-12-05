@@ -376,13 +376,14 @@
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>2.8.2</version>
 				<configuration>
-					<uniqueVersion>false</uniqueVersion>
+			 	<uniqueVersion>false</uniqueVersion> 
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId>
 				<version>2.10</version>
+				
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -396,6 +397,7 @@
 					<source>1.7</source>
 					<target>1.7</target>
 					<encoding>UTF-8</encoding>
+					
 				</configuration>
 			</plugin>
 			<plugin>
@@ -425,9 +427,9 @@
     
     <module>pay-service-trade</module>  
     <module>pay-service-fee</module>
-    <module>pay-service-rule</module>
+    <module>pay-service-rule</module> 
     <module>pay-facade-trade</module>    
-  	<module>pay-web-gateway</module>
+    <module>pay-web-gateway</module>
     <module>pay-web-cashier</module>
     <module>pay-web-boss</module>
 

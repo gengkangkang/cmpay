@@ -178,7 +178,12 @@
         <groupId>com.cmpay</groupId>
         <artifactId>pay-service-bank</artifactId>
         <version>${pay-service-bank.version}</version>        
-      </dependency>       
+      </dependency>
+      <dependency>
+        <groupId>com.cmpay</groupId>
+        <artifactId>pay-service-rule</artifactId>
+        <version>${pay-service-rule.version}</version>        
+      </dependency>        
     
   </dependencies>
   

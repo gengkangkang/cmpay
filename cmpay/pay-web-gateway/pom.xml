@@ -218,6 +218,7 @@
   </dependencies>
   
   <build>
+    <finalName>pay-web-gateway</finalName>
     <plugins>
        <plugin>  
                 <groupId>org.mybatis.generator</groupId>  

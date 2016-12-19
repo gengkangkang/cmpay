@@ -4,31 +4,31 @@ import java.io.Serializable;
 
 public class CpJYTRespDef implements Serializable{
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 2616732465858470687L;
-	private String tran_flowid;   //交易流水号	
-	private String tran_code;	    //交易代码		
-	private String tran_date;	    //交易日期		
-	private String tran_time;	    //交易时间		
-	private String trans_id;      //核心流水号 	
-	private String cust_id;       //客户代码    
-	private String bank_name;	    //银行名称		
-	private String account_no;	  //银行账号		
+	private String tran_flowid;   //交易流水号
+	private String tran_code;	    //交易代码
+	private String tran_date;	    //交易日期
+	private String tran_time;	    //交易时间
+	private String trans_id;      //核心流水号
+	private String cust_id;       //客户代码
+	private String bank_name;	    //银行名称
+	private String account_no;	  //银行账号
 	private String account_name;	//银行账户名称
-	private String account_type;	//账户类型		
-	private String tran_amt;	    //交易金额		
-	private String currency;	    //币种				
+	private String account_type;	//账户类型
+	private String tran_amt;	    //交易金额
+	private String currency;	    //币种
 	private String bsn_code;	    //业务类型代码
 	private String cert_type;	    //开户证件类型
-	private String cert_no;	      //开户证件号 	
+	private String cert_no;	      //开户证件号
 	private String tran_state;	    //交易状态
 	private String resp_code;	    //响应代码
-	private String create_date;   //创建时间 		
-	private String description;   //描述 
-	private String IsBcnAndIdnConform;   //身份验证结果 
+	private String create_date;   //创建时间
+	private String description;   //描述
+	private String IsBcnAndIdnConform;   //身份验证结果
 	private String tran_resp_code;//交易响应密码
-	
+
 	public String getTran_flowid() {
 		return tran_flowid;
 	}
@@ -155,5 +155,15 @@ public class CpJYTRespDef implements Serializable{
 	public void setTran_resp_code(String tran_resp_code) {
 		this.tran_resp_code = tran_resp_code;
 	}
-	
+	@Override
+	public String toString() {
+		return "CpJYTRespDef [tran_flowid=" + tran_flowid + ", tran_code=" + tran_code + ", tran_date=" + tran_date
+				+ ", tran_time=" + tran_time + ", trans_id=" + trans_id + ", cust_id=" + cust_id + ", bank_name="
+				+ bank_name + ", account_no=" + account_no + ", account_name=" + account_name + ", account_type="
+				+ account_type + ", tran_amt=" + tran_amt + ", currency=" + currency + ", bsn_code=" + bsn_code
+				+ ", cert_type=" + cert_type + ", cert_no=" + cert_no + ", tran_state=" + tran_state + ", resp_code="
+				+ resp_code + ", create_date=" + create_date + ", description=" + description + ", IsBcnAndIdnConform="
+				+ IsBcnAndIdnConform + ", tran_resp_code=" + tran_resp_code + "]";
+	}
+
 }

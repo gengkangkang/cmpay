@@ -1,6 +1,7 @@
 package com.cmpay.service.quartz.scheduler;
 
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.cmpay.weixin.service.PaymentService;
+import com.cmpay.service.quartz.model.CmapyCutOrder;
+import com.cmpay.service.quartz.service.PaymentService;
+
+
+
 
 /**
  * @author gengkangkang
@@ -37,4 +42,19 @@ public class OrderTask {
 		     paymentService.doExpireOrder();
 		logger.info("定时任务之处理过期订单任务结束[{}]",new Date());
 	}
+
+	@Scheduled(cron = "#{env.cron_doCutOrderTask}")
+	public void doCutOrderTask(){
+		logger.info("---------代扣订单轮询任务开始-start----------");
+
+		List<CmapyCutOrder> orderList=paymentService.queryCutOrderList();
+		for(CmapyCutOrder cmapyCutOrder:orderList){
+
+		}
+
+		logger.info("---------代扣订单轮询任务结束-end----------");
+
+
+	}
+
 }

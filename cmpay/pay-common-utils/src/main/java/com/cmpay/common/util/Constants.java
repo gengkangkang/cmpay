@@ -2,6 +2,8 @@ package com.cmpay.common.util;
 
 public class Constants {
 
+	public static long PERIOD=24*60*60*1000;
+
 
 	//定义统一返回码
 	   public static String SUCCESS_CODE="0000";
@@ -10,7 +12,7 @@ public class Constants {
 	   public static String FAILED_MSG="交易失败";
 	   public static String EXCEPTION_CODE="9999";
 	   public static String EXCEPTION_MSG="系统异常";
-	   public static String PROCESS_CODE="8801";
+	   public static String PROCESS_CODE="1001";
 	   public static String PROCESS_MSG="处理中";
 	   //参数相关
 	   public static String PARA_ERROR_CODE="8901";
@@ -21,6 +23,8 @@ public class Constants {
 	   public static String PARA_ERROR_8903_MSG="不支持的证件类型";
 	   public static String PARA_ERROR_8904_CODE="8904";
 	   public static String PARA_ERROR_8904_MSG="不支持的卡类型";
+	   public static String PARA_ERROR_8905_CODE="8905";
+	   public static String PARA_ERROR_8905_MSG="缺少必要的参数";
 	   //业务相关
 	   public static String TRADE_ERROR_8801_CODE="8801";
 	   public static String TRADE_ERROR_8801_MSG="不支持的支付渠道";
@@ -33,9 +37,49 @@ public class Constants {
 	   public static String TRADE_ERROR_8805_CODE="8805";
 	   public static String TRADE_ERROR_8805_MSG="非法的渠道";
 
+	   public static String TRADE_ERROR_8806_CODE="8806";
+	   public static String TRADE_ERROR_8806_MSG="商户缺少配置信息";
+	   public static String TRADE_ERROR_8807_CODE="8807";
+	   public static String TRADE_ERROR_8807_MSG="商户缺少interacctno配置信息";
+	   public static String TRADE_ERROR_8808_CODE="8808";
+	   public static String TRADE_ERROR_8808_MSG="支付渠道无响应信息";
+	   public static String TRADE_ERROR_8809_CODE="8809";
+	   public static String TRADE_ERROR_8809_MSG="不支持的交易类型";
+	   public static String TRADE_ERROR_8810_CODE="8810";
+	   public static String TRADE_ERROR_8810_MSG="不支持的证件类型";
+	   public static String TRADE_ERROR_8811_CODE="8811";
+	   public static String TRADE_ERROR_8811_MSG="商户不支持所选的支付渠道";
+	   public static String TRADE_ERROR_8812_CODE="8812";
+	   public static String TRADE_ERROR_8812_MSG="该支付渠道已关闭";
+	   public static String TRADE_ERROR_8813_CODE="8813";
+	   public static String TRADE_ERROR_8813_MSG="不支持该银行";
+	   public static String TRADE_ERROR_8814_CODE="8814";
+	   public static String TRADE_ERROR_8814_MSG="订单号已存在，请勿重复下单";
+	   public static String TRADE_ERROR_8815_CODE="8815";
+	   public static String TRADE_ERROR_8815_MSG="商户无支付渠道可用";
+	   public static String TRADE_ERROR_8816_CODE="8816";
+	   public static String TRADE_ERROR_8816_MSG="银行关闭或订单金额超出限制";
+	   public static String TRADE_ERROR_8817_CODE="8817";
+	   public static String TRADE_ERROR_8817_MSG="签名验证失败";
+
+	   public static String TRADE_ERROR_C9999_CODE="C9999";
+	   public static String TRADE_ERROR_C9999_MSG="未知错误";
+
 	 //定义统一返回key
 	   public static String CODE_KEY="code";
 	   public static String MSG_KEY="msg";
+	   public static String RESPCODE_KEY="respCode";
+	   public static String RESPMSG_KEY="respMsg";
+	   public static String PAYCODE_KEY="payCode";
+	   public static String PAYMSG_KEY="payMsg";
+	   public static String PAYSTATUS_KEY="payStatus";
+	   public static String PAYDATA_KEY="data";
+
+
+		public static String WXPAY="10";
+		public static String KJPAY="20";
+		public static String ALIPAY="30";
+
 
 	   public static String ON="ON";
 	   public static String OFF="OFF";

@@ -9,7 +9,7 @@ public class CpSinCutRespDef implements Serializable {
 	private String responseCode; // 应答信息
 	private String transStat; // 代扣状态
 	private String message; // 描述
-	private Integer cutOrderNo;
+	private String cutOrderNo;
 	private String thirdPartyOrderNo;//第三方支付订单号
 
 	public String getResponseCode() {
@@ -36,11 +36,11 @@ public class CpSinCutRespDef implements Serializable {
 		this.message = message;
 	}
 
-	public Integer getCutOrderNo() {
+	public String getCutOrderNo() {
 		return cutOrderNo;
 	}
 
-	public void setCutOrderNo(Integer cutOrderNo) {
+	public void setCutOrderNo(String cutOrderNo) {
 		this.cutOrderNo = cutOrderNo;
 	}
 
@@ -51,7 +51,13 @@ public class CpSinCutRespDef implements Serializable {
 	public void setThirdPartyOrderNo(String thirdPartyOrderNo) {
 		this.thirdPartyOrderNo = thirdPartyOrderNo;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "CpSinCutRespDef [responseCode=" + responseCode + ", transStat=" + transStat + ", message=" + message
+				+ ", cutOrderNo=" + cutOrderNo + ", thirdPartyOrderNo=" + thirdPartyOrderNo + "]";
+	}
+
+
 
 }

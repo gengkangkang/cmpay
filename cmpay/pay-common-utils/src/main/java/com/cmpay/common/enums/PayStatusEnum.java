@@ -8,6 +8,7 @@ package com.cmpay.common.enums;
  */
 public enum PayStatusEnum {
 
+	NEW("新建"),
 	WAIT("未支付"),
 	SUCC("成功"),
 	DEALING("处理中"),

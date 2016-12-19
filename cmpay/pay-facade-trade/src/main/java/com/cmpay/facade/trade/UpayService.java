@@ -28,5 +28,24 @@ public interface UpayService {
      * @return
      */
     public Map<String,String> payAuth(String merchantId,String userId,String inchannel,String authChannel,String cardNo,String cardType,String idNo,String idType,String name,String bankMobile,String bankCode,String terminalType);
-
+    /**
+     * 快捷支付
+     * @param merchantId
+     * @param inchannel
+     * @param userId
+     * @param amount
+     * @param cardNo
+     * @param origiOrderId
+     * @param payCode
+     * @param transType
+     * @param orderIp
+     * @param idNo
+     * @param idType
+     * @param name
+     * @param bankMobile
+     * @param bankCode
+     * @param bankName
+     * @return
+     */
+    public Map<String,Object> payCut(String merchantId,String inchannel,String userId,String amount,String cardNo,String origiOrderId,String payCode,String transType,String orderIp,String idNo,String idType,String name,String bankMobile,String bankCode,String bankName);
 }

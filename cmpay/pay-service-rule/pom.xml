@@ -172,8 +172,8 @@
     <!-- 引入接口模块 -->
       <dependency>
         <groupId>com.cmpay</groupId>
-        <artifactId>pay-facade-trade</artifactId>
-        <version>${pay-facade-trade.version}</version>        
+        <artifactId>pay-common-utils</artifactId>
+        <version>${pay-common-utils.version}</version>        
       </dependency> 
     
   </dependencies>

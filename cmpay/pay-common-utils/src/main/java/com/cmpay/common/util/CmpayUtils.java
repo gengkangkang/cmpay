@@ -75,7 +75,7 @@ public class CmpayUtils {
 
 	}
 /**
- * 生产订单号（商户号+类型+0001+日期+三位随机数）
+ * 生产订单号（payType+transType+0001+日期+三位随机数）
  * @param merNo
  * @param transType
  * @return
@@ -85,6 +85,14 @@ public class CmpayUtils {
 		sb.append(payType);
 		sb.append(transType).append(getOrderCount());
 		String res=sb.append(getCurrentTime("yyyyMMddHHmmss")).append(getRandom(999,100)).toString();
+		return res;
+
+	}
+
+	public static String createCPOrderId(String transType){
+		StringBuffer sb=new StringBuffer();
+		sb.append(transType).append(getCurrentTime("HHmmss"));
+		String res=sb.append(getRandom(99999999,10000000)).toString();
 		return res;
 
 	}
@@ -193,6 +201,9 @@ public class CmpayUtils {
 
 		System.out.println(getRandom(999, 100));
 		System.out.println(createOrderId("80001","01"));
+		System.out.println(createCPOrderId("01"));
+
+		System.out.println(getCurrentTime("yyyyMMdd"));
 	}
 
 }

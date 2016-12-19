@@ -166,6 +166,20 @@
     <groupId>redis.clients</groupId>
     <artifactId>jedis</artifactId>
 </dependency>
+<dependency>
+    <groupId>joda-time</groupId>
+    <artifactId>joda-time</artifactId>
+</dependency>
+
+     <dependency>
+		<groupId>dom4j</groupId>
+		<artifactId>dom4j</artifactId>
+	</dependency>
+	
+	<dependency>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava</artifactId>
+</dependency>
     
     <!-- 引入接口模块 -->
       <dependency>
@@ -175,8 +189,8 @@
       </dependency> 
       <dependency>
         <groupId>com.cmpay</groupId>
-        <artifactId>pay-service-weixin</artifactId>
-        <version>${pay-service-weixin.version}</version>        
+        <artifactId>pay-common-utils</artifactId>
+        <version>${pay-common-utils.version}</version>        
       </dependency>       
     
   </dependencies>

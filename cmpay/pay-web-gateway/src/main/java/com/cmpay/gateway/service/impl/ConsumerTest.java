@@ -1,7 +1,5 @@
 package com.cmpay.gateway.service.impl;
 
-import java.util.Map;
-
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.cmpay.facade.trade.UpayService;
@@ -21,9 +19,10 @@ public class ConsumerTest {
 
 	        UpayService upayService = (UpayService)context.getBean("upayService"); // 获取远程服务代理
 	                                        // merchantId,  userId, inchannel,authChannel,cardNo, cardType,idNo,idType,        name,  bankMobile, String bankCode,String terminalType
-	        Map<String,String> map=upayService.payAuth("800010000001", "0000", "0000", "CMPAY0001","6217003690002667300", "DEBIT", "350801198910081476", "I", "中国", "18721359153", "0005", "01");
+//	        Map<String,String> map=upayService.payAuth("800010000001", "0000", "0000", "CMPAY0001","6217003690002667300", "DEBIT", "350801198910081476", "I", "中国", "18721359153", "0005", "01");
+//	        Map<String,Object> map=upayService.payCut("800010000001", "0000", "111", "1.50", "6217003690002667300", "2016001", "CMAPI0001", "123");
 
-	        System.out.println("map======"+map.toString()); // 显示调用结果
+//	        System.out.println("map======"+map.toString()); // 显示调用结果
 
 
 

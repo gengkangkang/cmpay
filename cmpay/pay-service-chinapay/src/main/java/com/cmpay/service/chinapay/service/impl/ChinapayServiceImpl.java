@@ -26,6 +26,9 @@ import com.cmpay.service.chinapay.dao.CpCutOrderMapper;
 import com.cmpay.service.chinapay.model.ChinapaySfjReq;
 import com.cmpay.service.chinapay.model.CpAuthBgRespDef;
 import com.cmpay.service.chinapay.model.CpCutOrder;
+import com.cmpay.service.chinapay.model.CpSinCutQueryReq;
+import com.cmpay.service.chinapay.model.CpSinCutQueryResp;
+import com.cmpay.service.chinapay.model.CpSinCutQueryRespDef;
 import com.cmpay.service.chinapay.model.CpSinCutReq;
 import com.cmpay.service.chinapay.model.CpSinCutResp;
 import com.cmpay.service.chinapay.model.CpSinCutRespDef;
@@ -71,6 +74,8 @@ public class ChinapayServiceImpl implements ChinapayService {
 	private String sfjSinCutReqUrl;
 	@Value("#{env['sfjEncoding']}")
 	private String sfjEncoding;
+	@Value("#{env['sfjSinCutQueryReqUrl']}")
+	private String sfjSinCutQueryReqUrl;
 
 	@Value("#{env['pubId']}")
 	private String pubId;
@@ -529,5 +534,146 @@ public class ChinapayServiceImpl implements ChinapayService {
 		logger.debug("这是从 Unicode编码 转换为 中文字符: " + gbk.toString());
 		return gbk.toString();
 	}
+
+	/**
+	 * chinapay支付捷 - 单笔代扣交易查询 transDate 固定格式'yyyyMMdd'
+	 *
+	 * @return
+	 */
+	@Override
+	public CpSinCutQueryRespDef sinCutQuery(String orderNo,String merId,String privkey,String pubKey) {
+		CpSinCutQueryRespDef cpSinCutQueryRespDef = new CpSinCutQueryRespDef();
+		CpCutOrder cutOrder=cpCutOrderMapper.selectByPrimaryKey(orderNo);
+		if(cutOrder==null){
+			logger.info("cp表无此交易");
+			return null;
+		}
+
+		// 组装查询交易
+		CpSinCutQueryReq req = new CpSinCutQueryReq();
+		req.setMerId(merId);
+		req.setTransType("0003");
+//		req.setOrderNo(formatOrderNo(Integer.valueOf(orderNo)));
+		req.setOrderNo(cutOrder.getTransId());
+		req.setTransDate(cutOrder.getTransDate());
+		req.setVersion(sfjSinCutVersion);
+		req.setPriv1("");
+
+		CpSinCutQueryResp cpSinCutQueryResp = sendQuerySinCut(sfjSinCutQueryReqUrl, req,merId,privkey,pubKey);
+		cutOrder.setResCode(cpSinCutQueryResp.getResponseCode());
+		cutOrder.setResTransStat(cpSinCutQueryResp.getTransStat());
+		if (cpSinCutQueryResp.getResponseCode().equals("00")) {// 更新订单状态
+			cutOrder.setTransStatus(TransStatusDef.S.name());
+		} else if (cpSinCutQueryResp.getResponseCode().equals("45") || cpSinCutQueryResp.getResponseCode().equals("") || cpSinCutQueryResp.getResponseCode().equals("09")) {
+			cutOrder.setTransStatus(TransStatusDef.U.name());
+		} else {
+			cutOrder.setTransStatus(TransStatusDef.F.name());
+		}
+		if (cpSinCutQueryResp != null) {
+			try {
+				BeanUtils.copyProperties(cpSinCutQueryRespDef, cpSinCutQueryResp);
+				if (StringUtils.isNotBlank(cpSinCutQueryRespDef.getMessage())) {
+					cpSinCutQueryRespDef.setMessage(tozhCN(cpSinCutQueryRespDef.getMessage()));
+					logger.info("response message=[{}]", cpSinCutQueryRespDef.getMessage());
+				}
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		}
+		cpCutOrderMapper.updateByPrimaryKeySelective(cutOrder);
+
+		return cpSinCutQueryRespDef;
+
+	}
+
+	public CpSinCutQueryResp sendQuerySinCut(String url, CpSinCutQueryReq req,String merId,String prvKey,String pubKey) {
+		// 初始化key文件：
+		chinapay.PrivateKey key = new chinapay.PrivateKey();
+		boolean flag1;
+		String msg;
+		// 将要签名的数据传给msg
+		msg = req.getString4Chk();
+		logger.debug("要签名的数据：" + msg);
+		// 对签名的数据进行Base64编码
+		String msg1 = "";
+		try {
+			msg1 = new String(Base64.encode(msg.toString().getBytes(sfjEncoding)));
+		} catch (UnsupportedEncodingException e) {
+			logger.error("Base64 encode Error:{}" + e);
+		}
+		logger.debug("要签名的数据进行Base64编码后为:" + msg1);
+		try {
+			flag1 = key.buildKey(merId, 0, prvKey);
+			// logger.info("merPrK据对路径"+merPrK.getFile().getAbsolutePath());
+		} catch (Exception e1) {
+			logger.error("build key error!", e1);
+			return null;
+		}
+		if (flag1 == false) {
+			logger.error("build key error!");
+			return null;
+		}
+		// 签名
+		SecureLink s = new SecureLink(key);
+
+		String chkValue = s.Sign(msg1);
+
+		logger.debug("签名内容:" + chkValue);
+
+		req.setChkValue(chkValue);
+		Map<String, String> reqMap = new HashMap<String, String>();
+		try {
+			// reqMap = BeanUtils.describe(req);
+			reqMap = req.convertToMap();
+		} catch (Exception e) {
+			logger.error("BeanUtils.describe:{}" + e);
+		}
+		CpSinCutQueryResp res = submitUrlQuerySinCut(reqMap, url,pubKey);
+		return res;
+	}
+
+	private CpSinCutQueryResp submitUrlQuerySinCut(Map<String, String> submitFromData, String requestUrl,String pubKey) {
+		CpSinCutQueryResp cpSinCutQueryResp = new CpSinCutQueryResp();
+		String resultString = "";
+		logger.info("requestUrl=[" + requestUrl + "]");
+		logger.info("requestMap=[" + submitFromData + "]");
+		Map<String, String> resData = new HashMap<String, String>();
+		/**
+		 * 发送
+		 */
+		HttpClient hc = new HttpClient(requestUrl, 30000, 30000);
+		try {
+			int status = hc.send(submitFromData, sfjEncoding);
+			if (200 == status) {
+				resultString = hc.getResult();
+				logger.info("responseString=[" + resultString + "]");
+			}
+		} catch (Exception e) {
+			logger.error("hc.send err,{}", e);
+		}
+		/**
+		 * 验证签名
+		 */
+		if (null != resultString && !"".equals(resultString)) {
+			// 将返回结果转换为map
+			resData = ChinapayUtil.convertResultStringToMap(resultString);
+			if (sfjValidate(resultString, true,pubKey)) {
+				logger.debug("验证签名成功");
+			} else {
+				logger.error("验证签名失败,resultString:{}" + resultString);
+			}
+		}
+		// 把map封装到bean里
+		try {
+			BeanUtils.populate(cpSinCutQueryResp, resData);
+		} catch (Exception e) {
+			logger.error("BeanUtils.populate:{}" + e);
+		}
+		return cpSinCutQueryResp;
+	}
+
+
 
 }

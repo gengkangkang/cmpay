@@ -30,4 +30,6 @@ public interface PaymentService {
      */
 	public List<CmapyCutOrder> queryCutOrderList();
 
+	public void doCutOrderTask(CmapyCutOrder cmapyCutOrder);
+
 }

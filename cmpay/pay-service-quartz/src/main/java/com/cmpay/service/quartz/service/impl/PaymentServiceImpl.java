@@ -1,8 +1,10 @@
 package com.cmpay.service.quartz.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +12,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cmpay.common.enums.CpErrorCodeEnum;
+import com.cmpay.common.enums.JYTErrorCodeEnum;
 import com.cmpay.common.enums.PayStatusEnum;
 import com.cmpay.common.enums.PayWayEnum;
 import com.cmpay.common.util.CmpayUtils;
+import com.cmpay.common.util.Constants;
 import com.cmpay.common.util.WXConstants;
+import com.cmpay.service.chinapay.model.CpSinCutQueryRespDef;
+import com.cmpay.service.chinapay.service.ChinapayService;
+import com.cmpay.service.jytpay.model.CpJYTRespDef;
+import com.cmpay.service.jytpay.service.JYTPayService;
+import com.cmpay.service.jytpay.utils.XmlMsgConstant;
 import com.cmpay.service.quartz.dao.CmapyChannelConfigMapper;
 import com.cmpay.service.quartz.dao.CmapyCutOrderMapper;
 import com.cmpay.service.quartz.dao.CmapyRecordDetailMapper;
@@ -47,6 +57,8 @@ public class PaymentServiceImpl implements PaymentService {
 
 	@Value("#{env['wx_orderQuery']}")
 	private String wx_orderQuery;
+	@Value("#{env['UPAY_ORDER_VALID']}")
+	private String upayOrderValid;
 
 	@Autowired
 	private CmapyRecordMapper cmpayRecordMapper;
@@ -56,7 +68,10 @@ public class PaymentServiceImpl implements PaymentService {
 	private CmapyChannelConfigMapper cmpayChannelConfigMapper;
 	@Autowired
 	private CmapyCutOrderMapper cmapyCutOrderMapper;
-
+	@Autowired
+	private ChinapayService chinapayService;
+	@Autowired
+	private JYTPayService jYTPayService;
 
 	@Override
 	@Transactional
@@ -179,6 +194,143 @@ public class PaymentServiceImpl implements PaymentService {
 		cmapyCutOrderExample.or().andPayStatusEqualTo(PayStatusEnum.DEALING.name());
 		List<CmapyCutOrder> orderList=cmapyCutOrderMapper.selectByExample(cmapyCutOrderExample);
 		return orderList;
+	}
+
+
+
+	@Override
+	@Transactional
+	public void doCutOrderTask(CmapyCutOrder cmapyCutOrder) {
+	       logger.info("开始更新代扣状态orderNO=[{}],origOrderNo=[{}],payChannel=[{}]",cmapyCutOrder.getOrderId(),cmapyCutOrder.getOrigOrderNo(),cmapyCutOrder.getPayChannel());
+
+			//订单时效性检查
+			boolean isOverDue = false;
+			Date orderDt = cmapyCutOrder.getCreateTime();
+			Date nowDt = new Date();
+			long differencesTime = nowDt.getTime() - orderDt.getTime();
+			long diffMinute = differencesTime/(60*1000);//差异分钟
+			if(diffMinute > Long.parseLong(upayOrderValid)){
+				//超过时效
+				isOverDue = true;
+			}
+
+			PayWayEnum payWayEnum=PayWayEnum.getByCode(cmapyCutOrder.getPayChannel());
+
+			CmapyRecord cmpayRecord=cmpayRecordMapper.selectByOrderId(cmapyCutOrder.getOrderId());
+			if(cmpayRecord==null){
+				logger.info("cmpayRecord 无此订单！！！！");
+				return;
+			}
+
+			logger.info("cmpayRecord=[{}]",cmpayRecord.toString());
+			if(StringUtils.equals(cmapyCutOrder.getPayStatus(), PayStatusEnum.DEALING.name())){
+               if(isOverDue){
+                     //超过系统超时时间
+            	   cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
+            	   cmpayRecord.setRemark(Constants.TRADE_ERROR_8818_MSG);
+
+            	   cmapyCutOrder.setPayStatus(PayStatusEnum.FAIL.name());
+            	   cmapyCutOrder.setRemark(Constants.TRADE_ERROR_8818_MSG);
+
+					logger.info("----代扣订单超过时效,已做失败处理------------");
+
+               }else{
+            	   //分渠道查询订单状态
+
+            		CmapyChannelConfigExample cccCondition=new CmapyChannelConfigExample();
+    				cccCondition.createCriteria().andMerNoEqualTo(cmapyCutOrder.getMerNo()).andPaychannelNoEqualTo(payWayEnum.name());
+    				List<CmapyChannelConfig> cmpayChannelConfiglist=cmpayChannelConfigMapper.selectByExample(cccCondition);
+    				if(cmpayChannelConfiglist.size()<=0){
+    					logger.info("-----------------该商户缺少配置信息！！！-----------------");
+    					return;
+
+    				}
+
+    				CmapyChannelConfig cmpayChannelConfig=cmpayChannelConfiglist.get(0);
+    				logger.debug("paychannel config-->[{}]",cmpayChannelConfig.toString());
+
+            	   switch(payWayEnum){
+
+            	    case CMPAY0001:
+            	    	CpSinCutQueryRespDef cpSinCutQueryRespDef=chinapayService.sinCutQuery(cmapyCutOrder.getOrderId(), cmpayChannelConfig.getThirdMerid(), cmpayChannelConfig.getRsaprikey(), cmpayChannelConfig.getRsapubkey());
+            	    	 logger.info("cpSinCutQueryRespDef={}",cpSinCutQueryRespDef.toString());
+            	    if(cpSinCutQueryRespDef!=null){
+            	    	if (cpSinCutQueryRespDef.getResponseCode().equals("00")) {
+            	    		cmpayRecord.setPayStatus(PayStatusEnum.SUCC.name());
+            	    		cmapyCutOrder.setPayStatus(PayStatusEnum.SUCC.name());
+						} else if (cpSinCutQueryRespDef.getResponseCode().equals("45") || cpSinCutQueryRespDef.getResponseCode().equals("") || cpSinCutQueryRespDef.getResponseCode().equals("09")) {
+            	    		cmpayRecord.setPayStatus(PayStatusEnum.DEALING.name());
+            	    		cmapyCutOrder.setPayStatus(PayStatusEnum.DEALING.name());
+						} else {
+            	    		cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
+            	    		cmapyCutOrder.setPayStatus(PayStatusEnum.FAIL.name());
+						}
+						CpErrorCodeEnum cpErrorCodeEnum=CpErrorCodeEnum.getByRespCode(cpSinCutQueryRespDef.getResponseCode());
+
+						cmpayRecord.setRespCode(cpErrorCodeEnum.getCoreRespCode());
+						cmpayRecord.setRespMsg(cpErrorCodeEnum.getCoreRespMsg());
+						cmpayRecord.setModifyTime(new Date());
+						cmapyCutOrder.setThirdRespCode(cpSinCutQueryRespDef.getResponseCode());
+						cmapyCutOrder.setThirdRespMsg(cpSinCutQueryRespDef.getMessage());
+						cmapyCutOrder.setRespCode(cpErrorCodeEnum.getCoreRespCode());
+						cmapyCutOrder.setRespMsg(cpErrorCodeEnum.getCoreRespMsg());
+						cmapyCutOrder.setModifyTime(new Date());
+            	    	 }else{
+            	    		 logger.info("系统找不到订单记录！！！");
+            	    	 }
+            	    	break;
+            	    case CMPAY0002:
+
+						CpJYTRespDef cpJYTRespDef = jYTPayService.queryCollection(cmpayChannelConfig.getThirdMerid(), cmpayChannelConfig.getRsapubkey(), cmpayChannelConfig.getRsaprikey(), cmpayChannelConfig.getAppsectet(), cmapyCutOrder.getOrderId());
+						if(cpJYTRespDef!=null){
+						logger.info("响应码:{},交易响应码:{}",cpJYTRespDef.getResp_code(),cpJYTRespDef.getTran_resp_code());
+						if (XmlMsgConstant.MSG_RES_CODE_SUCCESS.equals(cpJYTRespDef.getResp_code())) {
+							if (cpJYTRespDef.getTran_state().equals("01")) {
+								cmpayRecord.setPayStatus(PayStatusEnum.SUCC.name());
+	            	    		cmapyCutOrder.setPayStatus(PayStatusEnum.SUCC.name());
+							} else if (cpJYTRespDef.getTran_state().equals("03")) {
+								cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
+	            	    		cmapyCutOrder.setPayStatus(PayStatusEnum.FAIL.name());
+							}
+							JYTErrorCodeEnum jYTErrorCodeEnum=JYTErrorCodeEnum.getByRespCode(cpJYTRespDef.getTran_resp_code());
+
+							cmpayRecord.setRespCode(jYTErrorCodeEnum.getCoreRespCode());
+							cmpayRecord.setRespMsg(jYTErrorCodeEnum.getCoreRespMsg());
+							cmpayRecord.setModifyTime(new Date());
+							cmapyCutOrder.setThirdRespCode(cpJYTRespDef.getTran_resp_code());
+							cmapyCutOrder.setThirdRespMsg(cpJYTRespDef.getDescription());
+							cmapyCutOrder.setRespCode(jYTErrorCodeEnum.getCoreRespCode());
+							cmapyCutOrder.setRespMsg(jYTErrorCodeEnum.getCoreRespMsg());
+							cmapyCutOrder.setModifyTime(new Date());
+
+						} else if (XmlMsgConstant.MSG_RES_CODE_PROCESSING.equals(cpJYTRespDef.getResp_code())) {
+							logger.error("金运通查询代收订单处理中.");
+						} else {
+							logger.error("金运通查询代收订单出错.");
+						}
+						}else{
+							logger.info("系统找不到订单记录！！！");
+						}
+
+            	    	break;
+            	    default:
+            	    	logger.info("==================无此支付渠道==============");
+        				break;
+            	   }
+
+
+
+               }
+
+               //执行更新
+               cmpayRecordMapper.updateByPrimaryKeySelective(cmpayRecord);
+               cmapyCutOrderMapper.updateByPrimaryKeySelective(cmapyCutOrder);
+
+			}else{
+
+				logger.info("状态不是在途交易，无需更新,orderNo:{},cutStatus:{}", cmapyCutOrder.getOrderId(), cmapyCutOrder.getPayStatus());
+			}
+
 	}
 
 }

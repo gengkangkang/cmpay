@@ -193,6 +193,17 @@
         <version>${pay-common-utils.version}</version>        
       </dependency>       
     
+      <dependency>
+        <groupId>com.cmpay</groupId>
+        <artifactId>pay-service-chinapay</artifactId>
+        <version>${pay-service-chinapay.version}</version>        
+      </dependency>
+      <dependency>
+        <groupId>com.cmpay</groupId>
+        <artifactId>pay-service-jytpay</artifactId>
+        <version>${pay-service-jytpay.version}</version>        
+      </dependency>  
+      
   </dependencies>
   
   <build>

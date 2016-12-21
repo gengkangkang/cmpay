@@ -62,6 +62,9 @@ public class Constants {
 	   public static String TRADE_ERROR_8817_CODE="8817";
 	   public static String TRADE_ERROR_8817_MSG="签名验证失败";
 
+	   public static String TRADE_ERROR_88187_CODE="8818";
+	   public static String TRADE_ERROR_8818_MSG="订单超时，系统自动设置为失败";
+
 	   public static String TRADE_ERROR_C9999_CODE="C9999";
 	   public static String TRADE_ERROR_C9999_MSG="未知错误";
 

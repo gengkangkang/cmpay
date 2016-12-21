@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import com.cmpay.common.enums.IdTypeEnum;
 import com.cmpay.common.enums.SignCardTypeEnum;
 import com.cmpay.service.chinapay.model.CpAuthBgRespDef;
+import com.cmpay.service.chinapay.model.CpSinCutQueryRespDef;
 import com.cmpay.service.chinapay.model.CpSinCutRespDef;
 
 /**
@@ -49,5 +50,7 @@ public interface ChinapayService {
 	 */
 	public CpSinCutRespDef sinCut(String orderId, String cardNo, String custId, String bankCode, BigDecimal transAmt, String custName,
 			String idNo,IdTypeEnum idType, String description,String merId,String privkey,String pubKey);
+
+	public CpSinCutQueryRespDef sinCutQuery(String orderNo,String merId,String privkey,String pubKey);
 
 }

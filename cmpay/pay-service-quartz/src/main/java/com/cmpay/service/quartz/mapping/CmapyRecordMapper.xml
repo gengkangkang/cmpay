@@ -108,6 +108,14 @@
     from CMPAY_RECORD
     where ID = #{id,jdbcType=VARCHAR}
   </select>
+  
+  <select id="selectByOrderId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from CMPAY_RECORD
+    where ORDER_ID = #{orderId,jdbcType=VARCHAR}
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
     delete from CMPAY_RECORD
     where ID = #{id,jdbcType=VARCHAR}
@@ -478,7 +486,7 @@
     where ID = #{id,jdbcType=VARCHAR}
   </update>
   
-    <update id="updateExpireOrder" parameterType="com.cmpay.weixin.model.CmpayRecord" >
+    <update id="updateExpireOrder" parameterType="com.cmpay.service.quartz.model.CmapyRecord" >
     update CMPAY_RECORD
     set PAY_STATUS ='CANCEL',
         REMARK='订单过期'

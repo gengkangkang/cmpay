@@ -44,17 +44,18 @@ public class OrderTask {
 	}
 
 	@Scheduled(cron = "#{env.cron_doCutOrderTask}")
-	public void doCutOrderTask(){
+	public void CutOrderTask(){
 		logger.info("---------代扣订单轮询任务开始-start----------");
 
 		List<CmapyCutOrder> orderList=paymentService.queryCutOrderList();
 		for(CmapyCutOrder cmapyCutOrder:orderList){
-
+			paymentService.doCutOrderTask(cmapyCutOrder);
 		}
 
 		logger.info("---------代扣订单轮询任务结束-end----------");
 
 
 	}
+
 
 }

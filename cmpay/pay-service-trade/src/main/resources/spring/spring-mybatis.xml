@@ -70,21 +70,33 @@
 
   
     <!-- myBatis文件 -->  
-    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
+<!--     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
         <property name="dataSource" ref="dataSource" />  
-        <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->  
+        自动扫描entity目录, 省掉Configuration.xml里的手工配置  
         <property name="mapperLocations" value="classpath:com/cmpay/service/trade/mapping/*.xml" />  
     </bean>  
   
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
         <property name="basePackage" value="com.cmpay.service.trade.dao" />  
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />  
-    </bean> 
+    </bean>  -->
     
-        <!-- myBatis文件 -->  
-    <bean id="sqlSessionFactory1" class="org.mybatis.spring.SqlSessionFactoryBean">  
+    
+     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
         <property name="dataSource" ref="dataSource" />  
         <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->  
+        <property name="mapperLocations" value="classpath*:com/cmpay/service/**/mapping/*.xml" />  
+    </bean>  
+  
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
+        <property name="basePackage" value="com.cmpay.service.**.dao" />  
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />  
+    </bean> 
+    
+  <!--       myBatis文件  
+    <bean id="sqlSessionFactory1" class="org.mybatis.spring.SqlSessionFactoryBean">  
+        <property name="dataSource" ref="dataSource" />  
+        自动扫描entity目录, 省掉Configuration.xml里的手工配置  
         <property name="mapperLocations" value="classpath*:com/cmpay/service/bank/mapping/*.xml" />  
     </bean>  
   
@@ -93,10 +105,10 @@
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory1" />  
     </bean>  
     
-            <!-- myBatis文件 -->  
+            myBatis文件  
     <bean id="sqlSessionFactory2" class="org.mybatis.spring.SqlSessionFactoryBean">  
         <property name="dataSource" ref="dataSource" />  
-        <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->  
+        自动扫描entity目录, 省掉Configuration.xml里的手工配置  
         <property name="mapperLocations" value="classpath*:com/cmpay/service/chinapay/mapping/*.xml" />  
     </bean>  
   
@@ -104,29 +116,29 @@
         <property name="basePackage" value="com.cmpay.service.chinapay.dao" />  
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory2" />  
     </bean> 
-                <!-- myBatis文件 -->  
+                myBatis文件  
     <bean id="sqlSessionFactory3" class="org.mybatis.spring.SqlSessionFactoryBean">  
         <property name="dataSource" ref="dataSource" />  
-        <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->  
-        <property name="mapperLocations" value="classpath*:org/pay/service/jytpay/mapping/*.xml" />  
+        自动扫描entity目录, 省掉Configuration.xml里的手工配置  
+        <property name="mapperLocations" value="classpath*:com/cmpay/service/jytpay/mapping/*.xml" />  
     </bean>  
   
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
-        <property name="basePackage" value="org.pay.service.jytpay.dao" />  
+        <property name="basePackage" value="com.cmpay.service.jytpay.dao" />  
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory3" />  
     </bean> 
     
-            <!-- myBatis文件 -->  
+            myBatis文件  
     <bean id="sqlSessionFactory4" class="org.mybatis.spring.SqlSessionFactoryBean">  
         <property name="dataSource" ref="dataSource" />  
-        <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->  
+        自动扫描entity目录, 省掉Configuration.xml里的手工配置  
         <property name="mapperLocations" value="classpath*:com/cmpay/service/rule/mapping/*.xml" />  
     </bean>  
   
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
         <property name="basePackage" value="com.cmpay.service.rule.dao" />  
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory4" />  
-    </bean>  
+    </bean>  --> 
   
     <!-- 配置事务管理器 -->  
     <bean id="transactionManager"  

@@ -22,6 +22,8 @@ public interface CmapyRecordMapper {
 
     CmapyRecord selectByPrimaryKey(String id);
 
+    CmapyRecord selectByOrderId(String orderId);
+
     int updateByExampleSelective(@Param("record") CmapyRecord record, @Param("example") CmapyRecordExample example);
 
     int updateByExample(@Param("record") CmapyRecord record, @Param("example") CmapyRecordExample example);

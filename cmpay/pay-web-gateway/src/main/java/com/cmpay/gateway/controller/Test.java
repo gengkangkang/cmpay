@@ -44,7 +44,7 @@ public class Test extends BaseAction {
         map.put("userId", "888888");
         map.put("amount", "6.6");
         map.put("cardNo", "6222620140009946277");
-        map.put("origiOrderId", "201612182");
+        map.put("origiOrderId", "20161218223");
         map.put("payCode", "");
         map.put("transType", "01");
         map.put("orderIp", "10.17.1.30");

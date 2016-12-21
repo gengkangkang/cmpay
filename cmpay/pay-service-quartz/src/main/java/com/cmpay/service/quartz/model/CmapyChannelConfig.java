@@ -222,4 +222,15 @@ public class CmapyChannelConfig {
     public void setField2(String field2) {
         this.field2 = field2 == null ? null : field2.trim();
     }
+
+	@Override
+	public String toString() {
+		return "CmapyChannelConfig [id=" + id + ", merNo=" + merNo + ", paychannelNo=" + paychannelNo
+				+ ", paychannelName=" + paychannelName + ", appid=" + appid + ", appsectet=" + appsectet + ", apptype="
+				+ apptype + ", partnerkey=" + partnerkey + ", rsaprikey=" + rsaprikey + ", rsapubkey=" + rsapubkey
+				+ ", deskey=" + deskey + ", thirdMerid=" + thirdMerid + ", returnUrl=" + returnUrl + ", notifyUrl="
+				+ notifyUrl + ", createTime=" + createTime + ", creator=" + creator + ", modifyTime=" + modifyTime
+				+ ", modifier=" + modifier + ", version=" + version + ", remark=" + remark + ", field1=" + field1
+				+ ", field2=" + field2 + "]";
+	}
 }

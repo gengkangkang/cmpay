@@ -1,9 +1,11 @@
 package com.cmpay.service.chinapay.dao;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.cmpay.service.chinapay.model.CpCutOrder;
 import com.cmpay.service.chinapay.model.CpCutOrderExample;
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 public interface CpCutOrderMapper {
     int countByExample(CpCutOrderExample example);

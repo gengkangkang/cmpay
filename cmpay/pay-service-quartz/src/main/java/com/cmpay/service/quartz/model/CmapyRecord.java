@@ -223,4 +223,14 @@ public class CmapyRecord {
     public void setField3(String field3) {
         this.field3 = field3 == null ? null : field3.trim();
     }
+
+	@Override
+	public String toString() {
+		return "CmapyRecord [id=" + id + ", orderId=" + orderId + ", inchannel=" + inchannel + ", merNo=" + merNo
+				+ ", userId=" + userId + ", origOrderNo=" + origOrderNo + ", transAmt=" + transAmt + ", transType="
+				+ transType + ", payChannel=" + payChannel + ", payStatus=" + payStatus + ", respCode=" + respCode
+				+ ", respMsg=" + respMsg + ", period=" + period + ", expireTime=" + expireTime + ", orderip=" + orderip
+				+ ", createTime=" + createTime + ", modifyTime=" + modifyTime + ", version=" + version + ", remark="
+				+ remark + ", field1=" + field1 + ", field2=" + field2 + ", field3=" + field3 + "]";
+	}
 }

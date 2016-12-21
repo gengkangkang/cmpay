@@ -8,9 +8,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.pay.service.jytpay.model.CpJYTRespDef;
-import org.pay.service.jytpay.service.JYTAuthService;
-import org.pay.service.jytpay.service.JYTPayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +33,9 @@ import com.cmpay.service.bank.service.PayService;
 import com.cmpay.service.chinapay.model.CpAuthBgRespDef;
 import com.cmpay.service.chinapay.model.CpSinCutRespDef;
 import com.cmpay.service.chinapay.service.ChinapayService;
+import com.cmpay.service.jytpay.model.CpJYTRespDef;
+import com.cmpay.service.jytpay.service.JYTAuthService;
+import com.cmpay.service.jytpay.service.JYTPayService;
 
 /**
  *

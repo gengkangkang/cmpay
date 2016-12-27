@@ -194,6 +194,16 @@ public class CmpayUtils {
         return hex[d1] + hex[d2];
     }
 
+
+	public static void threadSleep(int time) {
+		// 最小的轮询间隔，休眠。
+		try {
+			Thread.sleep(time);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String[] args){
 //		System.out.println(createOrderId("WX","98765","00"));
 //		System.out.println(PayWayEnum.WX.toString());

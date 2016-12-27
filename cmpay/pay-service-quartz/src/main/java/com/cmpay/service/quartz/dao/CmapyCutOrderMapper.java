@@ -1,9 +1,11 @@
 package com.cmpay.service.quartz.dao;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.cmpay.service.quartz.model.CmapyCutOrder;
 import com.cmpay.service.quartz.model.CmapyCutOrderExample;
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 public interface CmapyCutOrderMapper {
     int countByExample(CmapyCutOrderExample example);
@@ -27,4 +29,7 @@ public interface CmapyCutOrderMapper {
     int updateByPrimaryKeySelective(CmapyCutOrder record);
 
     int updateByPrimaryKey(CmapyCutOrder record);
+
+    List<CmapyCutOrder> selectInAcctList();
+
 }

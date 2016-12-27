@@ -95,10 +95,10 @@ public class HttpClientUtil {
 	    	StringEntity strEntity = new StringEntity(data, inEncode);
 			HttpPost httppost=new HttpPost(url);
 			httppost.setEntity(strEntity);
-			httppost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+//			httppost.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
 
-			logger.info("执行post地址："+httppost.getURI()+" post参数："+data.toString());
+//			logger.info("执行post地址："+httppost.getURI()+" post参数："+data.toString());
 			CloseableHttpResponse response=httpclient.execute(httppost);
 			System.out.println("返回code=="+response.getStatusLine().getStatusCode());
 		    httpEntity=response.getEntity();
@@ -113,7 +113,7 @@ public class HttpClientUtil {
 		}finally{
 			httpclient.close();
 		}
-		logger.info("post返回值："+returnValue);
+//		logger.info("post返回值："+returnValue);
        return returnValue;
 	}
 

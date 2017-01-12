@@ -75,8 +75,7 @@ public class InAcctMainTask implements Runnable {
 				taskThreadPool.execute(new InAcctDoTask(cmapyCutOrder));
 			}
 		} catch (Exception e) {
-			logger.error("入账任务出现异常！！！！！！");
-			e.printStackTrace();
+			logger.error("入账任务出现异常！！！！！！",e);
 		}
 
 	}

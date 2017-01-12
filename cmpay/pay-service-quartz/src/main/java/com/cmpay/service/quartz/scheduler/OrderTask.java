@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.cmpay.service.quartz.model.CmapyCutOrder;
+import com.cmpay.service.quartz.model.CmapyOrderRefund;
 import com.cmpay.service.quartz.service.PaymentService;
 
 
@@ -45,14 +46,35 @@ public class OrderTask {
 
 	@Scheduled(cron = "#{env.cron_doCutOrderTask}")
 	public void CutOrderTask(){
-		logger.info("---------代扣订单轮询任务开始-start----------");
+		logger.info("【CutOrder】---------代扣订单轮询任务开始-start----------");
 
 		List<CmapyCutOrder> orderList=paymentService.queryCutOrderList();
 		for(CmapyCutOrder cmapyCutOrder:orderList){
 			paymentService.doCutOrderTask(cmapyCutOrder);
 		}
 
-		logger.info("---------代扣订单轮询任务结束-end----------");
+		logger.info("【CutOrder】---------代扣订单轮询任务结束-end----------");
+
+
+	}
+
+
+	@Scheduled(cron = "#{env.cron_doRefundOrderTask}")
+	public void RefundOrderTask(){
+		logger.info("【Refund】---------退款订单轮询任务开始-start----------");
+		List<CmapyOrderRefund> rlist=paymentService.queryRefundOrderList();
+         if(rlist==null || rlist.size()<1){
+        	 logger.info("退款订单轮询任务没有要处理的订单！！！");
+         }else{
+            for(CmapyOrderRefund cmapyOrderRefund:rlist){
+
+            	paymentService.doRefundOrderTask(cmapyOrderRefund);
+            }
+
+
+         }
+
+		logger.info("【Refund】---------退款订单轮询任务结束-end----------");
 
 
 	}

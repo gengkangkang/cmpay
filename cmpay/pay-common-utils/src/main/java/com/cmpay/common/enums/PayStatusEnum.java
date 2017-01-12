@@ -13,6 +13,9 @@ public enum PayStatusEnum {
 	SUCC("成功"),
 	DEALING("处理中"),
 	FAIL("失败"),
+	REFUNDING("退款中"),
+	REFUNDSUCC("已退款"),
+	REFUNDFAIL("退款失败"),
 	CANCEL("取消");
 
    private PayStatusEnum(String value){

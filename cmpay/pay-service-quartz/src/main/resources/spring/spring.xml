@@ -12,7 +12,7 @@
     
     
     <import resource="classpath:spring/spring-mybatis.xml" />
-    <import resource="classpath:spring/spring-redis.xml" />
+    <import resource="classpath:spring/spring-redis-cluster.xml" />
     <import resource="classpath:spring/spring-quartz.xml" />
   
 </beans> 

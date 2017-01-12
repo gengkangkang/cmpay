@@ -15,8 +15,8 @@ public class AcctConstant {
 
 
     //-----------------------------------------核心支付---------------------------------------------------
-//    public static  String coreurl="http://10.17.5.62:8082/xmlGateway/service";
-    public static  String coreurl="http://localhost:8888/core-rest/xmlGateway/service";
+    public static  String coreurl="http://10.17.5.62:8082/xmlGateway/service";
+//    public static  String coreurl="http://localhost:8888/core-rest/xmlGateway/service";
     public static final String xmlhead="<CMCORE xmlns=\"http://www.cm-inv.com/CMINV/2015/10\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.cm-inv.com/CMINV/2015/10 CMCORE1.0.xsd\">";
     public static final String xmltail="</CMCORE>";
     public static  String version="1.0";

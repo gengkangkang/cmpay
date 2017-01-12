@@ -18,6 +18,7 @@ import com.cmpay.common.enums.PayStatusEnum;
 import com.cmpay.common.enums.PayWayEnum;
 import com.cmpay.common.util.CmpayUtils;
 import com.cmpay.common.util.Constants;
+import com.cmpay.common.util.HttpClientUtil;
 import com.cmpay.common.util.WXConstants;
 import com.cmpay.service.chinapay.model.CpSinCutQueryRespDef;
 import com.cmpay.service.chinapay.service.ChinapayService;
@@ -26,17 +27,25 @@ import com.cmpay.service.jytpay.service.JYTPayService;
 import com.cmpay.service.jytpay.utils.XmlMsgConstant;
 import com.cmpay.service.quartz.dao.CmapyChannelConfigMapper;
 import com.cmpay.service.quartz.dao.CmapyCutOrderMapper;
+import com.cmpay.service.quartz.dao.CmapyOrderRefundMapper;
 import com.cmpay.service.quartz.dao.CmapyRecordDetailMapper;
 import com.cmpay.service.quartz.dao.CmapyRecordMapper;
+import com.cmpay.service.quartz.model.CMPAY0046;
+import com.cmpay.service.quartz.model.CMPAY0046Rs;
 import com.cmpay.service.quartz.model.CmapyChannelConfig;
 import com.cmpay.service.quartz.model.CmapyChannelConfigExample;
 import com.cmpay.service.quartz.model.CmapyCutOrder;
 import com.cmpay.service.quartz.model.CmapyCutOrderExample;
+import com.cmpay.service.quartz.model.CmapyOrderRefund;
+import com.cmpay.service.quartz.model.CmapyOrderRefundExample;
 import com.cmpay.service.quartz.model.CmapyRecord;
 import com.cmpay.service.quartz.model.CmapyRecordDetail;
 import com.cmpay.service.quartz.model.CmapyRecordDetailExample;
 import com.cmpay.service.quartz.model.CmapyRecordExample;
+import com.cmpay.service.quartz.model.CommonRqHdr;
 import com.cmpay.service.quartz.service.PaymentService;
+import com.cmpay.service.quartz.util.AcctConstant;
+import com.cmpay.service.quartz.util.CMPAY0046Util;
 import com.cmpay.service.quartz.util.WXQueryBean;
 import com.cmpay.service.quartz.util.WeiXinPayUtils;
 
@@ -59,6 +68,8 @@ public class PaymentServiceImpl implements PaymentService {
 	private String wx_orderQuery;
 	@Value("#{env['UPAY_ORDER_VALID']}")
 	private String upayOrderValid;
+	@Value("#{env['coreurl']}")
+	private String coreurl;
 
 	@Autowired
 	private CmapyRecordMapper cmpayRecordMapper;
@@ -72,6 +83,8 @@ public class PaymentServiceImpl implements PaymentService {
 	private ChinapayService chinapayService;
 	@Autowired
 	private JYTPayService jYTPayService;
+	@Autowired
+	CmapyOrderRefundMapper cmapyOrderRefundMapper;
 
 	@Override
 	@Transactional
@@ -147,7 +160,7 @@ public class PaymentServiceImpl implements PaymentService {
  	                    cmpayRecordDetail.setThirdMsg(queryResult.get("trade_state_desc"));
  	                    cmpayRecordDetail.setThirdOrderNo(queryResult.get("transaction_id"));
  	                    cmpayRecordDetailMapper.updateByPrimaryKeySelective(cmpayRecordDetail);
-
+ 	                    cmpayRecord.setModifyTime(new Date());
  	            		cmpayRecordMapper.updateByExampleSelective(cmpayRecord, cmpayRecordExample);
 
 
@@ -170,8 +183,8 @@ public class PaymentServiceImpl implements PaymentService {
 	         }
 
             }catch(Exception e){
-                 logger.error("查询订单出现异常");
-                 e.printStackTrace();
+                 logger.error("查询订单出现异常",e);
+//                 e.printStackTrace();
             }
 	     }
 	}
@@ -323,13 +336,120 @@ public class PaymentServiceImpl implements PaymentService {
                }
 
                //执行更新
+               cmpayRecord.setModifyTime(new Date());
                cmpayRecordMapper.updateByPrimaryKeySelective(cmpayRecord);
+               cmapyCutOrder.setModifyTime(new Date());
                cmapyCutOrderMapper.updateByPrimaryKeySelective(cmapyCutOrder);
 
 			}else{
 
 				logger.info("状态不是在途交易，无需更新,orderNo:{},cutStatus:{}", cmapyCutOrder.getOrderId(), cmapyCutOrder.getPayStatus());
 			}
+
+	}
+
+
+
+	@Override
+	public List<CmapyOrderRefund> queryRefundOrderList() {
+
+		CmapyOrderRefundExample cmapyOrderRefundExample=new CmapyOrderRefundExample();
+		cmapyOrderRefundExample.or().andRefundStatusEqualTo("0").andRefundTypeEqualTo("00");
+		List<CmapyOrderRefund> rlist=cmapyOrderRefundMapper.selectByExample(cmapyOrderRefundExample);
+		return rlist;
+	}
+
+
+
+	@Override
+	public void doRefundOrderTask(CmapyOrderRefund cmapyOrderRefund) {
+		logger.info("处理退款订单id=[{}],orig_orderid=[{}],refund_status=[{}]",cmapyOrderRefund.getId(),cmapyOrderRefund.getOrigOrderid(),cmapyOrderRefund.getRefundStatus());
+		String refundStatus=cmapyOrderRefund.getRefundStatus();
+		String payStatus=null;
+		//1.先判断退款订单状态
+		if(!StringUtils.equals("0", cmapyOrderRefund.getRefundStatus())){
+			logger.info("退款订单状态已处理，无需重复处理！！！");
+			return;
+		}
+
+		//2.调用核心退款接口
+		try{
+
+			 CommonRqHdr com=new CommonRqHdr();
+		        com.setRqUID(CmpayUtils.getUUID());
+		        com.setSPName(AcctConstant.spName);
+		        com.setNumTranCode(AcctConstant.NumTranCode);
+		        com.setClearDate(CmpayUtils.getCurrentTime("yyyyMMdd"));
+		        com.setTranDate(CmpayUtils.getCurrentTime("yyyyMMdd"));
+		        com.setTranTime(CmpayUtils.getCurrentTime("HHmmss"));
+		        com.setChannelId(AcctConstant.channelId);
+		        com.setVersion(AcctConstant.version);
+
+
+		        CMPAY0046 pay=new CMPAY0046();
+		        pay.setCommonRqHdr(com);
+                pay.setMerchantNo(cmapyOrderRefund.getMerNo());
+                pay.setChannelOrderNo(cmapyOrderRefund.getId());
+                pay.setAmount(cmapyOrderRefund.getRefundAmt().toString());
+                pay.setUserId(cmapyOrderRefund.getUserId());
+
+
+	            String xml=CMPAY0046Util.toXML(pay);
+	            logger.info("请求xml=[{}]",xml);
+
+				String back = HttpClientUtil.postString(coreurl, xml, AcctConstant.UTF8, AcctConstant.UTF8);
+	            logger.info("返回报文back=[{}]",back);
+
+		        CMPAY0046Rs core=CMPAY0046Util.fromXML(back);
+
+		        if(StringUtils.equals("0000", core.getCommonRsHdr().getStatusCode())){
+		        	//退款成功
+		        	refundStatus="1";
+		        	payStatus=PayStatusEnum.REFUNDSUCC.name();
+
+		        	cmapyOrderRefund.setRespCode(core.getCommonRsHdr().getStatusCode());
+		        	cmapyOrderRefund.setRespMsg(core.getCommonRsHdr().getServerStatusCode());
+		        	cmapyOrderRefund.setModifyTime(new Date());
+
+		        }else{
+		        	logger.info("退款账失败");
+		        	refundStatus="3";
+		        	payStatus=PayStatusEnum.REFUNDFAIL.name();
+		        	cmapyOrderRefund.setRespCode(core.getCommonRsHdr().getStatusCode());
+		        	cmapyOrderRefund.setRespMsg(core.getCommonRsHdr().getServerStatusCode());
+		        	cmapyOrderRefund.setModifyTime(new Date());
+
+		        }
+
+
+
+		}catch(Exception e){
+			logger.info("调用核心退款接口异常！！！",e);
+			refundStatus="2";
+		}
+
+		//3.更新退款订单、交易订单状态
+		try{
+		cmapyOrderRefund.setRefundStatus(refundStatus);
+		cmapyOrderRefundMapper.updateByPrimaryKeySelective(cmapyOrderRefund);
+
+		CmapyRecord cmapyRecord=new CmapyRecord();
+		cmapyRecord.setPayStatus(payStatus);
+		CmapyRecordExample cmapyRecordExample=new CmapyRecordExample();
+		cmapyRecordExample.or().andOrderIdEqualTo(cmapyOrderRefund.getOrigOrderid());
+		cmpayRecordMapper.updateByExampleSelective(cmapyRecord, cmapyRecordExample);
+
+		CmapyCutOrder cmapyCutOrder=new CmapyCutOrder();
+		cmapyCutOrder.setPayStatus(payStatus);
+		CmapyCutOrderExample cmapyCutOrderExample=new CmapyCutOrderExample();
+		cmapyCutOrderExample.or().andOrderIdEqualTo(cmapyOrderRefund.getOrigOrderid());
+		cmapyCutOrderMapper.updateByExampleSelective(cmapyCutOrder, cmapyCutOrderExample);
+
+		}catch(Exception e){
+			logger.error("更新退款订单状态异常！！！", e);
+//			logger.error("更新退款订单状态异常！！！");
+//			e.printStackTrace();
+		}
 
 	}
 

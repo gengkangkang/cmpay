@@ -13,9 +13,13 @@
     <context:component-scan base-package="com.cmpay.gateway.service" />
     
     <import resource="classpath:conf/spring-consumer.xml" />
-    <import resource="classpath:conf/spring-redis.xml" />
+    <!-- <import resource="classpath:conf/spring-redis.xml" /> -->
+     <import resource="classpath:conf/spring-redis-cluster.xml" />
     
-    <bean class="com.cmpay.common.util.RedisUtil" />
+    
+<!--      <bean class="com.cmpay.gateway.exception.ExceptionResolver" />
+ -->    
+     <bean class="com.cmpay.common.util.RedisUtil" />
     
      <bean class="com.cmpay.gateway.processor.InitProcessor"/>
      <bean class="com.cmpay.gateway.processor.InitRedisData"/>

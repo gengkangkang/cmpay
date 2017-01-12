@@ -57,6 +57,7 @@ public class RedisUtil {
 	        return flag;
 	    }
 
+
 	   public boolean del(String key){
 	        boolean flag = false;
 	        try {

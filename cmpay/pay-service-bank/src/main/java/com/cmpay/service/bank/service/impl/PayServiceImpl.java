@@ -184,7 +184,7 @@ public class PayServiceImpl implements PayService {
 
 		logger.info("[{}]开始快捷支付,orderId=[{}],inchannel=[{}],payWayEnum=[{}],cardNO=[{}],origOrderNo=[{}]",userId,orderId,inchannel,payWayEnum.name(),cardNo,origOrderNo);
 		Map<String,Object> result=new HashMap<String,Object>();
-		Map<String,String> data=new HashMap<String,String>();
+//		Map<String,String> data=new HashMap<String,String>();
 
 		String respCode=Constants.SUCCESS_CODE;
 		String respMsg="ok";
@@ -367,18 +367,18 @@ public class PayServiceImpl implements PayService {
 		            	 break;
 		          }
 
+		          cmpayCutOrder.setModifyTime(new Date());
 		          cmpayCutOrderMapper.updateByPrimaryKeySelective(cmpayCutOrder);
 
 		            result.put(Constants.RESPCODE_KEY, respCode);
 					result.put(Constants.RESPMSG_KEY, respMsg);
 
 
-		            data.put("payOrderId", orderId);
-		            data.put("origiOrderId", origOrderNo);
-		            data.put(Constants.PAYCODE_KEY, payCode);
-	 				data.put(Constants.PAYMSG_KEY, payMsg);
-	 				data.put(Constants.PAYSTATUS_KEY, payStatus);
-                    result.put(Constants.PAYDATA_KEY, data);
+					result.put("payOrderId", orderId);
+					result.put("origiOrderId", origOrderNo);
+					result.put(Constants.PAYCODE_KEY, payCode);
+					result.put(Constants.PAYMSG_KEY, payMsg);
+					result.put(Constants.PAYSTATUS_KEY, payStatus);
 
 		            return result;
 	}

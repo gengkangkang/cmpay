@@ -65,6 +65,21 @@ public class Constants {
 	   public static String TRADE_ERROR_88187_CODE="8818";
 	   public static String TRADE_ERROR_8818_MSG="订单超时，系统自动设置为失败";
 
+	   public static String TRADE_ERROR_8819_CODE="8819";
+	   public static String TRADE_ERROR_8819_MSG="不支持该银行卡";
+	   public static String TRADE_ERROR_8820_CODE="8820";
+	   public static String TRADE_ERROR_8820_MSG="只支持借记卡";
+
+	   public static String TRADE_ERROR_8821_CODE="8821";
+	   public static String TRADE_ERROR_8821_MSG="无此订单信息";
+	   public static String TRADE_ERROR_8822_CODE="8822";
+	   public static String TRADE_ERROR_8822_MSG="该订单不符合退款条件";
+	   public static String TRADE_ERROR_8823_CODE="8823";
+	   public static String TRADE_ERROR_8823_MSG="退款金额不能大于原订单金额";
+	   public static String TRADE_ERROR_8824_CODE="8824";
+	   public static String TRADE_ERROR_8824_MSG="退款申请人和订单用户不一致";
+
+
 	   public static String TRADE_ERROR_C9999_CODE="C9999";
 	   public static String TRADE_ERROR_C9999_MSG="未知错误";
 
@@ -77,6 +92,8 @@ public class Constants {
 	   public static String PAYMSG_KEY="payMsg";
 	   public static String PAYSTATUS_KEY="payStatus";
 	   public static String PAYDATA_KEY="data";
+	   public static String SIGN_KEY="sign";
+
 
 
 		public static String WXPAY="10";

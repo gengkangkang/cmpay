@@ -64,9 +64,9 @@ public class InAcctDoTask implements Runnable {
 		try{
 			doInAcct(cmapyCutOrder);
 		}catch(Exception e){
-			logger.error("【InAcct】入账订单orderid=[{}]入账失败，原因：入账信息发送失败,请查看日志,>>>>更新入账订单状态为入账失败",cmapyCutOrder.getOrderId());
+			logger.error("【InAcct】入账订单orderid=[{}]入账失败，原因：入账信息发送失败,请查看日志,>>>>更新入账订单状态为入账失败",cmapyCutOrder.getOrderId(),e);
 			cmapyCutOrder.setInAcct("3");
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
     	logger.info("===========================【InAcct】入账处理时间为=="+(System.currentTimeMillis()-starttime));
 		//更新订单入账状态
@@ -74,8 +74,8 @@ public class InAcctDoTask implements Runnable {
 			cmapyCutOrderMapper.updateByPrimaryKeySelective(cmapyCutOrder);
 		}catch(Exception e){
 			logger.error("====orderid:" + cmapyCutOrder.getOrderId() + "入账状态:" + cmapyCutOrder.getInAcct()
-					+ "，原因：更新入账信息到数据库失败,======");
-			e.printStackTrace();
+					+ "，原因：更新入账信息到数据库失败,======",e);
+//			e.printStackTrace();
 		}
 		System.out.println("===========================【InAcct】入账任务处理时间+更新状态时间为=="+(System.currentTimeMillis()-starttime));
 
@@ -85,8 +85,8 @@ public class InAcctDoTask implements Runnable {
 		try{
 
 	        CommonRqHdr com=new CommonRqHdr();
-	        com.setRqUID(CmpayUtils.getUUID());
-//	        com.setRqUID(cmapyCutOrder.getOrderId());
+//	        com.setRqUID(CmpayUtils.getUUID());
+	        com.setRqUID(cmapyCutOrder.getOrderId());
 	        com.setSPName(AcctConstant.spName);
 	        com.setNumTranCode(AcctConstant.NumTranCode);
 	        com.setClearDate(CmpayUtils.getCurrentTime("yyyyMMdd"));
@@ -125,10 +125,10 @@ public class InAcctDoTask implements Runnable {
 
 
 		}catch(Exception e){
-			logger.error("orderId[{}]入账异常！！！",cmapyCutOrder.getOrderId());
+			logger.error("orderId[{}]入账异常！！！",cmapyCutOrder.getOrderId(),e);
         	cmapyCutOrder.setInAcct("3");
         	cmapyCutOrder.setRemark("入账异常");
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 
 	}

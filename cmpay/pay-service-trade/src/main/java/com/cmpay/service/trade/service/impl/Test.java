@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.alibaba.fastjson.JSON;
 import com.cmpay.service.trade.exception.TradeBizException;
 
 /**
@@ -28,15 +29,25 @@ public class Test {
 	}
 
 	public static void main(String[] args) {
-		Test t=new Test();
-        try{
-		Map<String,String> r=t.sayhello("00");
+//		Test t=new Test();
+//        try{
+//		Map<String,String> r=t.sayhello("00");
+//
+//		System.out.println(r.toString());
+//        }catch(TradeBizException e){
+//        	System.out.println("捕捉到了哈哈");
+//        	System.out.println(String.valueOf(e.getCode())+","+e.getMsg());
+//        }
 
-		System.out.println(r.toString());
-        }catch(TradeBizException e){
-        	System.out.println("捕捉到了哈哈");
-        	System.out.println(String.valueOf(e.getCode())+","+e.getMsg());
-        }
+	//	System.out.println(new BigDecimal(16));
+
+		Map<String,String> map=new HashMap<String,String>();
+		map.put("code", "000");
+		map.put("msg", "8");
+
+		String json=JSON.toJSONString(map);
+		System.out.println(json);
+
 	}
 
 }

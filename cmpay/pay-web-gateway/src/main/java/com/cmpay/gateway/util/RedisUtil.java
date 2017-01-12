@@ -7,6 +7,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+import com.cmpay.common.util.RedisConstants;
+import com.cmpay.gateway.model.CmpayCardBin;
+
 /**
  * @author gengkangkang
  * @E-mail gengkangkang@cm-inv.com
@@ -107,9 +110,45 @@ public class RedisUtil {
 //	        System.out.println("删除后str=="+ru.get("test"));
 
 
+	        //测试卡bin
+           String cardno="6228482978638035076";
+           System.out.println("cardno="+cardno);
+           for(int i=4;i<=10;i++){
+        	   String cardBin=cardno.substring(0,i);
+        	   if(i==4 && !"9558".equals(cardBin))
+        		   continue;
 
-
+        	   ValueOperations<String, CmpayCardBin> valueops = redisTemplate.opsForValue();
+        	   CmpayCardBin c=valueops.get(RedisConstants.CMPAY_CARDBIN_+cardBin+"_"+cardno.length());
+               if(c!=null){
+            	   System.out.println("查出来了，"+c.toString());
+            	   return;
+               }
+           }
+                 System.out.println("没查到");
 
 	}
+
+//    public UpCardbin getCardBinByCardNO(String cardNo){
+//    	logger.info("根据cardno={}查询卡bin信息",cardNo);
+//        for (int i = 4; i <= 10; i++) {
+//            String cardBin = cardNo.substring(0, i);
+//            if (i == 4 && !"9558".equals(cardBin))
+//               continue;
+//
+//        	List<UpCardbin> binList = new JPAQuery(em).from(qUpCardbin).where(
+//        			qUpCardbin.cardBin.eq(cardBin)
+//    				).list(qUpCardbin);
+//
+//        	if(binList.size()>0){
+//        		return binList.get(0);
+//        	}
+//
+//        }
+//
+//        logger.error("卡BIN查询数据库匹配失败，未找到{}卡号对应的卡BIN信息", cardNo);
+//        return null;
+//
+//    }
 
 }

@@ -42,7 +42,7 @@
           
          <!--  <table tableName="TEST_USER" domainObjectName="TestUser" />  -->
           
-        <table tableName="CMPAY_CHANNEL_CONFIG" domainObjectName="CmapyChannelConfig" enableSelectByExample="true" enableDeleteByExample="true"  
+        <table tableName="CMPAY_SETT_TOTAL" domainObjectName="CmapySettTotal" enableSelectByExample="true" enableDeleteByExample="true"  
             enableCountByExample="true" enableUpdateByExample="true" />  
   
     </context>  

@@ -2,6 +2,11 @@ package com.cmpay.facade.trade;
 
 import java.util.Map;
 
+import com.cmpay.facade.entity.PayRefundRq;
+import com.cmpay.facade.entity.PayRefundRs;
+import com.cmpay.facade.entity.QueryPayCutRq;
+import com.cmpay.facade.entity.QueryPayCutRs;
+
 /**
  * 支付相关接口
  * @author gengkangkang
@@ -48,4 +53,28 @@ public interface UpayService {
      * @return
      */
     public Map<String,Object> payCut(String merchantId,String inchannel,String userId,String amount,String cardNo,String origiOrderId,String payCode,String transType,String orderIp,String idNo,String idType,String name,String bankMobile,String bankCode,String bankName);
+
+
+    public Map<String,Object> payConsume(String merchantId,String inchannel,String userId,String amount,String cardNo,String origiOrderId,String payCode,String transType,String orderIp,String idNo,String idType,String name,String bankMobile,String bankCode,String bankName);
+
+    /**
+     * 根据卡号查询卡bin信息
+     * @param cardNo
+     * @return
+     */
+    public Map<String,String> getCardInfoByCardNo(String cardNo);
+
+    /**
+     * 查询订单状态
+     * @param queryPayCutRq
+     * @return
+     */
+    public QueryPayCutRs queryOrder(QueryPayCutRq queryPayCutRq);
+     /**
+      * 退款
+      * @param payRefundRq
+      * @return
+      */
+    public PayRefundRs payRefund(PayRefundRq payRefundRq);
+
 }

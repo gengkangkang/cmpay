@@ -236,7 +236,7 @@ public class PayAction extends BaseAction {
     public String queryOrder(@RequestBody String str){
 		logger.info("[queryOrder]接受到的字符串================"+str);
 		String merchantId=null;
-		QueryPayCutRs res = null;
+		QueryPayCutRs res = new QueryPayCutRs();
 		try{
 			JSONObject jsonObject=JSONObject.parseObject(str);
         	String sign=jsonObject.getString("sign");
@@ -259,10 +259,14 @@ public class PayAction extends BaseAction {
             logger.info("业务异常,code=[{}],msg=[{}]",tbe.getCode(),tbe.getMsg());
             res.setRespCode(tbe.getCode());
             res.setRespMsg(tbe.getMsg());
+//            res.setSign(null);
+//            return JSON.toJSONString(res);
   		}catch(Exception e){
 			e.printStackTrace();
 			res.setRespCode(Constants.EXCEPTION_CODE);
             res.setRespMsg("查询异常");
+//            res.setSign(null);
+//            return JSON.toJSONString(res);
 		}
 		 //加入签名
         String resSign=this.genMD5Sign((JSONObject)JSON.toJSON(res), merchantId);
@@ -290,7 +294,7 @@ public class PayAction extends BaseAction {
     public String payRefund(@RequestBody String str){
 		logger.info("[payRefund]接受到的字符串================"+str);
 		String merchantId=null;
-		PayRefundRs res = null;
+		PayRefundRs res = new PayRefundRs();
 		try{
 			JSONObject jsonObject=JSONObject.parseObject(str);
         	String sign=jsonObject.getString("sign");
@@ -313,10 +317,12 @@ public class PayAction extends BaseAction {
             logger.info("业务异常,code=[{}],msg=[{}]",tbe.getCode(),tbe.getMsg());
             res.setRespCode(tbe.getCode());
             res.setRespMsg(tbe.getMsg());
+
   		}catch(Exception e){
 			e.printStackTrace();
 			res.setRespCode(Constants.EXCEPTION_CODE);
             res.setRespMsg("退款异常");
+
 		}
 		 //加入签名
         String resSign=this.genMD5Sign((JSONObject)JSON.toJSON(res), merchantId);

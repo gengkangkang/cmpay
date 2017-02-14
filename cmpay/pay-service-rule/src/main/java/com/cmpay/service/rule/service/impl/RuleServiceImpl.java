@@ -57,7 +57,7 @@ public class RuleServiceImpl implements RuleService {
                 if(StringUtils.equals(Constants.ON, cpc.getOpenStatus())){
                 	//根据渠道号和bankCode查询pcBankCode,后续放入redis中
                 	CmpaySuppBankExample cmpaySuppBankExample=new CmpaySuppBankExample();
-                	cmpaySuppBankExample.createCriteria().andPayChannelCodeEqualTo(payCode).andPayBankCodeEqualTo(bankCode);
+                	cmpaySuppBankExample.createCriteria().andPayChannelCodeEqualTo(payCode).andPayBankCodeEqualTo(bankCode).andStatusEqualTo(Constants.ON);
                 	List<CmpaySuppBank> list=cmpaySuppBankMapper.selectByExample(cmpaySuppBankExample);
                 	if(null==list ||list.size()==0){
                 		//支付渠道不支持该银行

@@ -8,6 +8,7 @@ public class Constants {
 	//定义统一返回码
 	   public static String SUCCESS_CODE="0000";
 	   public static String SUCCESS_MSG="交易成功";
+	   public static String SUCCESS_OK="ok";
 	   public static String FAILED_CODE="9901";
 	   public static String FAILED_MSG="交易失败";
 	   public static String EXCEPTION_CODE="9999";
@@ -78,6 +79,10 @@ public class Constants {
 	   public static String TRADE_ERROR_8823_MSG="退款金额不能大于原订单金额";
 	   public static String TRADE_ERROR_8824_CODE="8824";
 	   public static String TRADE_ERROR_8824_MSG="退款申请人和订单用户不一致";
+	   public static String TRADE_ERROR_8825_CODE="8825";
+	   public static String TRADE_ERROR_8825_MSG="银行卡号非法";
+	   public static String TRADE_ERROR_8826_CODE="8826";
+	   public static String TRADE_ERROR_8826_MSG="金额非法";
 
 
 	   public static String TRADE_ERROR_C9999_CODE="C9999";

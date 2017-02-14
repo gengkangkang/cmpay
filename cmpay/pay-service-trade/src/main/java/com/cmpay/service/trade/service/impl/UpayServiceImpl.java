@@ -101,6 +101,14 @@ public class UpayServiceImpl implements UpayService {
 
         }
 
+        //判断卡号、金额
+        if(!CmpayUtils.isCardNo(cardNo)){
+           logger.info("银行卡号非法");
+            result.put(Constants.CODE_KEY, Constants.TRADE_ERROR_8825_CODE);
+        	result.put(Constants.MSG_KEY, Constants.TRADE_ERROR_8825_MSG);
+        	return result;
+        }
+
         //bankCode可以为空，根据卡号查询
         Map<String,String> binMap=this.getBankCodeByCardNo(cardNo);
         if(binMap==null){
@@ -220,11 +228,22 @@ public class UpayServiceImpl implements UpayService {
 					,merchantId,inchannel,userId,amount,cardNo,origiOrderId,payCode,idNo,idType,name,bankMobile,bankCode,bankName);
          if(StringUtils.isBlank(merchantId)||StringUtils.isBlank(inchannel)||StringUtils.isBlank(userId)||StringUtils.isBlank(amount)
         		 ||StringUtils.isBlank(cardNo)||StringUtils.isBlank(origiOrderId)||StringUtils.isBlank(idNo)||StringUtils.isBlank(idType)||StringUtils.isBlank(name)
-        		 ||StringUtils.isBlank(bankMobile)){
+        		 ||StringUtils.isBlank(bankMobile)||StringUtils.isBlank(orderIp)){
         	 logger.info("缺少必要参数");
         	 throw new TradeBizException(Constants.PARA_ERROR_8905_CODE,Constants.PARA_ERROR_8905_MSG);
 
          }
+
+         //判断卡号、金额
+         if(!CmpayUtils.isCardNo(cardNo)){
+             logger.info("银行卡号非法");
+         	 throw new TradeBizException(Constants.TRADE_ERROR_8825_CODE,Constants.TRADE_ERROR_8825_MSG);
+         }
+         if(!CmpayUtils.isAmount(amount)){
+        	 logger.info("金额非法");
+         	 throw new TradeBizException(Constants.TRADE_ERROR_8826_CODE,Constants.TRADE_ERROR_8826_MSG);
+         }
+
 
 
          //bankCode可以为空，根据卡号查询
@@ -433,10 +452,20 @@ public class UpayServiceImpl implements UpayService {
 					,merchantId,inchannel,userId,amount,cardNo,origiOrderId,payCode,idNo,idType,name,bankMobile,bankCode,bankName);
          if(StringUtils.isBlank(merchantId)||StringUtils.isBlank(inchannel)||StringUtils.isBlank(userId)||StringUtils.isBlank(amount)
         		 ||StringUtils.isBlank(cardNo)||StringUtils.isBlank(origiOrderId)||StringUtils.isBlank(idNo)||StringUtils.isBlank(idType)||StringUtils.isBlank(name)
-        		 ||StringUtils.isBlank(bankMobile)){
+        		 ||StringUtils.isBlank(bankMobile)||StringUtils.isBlank(orderIp)){
         	 logger.info("缺少必要参数");
         	 throw new TradeBizException(Constants.PARA_ERROR_8905_CODE,Constants.PARA_ERROR_8905_MSG);
 
+         }
+
+         //判断卡号、金额
+         if(!CmpayUtils.isCardNo(cardNo)){
+             logger.info("银行卡号非法");
+         	 throw new TradeBizException(Constants.TRADE_ERROR_8825_CODE,Constants.TRADE_ERROR_8825_MSG);
+         }
+         if(!CmpayUtils.isAmount(amount)){
+        	 logger.info("金额非法");
+         	 throw new TradeBizException(Constants.TRADE_ERROR_8826_CODE,Constants.TRADE_ERROR_8826_MSG);
          }
 
 
@@ -674,8 +703,19 @@ public class UpayServiceImpl implements UpayService {
 
 	@Override
 	public Map<String, String> getCardInfoByCardNo(String cardNo) {
-		Map<String,String> data=null;
+
+
+
+		Map<String,String> data=new HashMap<String,String>();
         logger.info("cardno="+cardNo);
+
+        if(!CmpayUtils.isCardNo(cardNo)){
+            logger.info("银行卡号非法");
+            data.put(Constants.RESPCODE_KEY, Constants.TRADE_ERROR_8825_CODE);
+            data.put(Constants.RESPMSG_KEY, Constants.TRADE_ERROR_8825_MSG);
+        	return data;
+        }
+
         for(int i=4;i<=10;i++){
      	   String cardBin=cardNo.substring(0,i);
      	   if(i==4 && !"9558".equals(cardBin))
@@ -684,6 +724,8 @@ public class UpayServiceImpl implements UpayService {
      	     data=(Map<String,String>) redisUtil.get(RedisConstants.CMPAY_CARDBIN_+cardBin+"_"+cardNo.length());
             if(data!=null){
            	 logger.info("卡信息【{}】",data.toString());
+             data.put(Constants.RESPCODE_KEY, Constants.SUCCESS_CODE);
+             data.put(Constants.RESPMSG_KEY, Constants.SUCCESS_OK);
          	   return data;
             }
         }
@@ -705,6 +747,8 @@ public class UpayServiceImpl implements UpayService {
                	 data.put(RedisConstants.bankCode, cmpayCardBin.getCmpayCode());
                	 data.put(RedisConstants.bankName, cmpayCardBin.getCmpayName());
                	 data.put(RedisConstants.cardType, cmpayCardBin.getCardType());
+               	 data.put(Constants.RESPCODE_KEY, Constants.SUCCESS_CODE);
+                 data.put(Constants.RESPMSG_KEY, Constants.SUCCESS_OK);
                	 try{
                     	redisUtil.set(RedisConstants.CMPAY_CARDBIN_+cmpayCardBin.getCardBin()+"_"+cmpayCardBin.getCardLength(), data);
                	 }catch(Exception e){
@@ -767,6 +811,12 @@ public class UpayServiceImpl implements UpayService {
          if(!InChannelEnum.contains(inchannel)){
          	logger.info("非法的渠道！！！");
        	    throw new TradeBizException(Constants.TRADE_ERROR_8805_CODE,Constants.TRADE_ERROR_8805_MSG);
+         }
+
+
+         if(!CmpayUtils.isAmount(refundAmt)){
+        	 logger.info("金额非法");
+         	 throw new TradeBizException(Constants.TRADE_ERROR_8826_CODE,Constants.TRADE_ERROR_8826_MSG);
          }
 
          //查询原订单信息，只有状态为SUCC的才能退款，并且退款金额小于等于原订单金额

@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -204,16 +206,49 @@ public class CmpayUtils {
 		}
 	}
 
+	//金额验证
+	public static boolean isAmount(String str){
+	     Pattern pattern=Pattern.compile("^(([1-9]{1}\\d*)|([0]{1}))(\\.(\\d){0,2})?$"); // 判断小数点后2位的数字的正则表达式
+	     Matcher match=pattern.matcher(str);
+	     if(match.matches()==false){
+	        return false;
+	     }else{
+	        return true;
+	     }
+	 }
+
+	/**
+	 * 简单判断卡号参数，具体有卡bin判断
+	 */
+	public static boolean isCardNo(String cardNo){
+		if(!isNumeric(cardNo)){
+			return false;
+		}
+		if(cardNo.length()<10 || cardNo.length()>20){
+			return false;
+		}
+
+		return true;
+	}
+
+	public static boolean isNumeric(String str){
+	    Pattern pattern = Pattern.compile("[0-9]*");
+	    return pattern.matcher(str).matches();
+	 }
+
 	public static void main(String[] args){
 //		System.out.println(createOrderId("WX","98765","00"));
 //		System.out.println(PayWayEnum.WX.toString());
 //		System.out.println(PayWayEnum.WX.getValue());
 
-		System.out.println(getRandom(999, 100));
-		System.out.println(createOrderId("80001","01"));
-		System.out.println(createCPOrderId("01"));
+//		System.out.println(getRandom(999, 100));
+//		System.out.println(createOrderId("80001","01"));
+//		System.out.println(createCPOrderId("01"));
+//
+//		System.out.println(getCurrentTime("yyyyMMdd"));
 
-		System.out.println(getCurrentTime("yyyyMMdd"));
+//		System.out.println(isNumber("100.369"));
+		System.out.println(isCardNo("1000000000"));
 	}
 
 }

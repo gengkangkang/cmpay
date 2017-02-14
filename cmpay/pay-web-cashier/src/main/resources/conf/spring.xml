@@ -14,7 +14,7 @@
     <context:component-scan base-package="com.cmpay.weixin.service" />
     
     
-    <import resource="classpath:conf/spring-consumer.xml" />
+    <!-- <import resource="classpath:conf/spring-consumer.xml" /> -->
     
   	<bean id="exceptionResolver" class="com.cmpay.cashier.exception.ExceptionResolver"></bean>
   

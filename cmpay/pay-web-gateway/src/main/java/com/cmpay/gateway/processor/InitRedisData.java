@@ -45,33 +45,30 @@ public class InitRedisData {
         try{
         List<CmpayIpBinding> ipList=cmpayIpBindingMapper.getIpList();
          System.out.println("--------------------:"+ipList.size());
-         boolean flag = redisUtil.set(RedisConstants.CMPAY_IP_BINDING_LIST, ipList);
-         logger.info("初始化iplist状态："+flag);
+
+//         boolean flag = redisUtil.set(RedisConstants.CMPAY_IP_BINDING_LIST, ipList);
+//         logger.info("初始化iplist状态："+flag);
+
+         for(CmpayIpBinding cmpayIpBinding:ipList){
+        	 redisUtil.set(RedisConstants.CMPAY_IPCONTROL_+cmpayIpBinding.getIp(), cmpayIpBinding.getIp());
+         }
+
+
         }catch(Exception e){
         	logger.error("初始化iplist异常！！！！！！");
         	e.printStackTrace();
         }
-//         System.out.println("======测试取数据=====");
-//         List<CmpayIpBinding> res=(List<CmpayIpBinding>) redisUtil.get(RedisConstants.CMPAY_IP_BINDING_LIST);
-//          System.out.println("list=="+res.toString());
-//          for(CmpayIpBinding cip:res){
-//        	  System.out.println(cip.getIp());
-//        	  System.out.println(cip.getCreatetime());
-//
-//          }
-//          System.out.println("测试删除数据=========");
-//          boolean delflag=redisUtil.del(RedisConstants.CMPAY_IP_BINDING_LIST);
-//          System.out.println("删除状态："+delflag);
+
         logger.info("===================初始化绑定IP数据 end======================");
-        MerConfigExample merConfigExample=new MerConfigExample();
-        List<MerConfig> mcList=merConfigMapper.selectByExample(merConfigExample);
-        for(MerConfig merConfig:mcList){
-        	redisUtil.set(RedisConstants.CMPAY_MD5KEY_+merConfig.getMerchantid(), merConfig.getPartnerkey());
-        }
+
 
         logger.info("===================初始化MD5数据 start======================");
         try{
-
+            MerConfigExample merConfigExample=new MerConfigExample();
+            List<MerConfig> mcList=merConfigMapper.selectByExample(merConfigExample);
+            for(MerConfig merConfig:mcList){
+            	redisUtil.set(RedisConstants.CMPAY_MD5KEY_+merConfig.getMerchantid(), merConfig.getPartnerkey());
+            }
         }catch(Exception e){
         	logger.error("初始化MD5数据异常！！！！");
         	e.printStackTrace();

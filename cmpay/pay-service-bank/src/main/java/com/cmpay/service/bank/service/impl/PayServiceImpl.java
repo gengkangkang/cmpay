@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.cmpay.common.enums.AuthChannelEnum;
 import com.cmpay.common.enums.CpErrorCodeEnum;
+import com.cmpay.common.enums.CpPayRespCodeEnum;
 import com.cmpay.common.enums.IdTypeEnum;
 import com.cmpay.common.enums.JYTErrorCodeEnum;
 import com.cmpay.common.enums.PayStatusEnum;
@@ -25,13 +27,17 @@ import com.cmpay.common.util.Constants;
 import com.cmpay.service.bank.dao.CmpayAuthRecordMapper;
 import com.cmpay.service.bank.dao.CmpayChannelConfigMapper;
 import com.cmpay.service.bank.dao.CmpayCutOrderMapper;
+import com.cmpay.service.bank.dao.CmpayPayOrderMapper;
 import com.cmpay.service.bank.model.CmpayAuthRecord;
 import com.cmpay.service.bank.model.CmpayChannelConfig;
 import com.cmpay.service.bank.model.CmpayChannelConfigExample;
 import com.cmpay.service.bank.model.CmpayCutOrder;
+import com.cmpay.service.bank.model.CmpayPayOrder;
+import com.cmpay.service.bank.model.SinPayResp;
 import com.cmpay.service.bank.service.PayService;
 import com.cmpay.service.chinapay.model.CpAuthBgRespDef;
 import com.cmpay.service.chinapay.model.CpSinCutRespDef;
+import com.cmpay.service.chinapay.model.CpSinPayRespDef;
 import com.cmpay.service.chinapay.service.ChinapayService;
 import com.cmpay.service.jytpay.model.CpJYTRespDef;
 import com.cmpay.service.jytpay.service.JYTAuthService;
@@ -63,6 +69,9 @@ public class PayServiceImpl implements PayService {
     JYTPayService jYTPayService;
     @Autowired
     CmpayCutOrderMapper cmpayCutOrderMapper;
+
+    @Autowired
+    CmpayPayOrderMapper cmpayPayOrderMapper;
 
 	@Override
 	public Map<String, String> doPayAuth(String merchantId,String userId,String inchannel,AuthChannelEnum authChannel,String cardNo, SignCardTypeEnum cardType, String idNo, IdTypeEnum idType,
@@ -381,6 +390,179 @@ public class PayServiceImpl implements PayService {
 					result.put(Constants.PAYSTATUS_KEY, payStatus);
 
 		            return result;
+	}
+
+	@Override
+	public SinPayResp doSinPay(String merchantId, String orderId, String inchannel, PayWayEnum payWayEnum,
+			String cardNo, String name, String bankCode, String bankName, BigDecimal transAmt, String userId,
+			String origOrderNo, String transType, String notifyUrl, String orderip,String province,String city, String remark) {
+
+		logger.info("[doSinPay]开始单笔代付,orderId=[{}],inchannel=[{}],payWayEnum=[{}],cardNO=[{}],origOrderNo=[{}]",orderId,inchannel,payWayEnum.name(),cardNo,origOrderNo);
+		SinPayResp sinPayResp=new SinPayResp();
+		String respCode=Constants.SUCCESS_CODE;
+		String respMsg="ok";
+		String payCode=null;
+		String payMsg=null;
+		String payStatus=null;
+
+		//创建代付订单
+		CmpayPayOrder order = new CmpayPayOrder();
+		order.setOrderId(orderId);
+		order.setInchannel(inchannel);
+		order.setMerNo(merchantId);
+		order.setUserId(userId);
+		order.setOrigOrderNo(origOrderNo);
+		order.setBackUrl(null);
+		order.setBankCode(bankCode);
+		order.setCardNo(cardNo);
+
+
+		order.setCreateTime(new Date());
+		order.setCustId(userId);
+		order.setOrderDesc(remark);
+		order.setNotifyUrl(notifyUrl);
+		order.setOrigOrderNo(origOrderNo);
+		order.setSinpayChannelCode(payWayEnum.name());
+		order.setPayType(payWayEnum.name());
+		order.setTransAmt(transAmt);
+		order.setPayStatus(PayStatusEnum.DEALING.name());
+		order.setProv(province);
+		order.setCity(city);
+		order.setSubBank("");
+		order.setCustName(name);
+		String orderDt = DateFormatUtils.format(new Date(), "yyyyMMddHHmmss");
+		order.setOrderDt(orderDt);
+		order.setPayChanelInteracctno("");
+		order.setCustAcctno("");
+		order.setReAcct((short) 0);
+		order.setInAcct((short) 0);
+		//检查notifyUrl是否为空
+		if(StringUtils.isBlank(notifyUrl)){//notifyUrl为空，说明不用通知
+			order.setHasnotify((short) 0);
+		}else{//不为空，说明需要通知
+			order.setHasnotify((short) 1);
+		}
+		order.setNotifyCount((long)0);
+
+		order.setVersion(0);
+
+
+		//查配置信息，后续放入redis
+		CmpayChannelConfigExample cccCondition=new CmpayChannelConfigExample();
+		cccCondition.createCriteria().andMerNoEqualTo(merchantId).andPaychannelNoEqualTo(payWayEnum.name());
+		List<CmpayChannelConfig> cmpayChannelConfiglist=cmpayChannelConfigMapper.selectByExample(cccCondition);
+		if(cmpayChannelConfiglist.size()<=0){
+			logger.info("该商户缺少配置信息！！！");
+			order.setPayStatus(PayStatusEnum.FAIL.name());
+			order.setRemark("商户缺少配置信息");
+			respCode=Constants.TRADE_ERROR_8806_CODE;
+			respMsg=Constants.TRADE_ERROR_8806_MSG;
+			order.setRespCode(respCode);
+			order.setRespMsg(respMsg);
+			cmpayPayOrderMapper.insert(order);
+
+			sinPayResp.setRespCode(respCode);
+			sinPayResp.setRespMsg(respMsg);
+
+			return sinPayResp;
+
+		}
+
+		CmpayChannelConfig cmpayChannelConfig=cmpayChannelConfiglist.get(0);
+		logger.debug("paychannel config-->[{}]",cmpayChannelConfig.toString());
+		cmpayPayOrderMapper.insert(order);
+
+		//开始单笔代付
+		//根据渠道信息调用相应渠道
+        switch(payWayEnum){
+           case CMPAY0001:
+        	   CpSinPayRespDef resp=null;
+        	   try{
+        	     resp=chinapayService.sinPay(orderId, orderId, cardNo, userId, bankCode, bankName, transAmt, "sinpay", name, province, city, "", cmpayChannelConfig.getThirdMerid());
+          	    logger.info("银联代付返回对象为：[{}]",resp.toString());
+        	   }catch(Exception e){
+        		   logger.error("银联代付出现异常！",e);
+        		   payStatus=PayStatusEnum.DEALING.name();
+        		   order.setPayStatus(payStatus);
+				order.setRemark("银联代付出现异常！");
+				payCode = Constants.TRADE_ERROR_8900_CODE;
+				payMsg = Constants.TRADE_ERROR_8900_MSG;
+				order.setRespCode(respCode);
+				order.setRespMsg(respMsg);
+				cmpayPayOrderMapper.updateByPrimaryKeySelective(order);
+
+				sinPayResp.setRespCode(respCode);
+				sinPayResp.setRespMsg(respMsg);
+				sinPayResp.setPayCode(payCode);
+				sinPayResp.setPayMsg(payMsg);
+				sinPayResp.setPayStatus(payStatus);
+
+				return sinPayResp;
+        	   }
+            if(resp!=null){
+
+					CpPayRespCodeEnum cpPayRespCode = CpPayRespCodeEnum.getByRespCode(resp.getResponseCode());
+					CpPayRespCodeEnum cpPayRespStat = CpPayRespCodeEnum.getByRespCode(resp.getStat());
+					String statMsg = StringUtils.isNotBlank(resp.getStat())?cpPayRespStat.getCoreRespMsg():"";
+					String message = cpPayRespCode.getCoreRespMsg()+statMsg;
+
+					payCode = cpPayRespCode.getRespCode();
+					payMsg = cpPayRespCode.getCoreRespMsg();
+
+
+					order.setRespCode(payCode);
+					order.setRespMsg(message);
+					order.setThirdRespCode(resp.getResponseCode());
+					order.setThirdRespMsg(resp.getRespMsg());
+					order.setThirdOrderNo(resp.getThirdPartOrderNo());
+
+				}
+				if (resp == null || StringUtils.isBlank(resp.getTransStat())) {
+					logger.info("银联无返回对象!");
+					payCode=Constants.TRADE_ERROR_8808_CODE;
+					payMsg=Constants.TRADE_ERROR_8808_MSG;
+					order.setRespCode(payCode);
+					order.setRespMsg(payMsg);
+					order.setPayStatus(PayStatusEnum.DEALING.name());
+					order.setRemark(Constants.TRADE_ERROR_8808_MSG);
+
+					payStatus=PayStatusEnum.DEALING.name();
+				} else if (resp.getTransStat().equals("S")) {
+					order.setPayStatus(PayStatusEnum.SUCC.name());
+					payStatus = PayStatusEnum.SUCC.name();
+				} else if (resp.getTransStat().equals("U")) {
+					order.setPayStatus(PayStatusEnum.DEALING.name());
+					payStatus=PayStatusEnum.DEALING.name();
+				} else if (resp.getTransStat().equals("F")) {
+					order.setPayStatus(PayStatusEnum.FAIL.name());
+					payStatus=PayStatusEnum.FAIL.name();
+
+				} else {
+					order.setPayStatus(PayStatusEnum.DEALING.name());
+					payStatus=PayStatusEnum.DEALING.name();
+
+				}
+
+				break;
+
+
+           default:
+          	 logger.info("不支持的渠道");
+          	 respCode=Constants.FAILED_CODE;
+          	 respMsg="不支持的渠道";
+          	 break;
+        }
+
+        cmpayPayOrderMapper.updateByPrimaryKeySelective(order);
+
+		sinPayResp.setRespCode(respCode);
+		sinPayResp.setRespMsg(respMsg);
+		sinPayResp.setPayCode(payCode);
+		sinPayResp.setPayMsg(payMsg);
+		sinPayResp.setPayStatus(payStatus);
+
+
+		return sinPayResp;
 	}
 
 

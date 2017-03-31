@@ -1,7 +1,7 @@
 package com.cmpay.common.util;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +70,48 @@ public class RedisUtil {
 	        return flag;
 	    }
 
+	   public boolean add(String key,double value){
+	        boolean flag = false;
+	        try {
+	        	ValueOperations<String, Object> valueops = redisTemplate.opsForValue();
+	        	valueops.increment(key, value);
+	        	 flag=true;
+	        } catch (Exception e) {
+	        	logger.error("从redis删除值异常");
+	        	e.printStackTrace();
+	        }
+	        return flag;
+	    }
+
+	   public Object getIncrValue(String key){
+	        Object value = null;
+	        try {
+	             value = redisTemplate.boundValueOps(key).get(0, -1);
+	        } catch (Exception e) {
+	        	logger.error("从redis获取值异常");
+	        	e.printStackTrace();
+	        }
+	        return value;
+	    }
+
+	   public boolean delByPreStr(String key){
+	        boolean flag = false;
+	        try {
+	        	 Set<String> set=redisTemplate.keys(key+"*");
+	 	        logger.info("即将批量删除条数为："+set.size());
+	 	        Iterator<String> it=set.iterator();
+	 	        while(it.hasNext()){
+	 	        	String keyStr=it.next();
+	 	        	logger.info("删除keyStr="+keyStr);
+	 	        	redisTemplate.delete(keyStr);
+	 	        }
+	        	 flag=true;
+	        } catch (Exception e) {
+	        	logger.error("从redis批量删除值异常");
+	        	e.printStackTrace();
+	        }
+	        return flag;
+	    }
 
 	public static void main(String[] args) throws Exception {
 		 ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"spring/spring.xml"});
@@ -84,20 +126,20 @@ public class RedisUtil {
 //            System.out.println("name===="+name);
 
 
-	        ValueOperations<String, List<String>> valueops = redisTemplate.opsForValue();
-	        List<String> ipList=new ArrayList<String>();
-	        ipList.add("10.17.5.65");
-	        ipList.add("10.17.5.66");
-	        ipList.add("10.17.5.67");
-
-            System.out.println("向redis写入值");
-	        valueops.set("ipList", ipList);
-            System.out.println("从redis取值");
-            List<String> ips=valueops.get("ipList");
-            System.out.println("ips===="+ips);
-            for(String ip:ips){
-            	System.out.println(ip);
-            }
+//	        ValueOperations<String, List<String>> valueops = redisTemplate.opsForValue();
+//	        List<String> ipList=new ArrayList<String>();
+//	        ipList.add("10.17.5.65");
+//	        ipList.add("10.17.5.66");
+//	        ipList.add("10.17.5.67");
+//
+//            System.out.println("向redis写入值");
+//	        valueops.set("ipList", ipList);
+//            System.out.println("从redis取值");
+//            List<String> ips=valueops.get("ipList");
+//            System.out.println("ips===="+ips);
+//            for(String ip:ips){
+//            	System.out.println(ip);
+//            }
 
 //	        Thread.sleep(10);
 //	        RedisUtil ru=new RedisUtil();
@@ -109,6 +151,16 @@ public class RedisUtil {
 //	        System.out.println("根据key删除");
 //	        ru.del("test");
 //	        System.out.println("删除后str=="+ru.get("test"));
+
+
+
+	        //测试加法
+            ValueOperations<String,Integer> valueops= redisTemplate.opsForValue();
+            valueops.increment(RedisConstants.CMPAY_DAYAMOUNT_+"gkk", 2);
+
+            Integer i=valueops.get(RedisConstants.CMPAY_DAYAMOUNT_+"gkk");
+            System.out.println("i======="+i);
+
 
 
 	}

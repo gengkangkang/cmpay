@@ -59,7 +59,7 @@ public class Constants {
 	   public static String TRADE_ERROR_8815_CODE="8815";
 	   public static String TRADE_ERROR_8815_MSG="商户无支付渠道可用";
 	   public static String TRADE_ERROR_8816_CODE="8816";
-	   public static String TRADE_ERROR_8816_MSG="银行关闭或订单金额超出限制";
+	   public static String TRADE_ERROR_8816_MSG="银行关闭";
 	   public static String TRADE_ERROR_8817_CODE="8817";
 	   public static String TRADE_ERROR_8817_MSG="签名验证失败";
 
@@ -84,6 +84,17 @@ public class Constants {
 	   public static String TRADE_ERROR_8826_CODE="8826";
 	   public static String TRADE_ERROR_8826_MSG="金额非法";
 
+	   public static String TRADE_ERROR_8827_CODE="8827";
+	   public static String TRADE_ERROR_8827_MSG="超过单笔限额";
+	   public static String TRADE_ERROR_8828_CODE="8828";
+	   public static String TRADE_ERROR_8828_MSG="超过单日限额";
+	   public static String TRADE_ERROR_8829_CODE="8829";
+	   public static String TRADE_ERROR_8829_MSG="超过单月限额";
+
+
+	   //银联代付
+	   public static String TRADE_ERROR_8900_CODE="8900";
+	   public static String TRADE_ERROR_8900_MSG="银行代付出现异常";
 
 	   public static String TRADE_ERROR_C9999_CODE="C9999";
 	   public static String TRADE_ERROR_C9999_MSG="未知错误";
@@ -104,6 +115,7 @@ public class Constants {
 		public static String WXPAY="10";
 		public static String KJPAY="20";
 		public static String ALIPAY="30";
+		public static String SINPAY="40";
 
 
 	   public static String ON="ON";

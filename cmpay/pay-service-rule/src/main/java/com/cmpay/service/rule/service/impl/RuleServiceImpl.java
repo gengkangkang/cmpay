@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import com.cmpay.common.exception.TradeBizException;
 import com.cmpay.common.util.Constants;
+import com.cmpay.common.util.RedisConstants;
+import com.cmpay.common.util.RedisUtil;
 import com.cmpay.service.rule.bean.RuleResp;
 import com.cmpay.service.rule.dao.CmpaySuppBankMapper;
 import com.cmpay.service.rule.dao.CmpaySuppChannelMapper;
@@ -39,6 +41,8 @@ public class RuleServiceImpl implements RuleService {
 	CmpaySuppChannelMapper cmpaySuppChannelMapper;
     @Autowired
 	CmpaySuppBankMapper cmpaySuppBankMapper;
+	@Autowired
+	RedisUtil redisUtil;
 
 	@Override
 	public RuleResp queryIsSupByMer(String merchantId, String payCode,String bankCode) {
@@ -132,27 +136,124 @@ public class RuleServiceImpl implements RuleService {
          		logger.info("支付渠道【{}】不支持该银行【{}】",cmpayPayChannel1.getCode(),bankCode);
          		avilist.remove(i);
          		i--;
-        	}else{
-        		//4根据单笔限额过滤
-        		CmpaySuppBank cmpaySuppBank=list.get(0);
-                BigDecimal maxAmt=cmpaySuppBank.getSingleMaxAmount();
-                BigDecimal minAmt=cmpaySuppBank.getSingleMinAmount();
-                if(amount.compareTo(maxAmt)==1 || amount.compareTo(minAmt)==-1){
-                	logger.info("支付渠道【{}】该银行【{}】最大限额为【{}】，最小限额为【{}】，交易金额为【{}】",cmpayPayChannel1.getCode(),bankCode,maxAmt,minAmt,amount);
-                	avilist.remove(i);
-             		i--;
-                }
-
         	}
+//         	else{
+//        		//4根据单笔限额过滤
+//        		CmpaySuppBank cmpaySuppBank=list.get(0);
+//                BigDecimal maxAmt=cmpaySuppBank.getSingleMaxAmount();
+//                BigDecimal minAmt=cmpaySuppBank.getSingleMinAmount();
+//                if(amount.compareTo(maxAmt)==1 || amount.compareTo(minAmt)==-1){
+//                	logger.info("支付渠道【{}】该银行【{}】最大限额为【{}】，最小限额为【{}】，交易金额为【{}】",cmpayPayChannel1.getCode(),bankCode,maxAmt,minAmt,amount);
+//                	avilist.remove(i);
+//             		i--;
+//                }
+//
+//        	}
        }
 
         if(avilist.size()<1){
-        	  logger.info("银行关闭或者订单金额超限");
+        	  logger.info("银行关闭");
         	  throw new TradeBizException(Constants.TRADE_ERROR_8816_CODE,Constants.TRADE_ERROR_8816_MSG);
         }
 
+        //4.根据单笔限额过滤
+
+        for(int i=0;i<avilist.size();i++){
+        	CmpaySuppChannel cmpayPayChannel1=avilist.get(i);
+
+    	   CmpaySuppBankExample cmpaySuppBankExample=new CmpaySuppBankExample();
+       	   cmpaySuppBankExample.createCriteria().andPayChannelCodeEqualTo(cmpayPayChannel1.getCode()).andPayBankCodeEqualTo(bankCode).andStatusEqualTo(Constants.ON);
+        	List<CmpaySuppBank> list=cmpaySuppBankMapper.selectByExample(cmpaySuppBankExample);
+
+        	CmpaySuppBank cmpaySuppBank=list.get(0);
+            BigDecimal maxAmt=cmpaySuppBank.getSingleMaxAmount();
+            BigDecimal minAmt=cmpaySuppBank.getSingleMinAmount();
+            if(amount.compareTo(maxAmt)==1 || amount.compareTo(minAmt)==-1){
+            	logger.info("支付渠道【{}】该银行【{}】最大限额为【{}】，最小限额为【{}】，交易金额为【{}】",cmpayPayChannel1.getCode(),bankCode,maxAmt,minAmt,amount);
+            	avilist.remove(i);
+         		i--;
+            }
+
+        }
+
+        if(avilist.size()<1){
+      	  logger.info("订单超过单笔限额");
+      	  throw new TradeBizException(Constants.TRADE_ERROR_8827_CODE,Constants.TRADE_ERROR_8827_MSG);
+      }
 
         //5.判断单日、单月限额，暂不实现，后续根据userId写入redis缓存中
+        //5.1判断单日限额
+
+        for(int i=0;i<avilist.size();i++){
+        	String dayAmount=null;
+        	CmpaySuppChannel cmpayPayChannel1=avilist.get(i);
+        try{
+        	dayAmount=(String) redisUtil.getIncrValue(RedisConstants.CMPAY_DAYAMOUNT_+userId+cmpayPayChannel1.getCode()+bankCode);
+        }catch(Exception e){
+        	logger.info("获取用户单日消费金额失败！！！",e);
+        }
+
+        if(StringUtils.isBlank(dayAmount)){
+        	dayAmount="0";
+        }
+        CmpaySuppBankExample cmpaySuppBankExample=new CmpaySuppBankExample();
+    	   cmpaySuppBankExample.createCriteria().andPayChannelCodeEqualTo(cmpayPayChannel1.getCode()).andPayBankCodeEqualTo(bankCode).andStatusEqualTo(Constants.ON);
+     	List<CmpaySuppBank> list=cmpaySuppBankMapper.selectByExample(cmpaySuppBankExample);
+
+     	CmpaySuppBank cmpaySuppBank=list.get(0);
+         BigDecimal dayMaxAmt=cmpaySuppBank.getDayMaxAmount();
+         BigDecimal resAmt=dayMaxAmt.subtract(new BigDecimal(dayAmount));
+         if(amount.compareTo(resAmt)==1){
+        	 logger.info("用户充值金额超过支付渠道该银行单日最大限额，userId=[{}],amount=[{}],resAmt=[{}]",userId,amount,resAmt);
+        	 avilist.remove(i);
+        	 i--;
+         }
+
+
+        }
+
+        if(avilist.size()<1){
+        	  logger.info("用户【{}】充值超过单日限额，请改日再试！",userId);
+        	  throw new TradeBizException(Constants.TRADE_ERROR_8828_CODE,Constants.TRADE_ERROR_8828_MSG);
+        }
+
+        //5.2判断单月限额
+
+        for(int i=0;i<avilist.size();i++){
+        	String monthAmount = null;
+        	CmpaySuppChannel cmpayPayChannel1=avilist.get(i);
+        try{
+        	monthAmount=(String) redisUtil.getIncrValue(RedisConstants.CMPAY_MONTHAMOUNT_+userId+cmpayPayChannel1.getCode()+bankCode);
+        }catch(Exception e){
+        	logger.info("获取用户单月累计消费金额失败！！！",e);
+        }
+
+        if(StringUtils.isBlank(monthAmount)){
+        	monthAmount="0";
+        }
+
+        CmpaySuppBankExample cmpaySuppBankExample=new CmpaySuppBankExample();
+    	   cmpaySuppBankExample.createCriteria().andPayChannelCodeEqualTo(cmpayPayChannel1.getCode()).andPayBankCodeEqualTo(bankCode).andStatusEqualTo(Constants.ON);
+     	List<CmpaySuppBank> list=cmpaySuppBankMapper.selectByExample(cmpaySuppBankExample);
+
+     	CmpaySuppBank cmpaySuppBank=list.get(0);
+         BigDecimal mothMaxAmt=cmpaySuppBank.getMonthMaxAmount();
+         BigDecimal resAmt=mothMaxAmt.subtract(new BigDecimal(monthAmount));
+         if(amount.compareTo(resAmt)==1){
+        	 logger.info("用户充值金额超过支付渠道该银行单月最大限额，userId=[{}],amount=[{}],resAmt=[{}]",userId,amount,resAmt);
+        	 avilist.remove(i);
+        	 i--;
+         }
+
+
+        }
+
+        if(avilist.size()<1){
+        	  logger.info("用户【{}】充值超过单月限额！",userId);
+        	  throw new TradeBizException(Constants.TRADE_ERROR_8829_CODE,Constants.TRADE_ERROR_8829_MSG);
+        }
+
+
         //6.判断单日、单月限制次数，暂不实现
         //7.计算支付渠道费率，低费率路由，暂不实现
 

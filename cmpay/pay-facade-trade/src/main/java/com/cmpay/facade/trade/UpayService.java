@@ -77,4 +77,8 @@ public interface UpayService {
       */
     public PayRefundRs payRefund(PayRefundRq payRefundRq);
 
+    public Map<String,Object> SinPay(String merchantId,String inchannel,String payCode,String cardNo,
+  		  String name,String bankCode,String bankName,String transAmt,String userId,String origOrderNo,
+  		  String transType,String notifyUrl,String orderip,String province,String city,String remark);
+
 }

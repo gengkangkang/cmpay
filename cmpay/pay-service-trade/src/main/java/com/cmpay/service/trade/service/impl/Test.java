@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.alibaba.fastjson.JSON;
 import com.cmpay.service.trade.exception.TradeBizException;
 
 /**
@@ -41,12 +40,17 @@ public class Test {
 
 	//	System.out.println(new BigDecimal(16));
 
-		Map<String,String> map=new HashMap<String,String>();
-		map.put("code", "000");
-		map.put("msg", "8");
-
-		String json=JSON.toJSONString(map);
-		System.out.println(json);
+//		Map<String,String> map=new HashMap<String,String>();
+//		map.put("code", "000");
+//		map.put("msg", "8");
+//
+//		String json=JSON.toJSONString(map);
+//		System.out.println(json);
+		String name="disconf.hello";
+	    if (name.contains("disconf.")) {
+            String newName = name.substring(name.indexOf('.') + 1);
+            System.out.println(newName);
+        }
 
 	}
 

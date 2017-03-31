@@ -30,6 +30,7 @@ import com.cmpay.facade.entity.PayRefundRs;
 import com.cmpay.facade.entity.QueryPayCutRq;
 import com.cmpay.facade.entity.QueryPayCutRs;
 import com.cmpay.facade.trade.UpayService;
+import com.cmpay.service.bank.model.SinPayResp;
 import com.cmpay.service.bank.service.PayAuthService;
 import com.cmpay.service.bank.service.PayService;
 import com.cmpay.service.rule.bean.RuleResp;
@@ -388,6 +389,16 @@ public class UpayServiceImpl implements UpayService {
            cmpayTradeRecord.setRespMsg(respayMsg);
            cmpayTradeRecord.setPayStatus(respayStatus);
 
+           if(StringUtils.equals(respayStatus, PayStatusEnum.SUCC.name())){
+           //写入限额
+           try{
+        	   redisUtil.add(RedisConstants.CMPAY_DAYAMOUNT_+userId+payWayEnum.name()+bankCode, Double.parseDouble(amount));
+        	   redisUtil.add(RedisConstants.CMPAY_MONTHAMOUNT_+userId+payWayEnum.name()+bankCode, Double.parseDouble(amount));
+
+           }catch(Exception e){
+        	   logger.info("写入日、月限额异常！！！！！！！",e);
+           }
+           }
 
 		}else{
 			cmpayTradeRecord.setPayStatus(PayStatusEnum.FAIL.name());
@@ -600,7 +611,17 @@ public class UpayServiceImpl implements UpayService {
            cmpayTradeRecord.setRespMsg(respayMsg);
            cmpayTradeRecord.setPayStatus(respayStatus);
 
+           if(StringUtils.equals(respayStatus, PayStatusEnum.SUCC.name())){
+           //写入限额
+           try{
+        	   redisUtil.add(RedisConstants.CMPAY_DAYAMOUNT_+userId+payWayEnum.name()+bankCode, Double.parseDouble(amount));
+        	   redisUtil.add(RedisConstants.CMPAY_MONTHAMOUNT_+userId+payWayEnum.name()+bankCode, Double.parseDouble(amount));
 
+           }catch(Exception e){
+        	   logger.info("写入日、月限额异常！！！！！！！",e);
+           }
+
+           }
 		}else{
 			cmpayTradeRecord.setPayStatus(PayStatusEnum.FAIL.name());
 			cmpayTradeRecord.setRespCode(respCode);
@@ -896,6 +917,218 @@ public class UpayServiceImpl implements UpayService {
 
 
 		return res;
+	}
+
+	@Override
+	public Map<String, Object> SinPay(String merchantId, String inchannel, String payCode, String cardNo, String name,
+			String bankCode, String bankName, String transAmt, String userId, String origOrderNo, String transType,
+			String notifyUrl, String orderip, String province, String city, String remark) {
+
+
+		Map<String,Object> result=new HashMap<String,Object>();
+        CmpayTradeRecord cmpayTradeRecord=new CmpayTradeRecord();
+        PayWayEnum payWayEnum=null;
+        SinPayResp sinPayResp=new SinPayResp();
+
+		try{
+       //1.校验前置或内部服务传的参数
+			logger.info("SinPay para:merchantId=[{}],inchannel=[{}],userId=[{}],transAmt=[{}],cardNo=[{}],origOrderNo=[{}],payCode=[{}],name=[{}],bankCode=[{}],bankName=[{}],province=[{}],city=[{}]"
+					,merchantId,inchannel,userId,transAmt,cardNo,origOrderNo,payCode,name,bankCode,bankName,province,city);
+         if(StringUtils.isBlank(merchantId)||StringUtils.isBlank(inchannel)|| StringUtils.isBlank(transAmt)
+        		 ||StringUtils.isBlank(cardNo)||StringUtils.isBlank(origOrderNo)||StringUtils.isBlank(province)||StringUtils.isBlank(city)||StringUtils.isBlank(name)){
+        	 logger.info("缺少必要参数");
+        	 throw new TradeBizException(Constants.PARA_ERROR_8905_CODE,Constants.PARA_ERROR_8905_MSG);
+
+         }
+
+         //判断卡号、金额
+         if(!CmpayUtils.isCardNo(cardNo)){
+             logger.info("银行卡号非法");
+         	 throw new TradeBizException(Constants.TRADE_ERROR_8825_CODE,Constants.TRADE_ERROR_8825_MSG);
+         }
+         if(!CmpayUtils.isAmount(transAmt)){
+        	 logger.info("金额非法");
+         	 throw new TradeBizException(Constants.TRADE_ERROR_8826_CODE,Constants.TRADE_ERROR_8826_MSG);
+         }
+
+
+
+         //bankCode可以为空，根据卡号查询
+         Map<String,String> binMap=this.getBankCodeByCardNo(cardNo);
+         if(binMap==null){
+         	logger.info("根据卡号没查到卡信息，请核对！！！");
+         	 throw new TradeBizException(Constants.TRADE_ERROR_8819_CODE,Constants.TRADE_ERROR_8819_MSG);
+         }
+         bankCode=binMap.get(RedisConstants.bankCode);
+         String cardT=binMap.get(RedisConstants.cardType);
+         if(!StringUtils.equals(cardT, "D")){
+         	logger.info("只支持借记卡！！！");
+        	 throw new TradeBizException(Constants.TRADE_ERROR_8820_CODE,Constants.TRADE_ERROR_8820_MSG);
+
+         }
+
+
+
+
+         if(!InChannelEnum.contains(inchannel)){
+         	logger.info("非法的渠道！！！");
+       	    throw new TradeBizException(Constants.TRADE_ERROR_8805_CODE,Constants.TRADE_ERROR_8805_MSG);
+         }
+
+         if(StringUtils.isNotBlank(payCode)){
+             if(!PayWayEnum.contains(payCode)){
+              	logger.info("不支持的支付渠道！！！");
+            	    throw new TradeBizException(Constants.TRADE_ERROR_8801_CODE,Constants.TRADE_ERROR_8801_MSG);
+              }
+         }
+
+         TransTypeEnum transTypeEnum=TransTypeEnum.getByTransCode(transType);
+         if(transTypeEnum==null){
+        	 logger.info("不支持的交易类型！！！");
+     	    throw new TradeBizException(Constants.TRADE_ERROR_8809_CODE,Constants.TRADE_ERROR_8809_MSG);
+         }
+         //判断交易类型是否为代付
+
+         if(!StringUtils.equals(transType, "02")){
+        	 throw new TradeBizException(Constants.TRADE_ERROR_8809_CODE,Constants.TRADE_ERROR_8809_MSG);
+         }
+      //订单查重
+         CmpayTradeRecordExample cmpayTradeRecordExample=new CmpayTradeRecordExample();
+         cmpayTradeRecordExample.createCriteria().andMerNoEqualTo(merchantId).andOrigOrderNoEqualTo(origOrderNo);
+         List<CmpayTradeRecord> tlist=cmpayTradeRecordMapper.selectByExample(cmpayTradeRecordExample);
+         if(tlist.size()>0){
+        	 throw new TradeBizException(Constants.TRADE_ERROR_8814_CODE,Constants.TRADE_ERROR_8814_MSG);
+         }
+
+         //1.1 创建交易流水 CMPAY_RECORD
+//         CmpayTradeRecord cmpayTradeRecord=new CmpayTradeRecord();
+         cmpayTradeRecord.setId(CmpayUtils.getUUID());
+         String orderId=CmpayUtils.createOrderId(Constants.SINPAY, "02");
+         logger.info("生产支付订单号：[{}]",orderId);
+         cmpayTradeRecord.setOrderId(orderId);
+         cmpayTradeRecord.setInchannel(inchannel);
+         cmpayTradeRecord.setMerNo(merchantId);
+         cmpayTradeRecord.setUserId(userId);
+         cmpayTradeRecord.setOrigOrderNo(origOrderNo);
+         cmpayTradeRecord.setTransAmt(new BigDecimal(transAmt));
+         cmpayTradeRecord.setTransType(transTypeEnum.name());
+         cmpayTradeRecord.setPayChannel(payCode);
+         cmpayTradeRecord.setPayStatus(PayStatusEnum.WAIT.name());
+         cmpayTradeRecord.setPeriod(Constants.PERIOD);
+         DateTime d=new DateTime();
+ 		 DateTime d1=d.plusMillis((int)Constants.PERIOD);
+ 		cmpayTradeRecord.setExpireTime(d1.toDate());
+ 		cmpayTradeRecord.setOrderip("");
+ 		cmpayTradeRecord.setCreateTime(new Date());
+ 		cmpayTradeRecord.setVersion(0);
+
+ 		cmpayTradeRecordMapper.insert(cmpayTradeRecord);
+
+         //1.2根据userId查询用户绑卡信息,后续可将信息放入redis中,减少网络请求耗时
+//          merchantId,orderId,inchannel,payWayEnum,cardNo,idNo,idType,
+//		  name,bankMobile,bankCode,bankName,transAmt,userId,origOrderNo,
+//		  transType,isAcct,notifyUrl,toAcctNo,orderip,remark
+
+
+		//2.根据订单信息走自动路由规则
+//         if(StringUtils.isBlank(payCode)){
+//        	 //走路由
+//        	 RuleResp resp=ruleService.payRule(merchantId, transAmt, userId, bankCode);
+//        	 logger.info("resp=[{}]",resp.toString());
+//           	 if(StringUtils.equals(Constants.SUCCESS_CODE, resp.getCode())){
+//        		 payWayEnum=PayWayEnum.getByCode(resp.getPayWay());
+//        		 bankCode=resp.getPcBankCode();
+//        		 bankName=resp.getPcBankName();
+//        	 }else{
+//        		 throw new TradeBizException(resp.getCode(),resp.getMsg());
+//        	 }
+//
+//         }else{
+        	 //判断商户是否支持其指定渠道
+        	 RuleResp ruleResp= ruleService.queryIsSupByMer(merchantId, payCode,bankCode);
+        	 logger.info("ruleResp=[{}]",ruleResp.toString());
+        	 if(StringUtils.equals(Constants.SUCCESS_CODE, ruleResp.getCode())){
+        		 payWayEnum=PayWayEnum.getByCode(ruleResp.getPayWay());
+        		 bankCode=ruleResp.getPcBankCode();
+        		 bankName=ruleResp.getPcBankName();
+        	 }else{
+        		 throw new TradeBizException(ruleResp.getCode(),ruleResp.getMsg());
+        	 }
+//         }
+
+
+		//3.走相应的渠道信息
+
+
+        	                       //   merchantId, orderId, inchannel, payWayEnum,cardNo, name, bankCode,bankName, BigDecimal transAmt, String userId,String origOrderNo, String transType, String notifyUrl, String orderip,String province,String city, String remark)
+
+         sinPayResp=payService.doSinPay(merchantId, orderId, inchannel, payWayEnum, cardNo, name, bankCode, bankName, new BigDecimal(transAmt), userId, origOrderNo, transType, notifyUrl, orderip, province, city, remark);
+		  logger.info("doSinPay resp=[{}]",sinPayResp.toString());
+         //4.组织相应信息
+
+        String respCode=sinPayResp.getRespCode();
+		if(StringUtils.equals(respCode, Constants.SUCCESS_CODE)){
+           String respayCode=sinPayResp.getPayCode();
+           String respayMsg=sinPayResp.getPayMsg();
+           String respayStatus=sinPayResp.getPayStatus();
+           cmpayTradeRecord.setRespCode(respayCode);
+           cmpayTradeRecord.setRespMsg(respayMsg);
+           cmpayTradeRecord.setPayStatus(respayStatus);
+
+
+		}else{
+			cmpayTradeRecord.setPayStatus(PayStatusEnum.FAIL.name());
+			cmpayTradeRecord.setRespCode(respCode);
+			cmpayTradeRecord.setRespMsg(sinPayResp.getRespMsg());
+
+		}
+
+		cmpayTradeRecord.setModifyTime(new Date());
+		cmpayTradeRecord.setPayChannel(payWayEnum.name());
+		cmpayTradeRecordMapper.updateByPrimaryKeySelective(cmpayTradeRecord);
+
+
+		    result.put(Constants.RESPCODE_KEY, respCode);
+	        result.put(Constants.RESPMSG_KEY, sinPayResp.getRespMsg());
+
+	        result.put(Constants.PAYCODE_KEY,sinPayResp.getPayCode());
+	        result.put(Constants.PAYMSG_KEY, sinPayResp.getPayMsg());
+	        result.put(Constants.PAYSTATUS_KEY, sinPayResp.getPayStatus());
+
+
+		}catch(TradeBizException tbe){
+          logger.info("业务异常code=[{}],msg=[{}]",tbe.getCode(),tbe.getMsg());
+          result.put(Constants.RESPCODE_KEY, tbe.getCode());
+          result.put(Constants.RESPMSG_KEY, tbe.getMsg());
+
+            cmpayTradeRecord.setPayStatus(PayStatusEnum.FAIL.name());
+			cmpayTradeRecord.setRespCode((String) result.get(Constants.RESPCODE_KEY));
+			cmpayTradeRecord.setRespMsg((String) result.get(Constants.RESPMSG_KEY));
+			cmpayTradeRecord.setModifyTime(new Date());
+
+			cmpayTradeRecordMapper.updateByPrimaryKeySelective(cmpayTradeRecord);
+
+		}catch(Exception e){
+			logger.info("【sinPay】-----------出现意料外的异常了-------------",e);
+			result.put(Constants.RESPCODE_KEY, Constants.SUCCESS_CODE);
+	        result.put(Constants.RESPMSG_KEY, "出现意外，请稍后查询订单状态");
+
+	        result.put(Constants.PAYCODE_KEY,Constants.TRADE_ERROR_C9999_CODE);
+	        result.put(Constants.PAYMSG_KEY, Constants.TRADE_ERROR_C9999_MSG);
+	        result.put(Constants.PAYSTATUS_KEY, PayStatusEnum.DEALING.name());
+
+            cmpayTradeRecord.setPayStatus(PayStatusEnum.DEALING.name());
+			cmpayTradeRecord.setRespCode(Constants.TRADE_ERROR_C9999_CODE);
+			cmpayTradeRecord.setRespMsg(Constants.TRADE_ERROR_C9999_MSG);
+			cmpayTradeRecord.setModifyTime(new Date());
+			cmpayTradeRecordMapper.updateByPrimaryKeySelective(cmpayTradeRecord);
+
+		}
+
+
+		logger.info("[sinPay]相应报文：{}",result.toString());
+		return result;
+
 	}
 
 }

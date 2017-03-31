@@ -18,4 +18,8 @@ public class RedisConstants {
        public static final String CMPAY_CARDBIN_="CMPAY_CARDBIN_";
        public static final String CMPAY_MD5KEY_="CMPAY_MD5KEY_";
        public static final String CMPAY_IPCONTROL_="CMPAY_IPCONTROL_";
+       public static final String CMPAY_DAYAMOUNT_="CMPAY_DAYAMOUNT_";
+       public static final String CMPAY_MONTHAMOUNT_="CMPAY_MONTHAMOUNT_";
+
+
 }

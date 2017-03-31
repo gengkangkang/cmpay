@@ -1,5 +1,7 @@
 package com.cmpay.service.trade.service.impl;
 
+import java.util.Map;
+
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.cmpay.facade.trade.UpayService;
@@ -25,6 +27,10 @@ public class ConsumerTest {
 //	        System.out.println("map======"+map.toString()); // 显示调用结果
 
 
+
+	        //测试单笔代付
+	        Map<String,Object> map=upayService.SinPay("800010000001", "0000", "CMPAY0001", "6222620140009946277", "测试", "0005", "建行", "0.61", "333", "2017032810020006", "02", "notifyUrl", "10.17.5.102", "上海", "黄埔区", "remark");
+             System.out.println("map===="+map.toString());
 
 	}
 

@@ -7,6 +7,7 @@ import com.cmpay.common.enums.AuthChannelEnum;
 import com.cmpay.common.enums.IdTypeEnum;
 import com.cmpay.common.enums.PayWayEnum;
 import com.cmpay.common.enums.SignCardTypeEnum;
+import com.cmpay.service.bank.model.SinPayResp;
 
 /**
  *
@@ -56,5 +57,9 @@ public interface PayService {
       public Map<String,Object> doPayCut(String merchantId,String orderId,String inchannel,PayWayEnum payWayEnum,String cardNo,String idNo,IdTypeEnum idType,
     		  String name,String bankMobile,String bankCode,String bankName,BigDecimal transAmt,String userId,String origOrderNo,
     		  String transType,String isAcct,String notifyUrl,String toAcctNo,String orderip,String remark);
+
+      public SinPayResp doSinPay(String merchantId,String orderId,String inchannel,PayWayEnum payWayEnum,String cardNo,
+    		  String name,String bankCode,String bankName,BigDecimal transAmt,String userId,String origOrderNo,
+    		  String transType,String notifyUrl,String orderip,String province,String city,String remark);
 
 }

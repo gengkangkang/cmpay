@@ -11,15 +11,51 @@
         http://www.springframework.org/schema/aop/spring-aop-4.3.xsd  
         ">  
         
-    <bean id="env"
+     <bean id="env"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="locations"
 			value="#{systemProperties['env.files'] ?: 'classpath:/conf/*.properties'}" />
 		<property name="fileEncoding" value="UTF-8" ></property>
-	</bean>
+	</bean>  	
   
     <!-- 配置数据源 使用的是Druid数据源 -->  
-   <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"  
+   
+<!--        <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"  
+        init-method="init" destroy-method="close"> 
+        <property name="driverClassName" value="${jdbcDriver}" /> 
+        <property name="url" value="${url}" />  
+        <property name="username" value="${username}" />  
+        <property name="password" value="${password}" />  
+  
+        <property name="initialSize" value="1" />  
+        <property name="maxActive" value="30" />  
+          
+        <property name="minIdle" value="1" />  
+        <property name="maxWait" value="60000" />  
+        <property name="poolPreparedStatements" value="true" />  
+        <property name="maxPoolPreparedStatementPerConnectionSize"  
+            value="33" />  
+        <property name="validationQuery" value="${validationQuery}" />  
+        <property name="testOnBorrow" value="false" />  
+        <property name="testOnReturn" value="false" />  
+        <property name="testWhileIdle" value="true" />  
+
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />  
+
+        <property name="minEvictableIdleTimeMillis" value="25200000" />  
+
+        <property name="removeAbandoned" value="true" />  
+
+        <property name="removeAbandonedTimeout" value="1800" />  
+
+        <property name="logAbandoned" value="true" />  
+
+        <property name="filters" value="mergeStat" />  
+    </bean>  --> 
+    
+    
+    
+       <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"  
         init-method="init" destroy-method="close"> 
        <property name="driverClassName" value="#{env['jdbcDriver']}" />
         <property name="url" value="#{env['url']}" />  

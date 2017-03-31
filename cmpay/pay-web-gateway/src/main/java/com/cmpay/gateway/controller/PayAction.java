@@ -331,4 +331,63 @@ public class PayAction extends BaseAction {
 		return JSON.toJSONString(res);
 	}
 
+    /**
+     * 卡认证
+     * @param str
+     * @return
+     */
+	@RequestMapping(value="/payAuth",method=RequestMethod.POST)
+    public String payAuth(@RequestBody String str){
+		logger.info("[payAuth]接受到的字符串================"+str);
+		String merchantId=null;
+		Map<String,String> res=new HashMap<String,String>();
+		try{
+			JSONObject jsonObject=JSONObject.parseObject(str);
+        	String sign=jsonObject.getString("sign").trim();
+            merchantId=jsonObject.getString("merchantId").trim();
+            if(StringUtils.isBlank(merchantId)){
+            	 logger.info("商户号不能为空");
+            	 throw new TradeBizException(Constants.PARA_ERROR_8905_CODE,"商户号不能为空");
+            }
+         //验证签名
+         boolean signFlag=this.verifyMD5Sign(sign, jsonObject, merchantId);
+         if(signFlag){
+        	 String userId=jsonObject.getString("userId").trim();
+        	 String inchannel=jsonObject.getString("inchannel").trim();
+        	 String authChannel=jsonObject.getString("authChannel").trim();
+        	 String cardNo=jsonObject.getString("cardNo").trim();
+        	 String cardType=jsonObject.getString("cardType").trim();
+        	 String idNo=jsonObject.getString("idNo").trim();
+        	 String idType=jsonObject.getString("idType").trim();
+        	 String name=jsonObject.getString("name").trim();
+        	 String bankMobile=jsonObject.getString("bankMobile").trim();
+        	 String bankCode=jsonObject.getString("bankCode").trim();
+        	 String terminalType=jsonObject.getString("terminalType").trim();
+
+
+    		 res=upayService.payAuth(merchantId, userId, inchannel, authChannel, cardNo, cardType, idNo, idType, name, bankMobile, bankCode, terminalType);
+
+
+         }else{
+        	 logger.info("[payAuth]签名校验失败");
+        	 throw new TradeBizException(Constants.TRADE_ERROR_8817_CODE,Constants.TRADE_ERROR_8817_MSG);
+         }
+		}catch(TradeBizException tbe){
+            logger.info("业务异常,code=[{}],msg=[{}]",tbe.getCode(),tbe.getMsg());
+            res.put(Constants.CODE_KEY, tbe.getCode());
+            res.put(Constants.MSG_KEY, tbe.getMsg());
+
+  		}catch(Exception e){
+			logger.info("调用代扣接口发生异常！！！！",e);
+        	res.put(Constants.CODE_KEY, Constants.EXCEPTION_CODE);
+	        res.put(Constants.MSG_KEY, "竟然出现意外了，卡认证失败");
+
+		}
+		 //加入签名
+        String resSign=this.genMD5Sign((JSONObject)JSON.toJSON(res), merchantId);
+        res.put(Constants.SIGN_KEY, resSign);
+
+		return JSON.toJSONString(res);
+	}
+
 }

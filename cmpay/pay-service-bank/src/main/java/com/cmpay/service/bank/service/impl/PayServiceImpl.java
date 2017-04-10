@@ -424,6 +424,7 @@ public class PayServiceImpl implements PayService {
 		order.setOrigOrderNo(origOrderNo);
 		order.setSinpayChannelCode(payWayEnum.name());
 		order.setPayType(payWayEnum.name());
+		order.setPayChannel(payWayEnum.name());
 		order.setTransAmt(transAmt);
 		order.setPayStatus(PayStatusEnum.DEALING.name());
 		order.setProv(province);

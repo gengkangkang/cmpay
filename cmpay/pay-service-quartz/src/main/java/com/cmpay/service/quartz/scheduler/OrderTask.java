@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.cmpay.service.quartz.model.CmapyCutOrder;
 import com.cmpay.service.quartz.model.CmapyOrderRefund;
+import com.cmpay.service.quartz.model.PayOrder;
 import com.cmpay.service.quartz.service.PaymentService;
 
 
@@ -75,6 +76,21 @@ public class OrderTask {
          }
 
 		logger.info("【Refund】---------退款订单轮询任务结束-end----------");
+
+
+	}
+
+
+	@Scheduled(cron = "#{env.cron_doPayOrderTask}")
+	public void PayOrderTask(){
+		logger.info("【PutOrder】---------代付订单轮询任务开始-start----------");
+
+		List<PayOrder> orderList=paymentService.queryPayOrderList();
+		for(PayOrder payOrder:orderList){
+			paymentService.doPayOrderTask(payOrder);
+		}
+
+		logger.info("【PutOrder】---------代付订单轮询任务结束-end----------");
 
 
 	}

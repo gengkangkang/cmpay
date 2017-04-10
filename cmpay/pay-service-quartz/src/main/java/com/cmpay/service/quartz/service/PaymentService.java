@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.cmpay.service.quartz.model.CmapyCutOrder;
 import com.cmpay.service.quartz.model.CmapyOrderRefund;
+import com.cmpay.service.quartz.model.PayOrder;
 
 /**
  * 支付轮询任务
@@ -30,8 +31,12 @@ public interface PaymentService {
      * @return
      */
 	public List<CmapyCutOrder> queryCutOrderList();
+	public List<PayOrder> queryPayOrderList();
+
 
 	public void doCutOrderTask(CmapyCutOrder cmapyCutOrder);
+	public void doPayOrderTask(PayOrder payOrder);
+
 
 	/**
 	 * 查询退款申请订单

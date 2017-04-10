@@ -21,6 +21,7 @@ import com.cmpay.common.util.Constants;
 import com.cmpay.common.util.HttpClientUtil;
 import com.cmpay.common.util.WXConstants;
 import com.cmpay.service.chinapay.model.CpSinCutQueryRespDef;
+import com.cmpay.service.chinapay.model.CpSinPayQueryRespDef;
 import com.cmpay.service.chinapay.service.ChinapayService;
 import com.cmpay.service.jytpay.model.CpJYTRespDef;
 import com.cmpay.service.jytpay.service.JYTPayService;
@@ -30,6 +31,7 @@ import com.cmpay.service.quartz.dao.CmapyCutOrderMapper;
 import com.cmpay.service.quartz.dao.CmapyOrderRefundMapper;
 import com.cmpay.service.quartz.dao.CmapyRecordDetailMapper;
 import com.cmpay.service.quartz.dao.CmapyRecordMapper;
+import com.cmpay.service.quartz.dao.PayOrderMapper;
 import com.cmpay.service.quartz.model.CMPAY0046;
 import com.cmpay.service.quartz.model.CMPAY0046Rs;
 import com.cmpay.service.quartz.model.CmapyChannelConfig;
@@ -43,6 +45,8 @@ import com.cmpay.service.quartz.model.CmapyRecordDetail;
 import com.cmpay.service.quartz.model.CmapyRecordDetailExample;
 import com.cmpay.service.quartz.model.CmapyRecordExample;
 import com.cmpay.service.quartz.model.CommonRqHdr;
+import com.cmpay.service.quartz.model.PayOrder;
+import com.cmpay.service.quartz.model.PayOrderExample;
 import com.cmpay.service.quartz.service.PaymentService;
 import com.cmpay.service.quartz.util.AcctConstant;
 import com.cmpay.service.quartz.util.CMPAY0046Util;
@@ -85,6 +89,8 @@ public class PaymentServiceImpl implements PaymentService {
 	private JYTPayService jYTPayService;
 	@Autowired
 	CmapyOrderRefundMapper cmapyOrderRefundMapper;
+	@Autowired
+	private PayOrderMapper payOrderMapper;
 
 	@Override
 	@Transactional
@@ -210,6 +216,14 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 
+	@Override
+	public List<PayOrder> queryPayOrderList() {
+		PayOrderExample payOrderExample=new PayOrderExample();
+		payOrderExample.or().andPayStatusEqualTo(PayStatusEnum.DEALING.name());
+		List<PayOrder> orderList=payOrderMapper.selectByExample(payOrderExample);
+		return orderList;
+	}
+
 
 	@Override
 	@Transactional
@@ -288,9 +302,8 @@ public class PaymentServiceImpl implements PaymentService {
 						cmapyCutOrder.setRespCode(cpErrorCodeEnum.getCoreRespCode());
 						cmapyCutOrder.setRespMsg(cpErrorCodeEnum.getCoreRespMsg());
 						cmapyCutOrder.setModifyTime(new Date());
-            	    	 }else{
-            	    		 logger.info("系统找不到订单记录！！！");
             	    	 }
+
             	    	break;
             	    case CMPAY0002:
 
@@ -452,5 +465,138 @@ public class PaymentServiceImpl implements PaymentService {
 		}
 
 	}
+
+
+
+	@Override
+	public void doPayOrderTask(PayOrder payOrder) {
+	       logger.info("开始更新代付状态orderNO=[{}],origOrderNo=[{}],payChannel=[{}]",payOrder.getOrderId(),payOrder.getOrigOrderNo(),payOrder.getPayChannel());
+
+			//订单时效性检查
+			boolean isOverDue = false;
+			Date orderDt = payOrder.getCreateTime();
+			Date nowDt = new Date();
+			long differencesTime = nowDt.getTime() - orderDt.getTime();
+			long diffMinute = differencesTime/(60*1000);//差异分钟
+			if(diffMinute > Long.parseLong(upayOrderValid)){
+				//超过时效
+				isOverDue = true;
+			}
+
+			PayWayEnum payWayEnum=PayWayEnum.getByCode(payOrder.getPayChannel());
+
+			CmapyRecord cmpayRecord=cmpayRecordMapper.selectByOrderId(payOrder.getOrderId());
+			if(cmpayRecord==null){
+				logger.info("cmpayRecord 无此订单！！！！");
+				return;
+			}
+
+			logger.info("cmpayRecord=[{}]",cmpayRecord.toString());
+			if(StringUtils.equals(payOrder.getPayStatus(), PayStatusEnum.DEALING.name())){
+            if(isOverDue){
+                  //超过系统超时时间
+         	   cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
+         	   cmpayRecord.setRemark(Constants.TRADE_ERROR_8818_MSG);
+
+         	  payOrder.setPayStatus(PayStatusEnum.FAIL.name());
+         	  payOrder.setRemark(Constants.TRADE_ERROR_8818_MSG);
+
+					logger.info("----代付订单超过时效,已做失败处理------------");
+
+            }else{
+         	   //分渠道查询订单状态
+
+         		CmapyChannelConfigExample cccCondition=new CmapyChannelConfigExample();
+ 				cccCondition.createCriteria().andMerNoEqualTo(payOrder.getMerNo()).andPaychannelNoEqualTo(payWayEnum.name());
+ 				List<CmapyChannelConfig> cmpayChannelConfiglist=cmpayChannelConfigMapper.selectByExample(cccCondition);
+ 				if(cmpayChannelConfiglist.size()<=0){
+ 					logger.info("-----------------该商户缺少配置信息！！！-----------------");
+ 					return;
+
+ 				}
+
+ 				CmapyChannelConfig cmpayChannelConfig=cmpayChannelConfiglist.get(0);
+ 				logger.debug("paychannel config-->[{}]",cmpayChannelConfig.toString());
+
+         	   switch(payWayEnum){
+
+         	    case CMPAY0001:
+
+         	    	CpSinPayQueryRespDef cpSinPayQueryRespDef=chinapayService.sinPayQuery(payOrder.getOrderId(), cmpayChannelConfig.getThirdMerid());
+         	    if(cpSinPayQueryRespDef!=null){
+         	    	logger.info("cpSinPayQueryRespDef={}",cpSinPayQueryRespDef.toString());
+
+         	    	if (cpSinPayQueryRespDef.getCode().equals("000")) {
+         	    		if(StringUtils.equals(cpSinPayQueryRespDef.getStat(), "s")){
+         	    			cmpayRecord.setPayStatus(PayStatusEnum.SUCC.name());
+         	    			cmpayRecord.setRespCode(Constants.SUCCESS_CODE);
+    						cmpayRecord.setRespMsg(Constants.SUCCESS_MSG);
+             	    		payOrder.setPayStatus(PayStatusEnum.SUCC.name());
+             	    		payOrder.setRespCode(Constants.SUCCESS_CODE);
+             	    		payOrder.setRespMsg(Constants.SUCCESS_MSG);
+             	    		payOrder.setThirdRespCode(Constants.SUCCESS_CODE);
+             	    		payOrder.setThirdRespMsg(Constants.SUCCESS_MSG);
+         	    		}else if(StringUtils.equals(cpSinPayQueryRespDef.getStat(), "6")||StringUtils.equals(cpSinPayQueryRespDef.getStat(), "9")){
+         	    			cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
+         	    			cmpayRecord.setRespCode(Constants.FAILED_CODE);
+    						cmpayRecord.setRespMsg(Constants.FAILED_MSG);
+
+         	    			payOrder.setPayStatus(PayStatusEnum.FAIL.name());
+         	    			payOrder.setRespCode(Constants.FAILED_CODE);
+             	    		payOrder.setRespMsg(Constants.FAILED_MSG);
+             	    		payOrder.setThirdRespCode(cpSinPayQueryRespDef.getStat());
+             	    		payOrder.setThirdRespMsg(Constants.FAILED_MSG);
+
+         	    		}
+
+
+
+						} else if (cpSinPayQueryRespDef.getCode().equals("001")) {
+							logger.info("银联查询代付无此订单【{}】",payOrder.getOrderId());
+							cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
+							cmpayRecord.setRespCode(Constants.FAILED_CODE);
+    						cmpayRecord.setRespMsg("银联查询代付无此订单");
+         	    			payOrder.setPayStatus(PayStatusEnum.FAIL.name());
+         	    			payOrder.setRespCode(Constants.FAILED_CODE);
+             	    		payOrder.setRespMsg("银联查询代付无此订单");
+             	    		payOrder.setThirdRespCode(cpSinPayQueryRespDef.getCode());
+             	    		payOrder.setThirdRespMsg("银联查询代付无此订单");
+						} else {
+         	    		    logger.info("银联查询代付订单出错.");
+						}
+
+
+						cmpayRecord.setModifyTime(new Date());
+
+						payOrder.setModifyTime(new Date());
+         	    	 }
+
+         	    	break;
+
+         	    default:
+         	    	logger.info("==================无此代付渠道==============");
+     				break;
+         	   }
+
+
+
+            }
+
+            //执行更新
+            cmpayRecord.setModifyTime(new Date());
+            cmpayRecordMapper.updateByPrimaryKeySelective(cmpayRecord);
+            payOrder.setModifyTime(new Date());
+            payOrderMapper.updateByPrimaryKeySelective(payOrder);
+
+			}else{
+
+				logger.info("状态不是在途交易，无需更新,orderNo:{},cutStatus:{}", payOrder.getOrderId(), payOrder.getPayStatus());
+			}
+
+	}
+
+
+
+
 
 }

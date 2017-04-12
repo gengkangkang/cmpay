@@ -169,6 +169,73 @@ public class PayAction extends BaseAction {
     }
 
 
+	@RequestMapping(value="/sinPay",method=RequestMethod.POST)
+    public String sinPay(@RequestBody String str){
+		logger.info("[sinPay]接受到的字符串================"+str);
+        Map<String,Object> result=new HashMap<String,Object>();
+        String merchantId=null;
+        try{
+        	JSONObject jsonObject=JSONObject.parseObject(str);
+        	String sign=jsonObject.getString("sign");
+            merchantId=jsonObject.getString("merchantId");
+            if(StringUtils.isBlank(merchantId)){
+            	 logger.info("商户号不能为空");
+            	 throw new TradeBizException(Constants.PARA_ERROR_8905_CODE,"商户号不能为空");
+            }
+         //验证签名
+         boolean signFlag=this.verifyMD5Sign(sign, jsonObject, merchantId);
+         if(signFlag){
+        	 logger.info("[sinPay]验签通过");
+
+
+           String inchannel=jsonObject.getString("inchannel");
+           String userId=jsonObject.getString("userId");
+           String amount=jsonObject.getString("amount");
+           String cardNo=jsonObject.getString("cardNo");
+           String origiOrderId=jsonObject.getString("origiOrderId");
+           String payCode=jsonObject.getString("payCode");
+           String transType="02";
+           String orderIp=jsonObject.getString("orderIp");
+           String province=jsonObject.getString("province");
+           String city=jsonObject.getString("city");
+           String name=jsonObject.getString("name");
+           String bankName=jsonObject.getString("bankName");
+           String bankCode=jsonObject.getString("bankCode");
+           String notifyUrl=jsonObject.getString("notifyUrl");
+           String remark=jsonObject.getString("remark");
+
+
+           Map<String,Object> map=upayService.SinPay(merchantId, inchannel, payCode, cardNo, name, bankCode, bankName, amount, userId, origiOrderId, transType, notifyUrl, orderIp, province, city, remark);
+           result=map;
+
+         }else{
+        	 logger.info("签名校验失败");
+        	 throw new TradeBizException(Constants.TRADE_ERROR_8817_CODE,Constants.TRADE_ERROR_8817_MSG);
+         }
+
+        }catch(TradeBizException tbe){
+            logger.info("业务异常,code=[{}],msg=[{}]",tbe.getCode(),tbe.getMsg());
+            result.put(Constants.RESPCODE_KEY, tbe.getCode());
+            result.put(Constants.RESPMSG_KEY, tbe.getMsg());
+  		}catch(Exception e){
+        	logger.info("调用代付接口发生异常！！！！");
+        	result.put(Constants.RESPCODE_KEY, Constants.SUCCESS_CODE);
+	        result.put(Constants.RESPMSG_KEY, "竟然出现意外了，订单支付失败");
+
+	        result.put(Constants.PAYCODE_KEY,Constants.TRADE_ERROR_C9999_CODE);
+	        result.put(Constants.PAYMSG_KEY, Constants.TRADE_ERROR_C9999_MSG);
+	        result.put(Constants.PAYSTATUS_KEY, PayStatusEnum.FAIL.name());
+        	e.printStackTrace();
+        }
+        //加入签名
+        String resSign=this.genMD5Sign((JSONObject)JSON.toJSON(result), merchantId);
+        result.put(Constants.SIGN_KEY, resSign);
+
+        return JSON.toJSONString(result);
+
+    }
+
+
 	@RequestMapping(value="/payConsume",method=RequestMethod.POST)
     public String payConsumer(@RequestBody String str){
 		logger.info("[payConsume]接受到的字符串================"+str);

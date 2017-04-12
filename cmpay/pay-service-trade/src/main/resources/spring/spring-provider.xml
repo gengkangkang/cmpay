@@ -18,7 +18,7 @@
 	<dubbo:monitor protocol="registry"/>
  
     <!-- 用dubbo协议在20880端口暴露服务 -->
-    <dubbo:protocol name="dubbo" accepts="1000" port="20880" connections="1" />
+    <dubbo:protocol name="dubbo" accepts="1000" port="20880" />
     
     <dubbo:provider timeout="30000" retries="0"/> 
     

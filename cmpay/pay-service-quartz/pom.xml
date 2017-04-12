@@ -185,6 +185,11 @@
     <groupId>com.thoughtworks.xstream</groupId>
     <artifactId>xstream</artifactId>
 </dependency>
+
+       <dependency>
+            <groupId>com.baidu.disconf</groupId>
+            <artifactId>disconf-client</artifactId>
+        </dependency> 
     
     <!-- 引入接口模块 -->
       <dependency>

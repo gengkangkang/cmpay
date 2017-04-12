@@ -9,12 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,12 +37,12 @@ import com.cmpay.service.chinapay.util.ChinapayUtil;
 import com.cmpay.service.chinapay.util.HttpClient;
 
 import chinapay.Base64;
-import chinapay.SecureLink;
 import chinapay.PrivateKey;
+import chinapay.SecureLink;
 
 /**
  * chinapay收付捷平台交易的service
- * 
+ *
  * @author shenxw
  */
 @Service
@@ -61,41 +60,41 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 	 * 卡号或存折号标识位 (0表示卡,1表示折)
 	 */
 	private static final String CARD_TYPE1 = "0";
-	
+
 	/**
 	 * 卡号或存折号标识位 (0表示卡,1表示折)
 	 */
 //	private static final String CARD_TYPE2 = "1";
-	
+
 	/**
 	 * 人民币币种代码
 	 */
 	private static final String CURY_RMB = "156";
-	
+
 	/**
 	 * 固定，交易类型
 	 */
 	private static final String TRANS_TYPE = "0003";
-	
+
 	/**
 	 * 金额以分为单位
 	 */
-	private static final DecimalFormat AMT_FORMAT = new DecimalFormat("000000000000"); 
-	
+	private static final DecimalFormat AMT_FORMAT = new DecimalFormat("000000000000");
+
 	/**
 	 * 对公对私标记。“00”对私，“01”对公。
 	 */
 	private static final String PRIVATE_FLAG = "00";
-	
+
 	/**
 	 * 对公对私标记。“00”对私，“01”对公。
 	 */
 //	private static final String PUBLIC_FLAG = "01";
-	
+
 
 	/**
 	 * chinapay支付捷 - 单笔代扣交易
-	 * 
+	 *
 	 * @param transInf
 	 * @return
 	 */
@@ -124,7 +123,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 //		cutOrder.setTransStatus(TransStatusDef.U);
 //		cutOrder.setDescription(description);
 //		em.persist(cutOrder);
-//		
+//
 		// 准备代扣请求
 		CpSinCutReq req = new CpSinCutReq();
 		req.setMerId(paramFactory.getMerId());// 固定
@@ -145,7 +144,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 		req.setTransAmt(AMT_FORMAT.format(transAmt.multiply(BigDecimal.valueOf(100)))); // 根据transAmt格式化
 		req.setVersion(paramFactory.getSfjSinCutVersion()); // 固定
 		req.setGateId(paramFactory.getSfjGateId()); // 固定
-		
+
 		Map<String, String> resmap = null;
 		try {
 			resmap = send(paramFactory.getSfjSinCutReqUrl(), req, true);
@@ -195,25 +194,26 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 		}
 		String message = "银联响应码:["+cpSinCutRespDef.getResponseCode()+"],响应信息:"+msg;
 		cpSinCutRespDef.setMessage(message);
-		cpSinCutRespDef.setCutOrderNo(cutOrderNo);
+		cpSinCutRespDef.setCutOrderNo(cutOrderNo.toString());
 		cpSinCutRespDef.setThirdPartyOrderNo(req.getOrderNo());
-		
+
 		return cpSinCutRespDef;
 	}
 
 	/**
 	 * chinapay支付捷 - 单笔代扣交易查询 transDate 固定格式'yyyyMMdd'
-	 * 
+	 *
 	 * @return
 	 */
+	@Override
 	public CpSinCutQueryRespDef sinCutQuery(Integer orderNo,String transDate) {
 		CpSinCutQueryRespDef cpSinCutQueryRespDef = new CpSinCutQueryRespDef();
-		
+
 //		CpCutOrder cutOrder = em.find(CpCutOrder.class, orderNo);
 //		if (orderNo == null) { // 查无此交易
 //			return null;
-//		} 
-		
+//		}
+
 		// 组装查询交易
 		CpSinCutQueryReq req = new CpSinCutQueryReq();
 		req.setMerId(paramFactory.getMerId());
@@ -253,7 +253,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 
 	/**
 	 * 格式化为银联的订单号格式
-	 * 
+	 *
 	 * @param txnNo
 	 * @return
 	 */
@@ -295,7 +295,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 
 	/**
 	 * chinapay支付捷 - 单笔代付交易 ResponseCode : 0000-成功
-	 * 
+	 *
 	 * @param transInf
 	 * @return
 	 */
@@ -351,7 +351,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 		try {
 			resmap = send(paramFactory.getSfjSinPayReqUrl(), req, false);
 			resp = new CpSinPayResp();
-			
+
 			// 把map封装到bean里
 			try {
 				BeanUtils.populate(resp, resmap);
@@ -387,23 +387,24 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 //			payOrder.setTransStatus(TransStatusDef.Q);
 			cpSinPayRespDef.setTransStat(TransStatusDef.Q.toString());
 		}
-		
+
 		cpSinPayRespDef.setPayOrderNo(payOrderNo);
-		
+
 		return cpSinPayRespDef;
 	}
 
 	/**
 	 * chinapay支付捷 - 单笔代付交易查询 merDate 固定格式'yyyyMMdd'
-	 * 
+	 *
 	 * @return
 	 */
+	@Override
 	public CpSinPayQueryRespDef sinPayQuery(Integer orderNo,String transDate) {
 //		CpPayOrder payOrder = em.find(CpPayOrder.class, orderNo);
 //		if (payOrder == null) {
 //			return null;
 //		}
-		
+
 		CpSinPayQueryRespDef cpSinPayQueryRespDef = new CpSinPayQueryRespDef();
 		CpSinPayQueryReq req = new CpSinPayQueryReq();
 		req.setMerId(paramFactory.getMerId());// 固定
@@ -440,7 +441,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 
 	/**
 	 * 发报文
-	 * 
+	 *
 	 * @param url
 	 * @param req
 	 * @param orgDataWithChkValueFlag
@@ -475,7 +476,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 			logger.error("build key error!--");
 			return null;
 		}
-		
+
 		// 签名
 		SecureLink s = new SecureLink(key);
 
@@ -594,7 +595,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 
 	/**
 	 * HTTP提交
-	 * 
+	 *
 	 * @param submitFromData
 	 * @param requestUrl
 	 * @param orgDataWithChkValueFlag
@@ -729,7 +730,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 
 	/**
 	 * 验证签名
-	 * 
+	 *
 	 * @param resMes
 	 * @param orgDataWithChkValueFlag
 	 *            验签是原字符串是否包含[chkValue=]
@@ -819,7 +820,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 
 	/**
 	 * 将Unicode码转换为中文
-	 * 
+	 *
 	 * @param unicode
 	 * @return
 	 */
@@ -836,7 +837,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 
 	/**
 	 * 将字符串转换为Unicode码
-	 * 
+	 *
 	 * @param zhStr
 	 * @return
 	 */
@@ -858,7 +859,7 @@ public class ChinapayTxnServiceImpl implements ChinapayTxnService {
 	public void setParamFactory(ChinaPayParamFactory paramFactory) {
 		this.paramFactory = paramFactory;
 	}
-	
+
 	public static void main(String[] args) {
 		// 初始化key文件：
 		chinapay.PrivateKey key = new chinapay.PrivateKey();

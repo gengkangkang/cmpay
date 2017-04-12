@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.pay.service.jytpay.service.JYTAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +25,7 @@ import com.cmpay.service.bank.model.CmpayChannelConfigExample;
 import com.cmpay.service.bank.service.PayAuthService;
 import com.cmpay.service.chinapay.model.CpAuthBgRespDef;
 import com.cmpay.service.chinapay.service.ChinapayService;
+import com.cmpay.service.jytpay.service.JYTAuthService;
 
 /**
  * @author gengkangkang

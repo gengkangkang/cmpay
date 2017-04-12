@@ -1,4 +1,7 @@
 package com.cmpay.common.enums;
+
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 证件类型
  * @author gengkangkang
@@ -84,4 +87,17 @@ public enum IdTypeEnum {
         }
         return false;
     }
+
+	public static IdTypeEnum getByIdType(String idType){
+		if(StringUtils.isBlank(idType)){
+			return null;
+		}
+		idType=idType.trim();
+		for(IdTypeEnum idTypeEnum:IdTypeEnum.values()){
+			if(idTypeEnum.name().equalsIgnoreCase(idType)){
+				return idTypeEnum;
+			}
+		}
+		return null;
+	}
 }

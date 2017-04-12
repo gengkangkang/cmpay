@@ -1,17 +1,28 @@
 package com.cmpay.gateway.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.cmpay.common.security.util.DESHelper;
 import com.cmpay.common.security.util.RSAHelper;
+import com.cmpay.common.security.util.SignUtil;
+import com.cmpay.common.util.RedisConstants;
+import com.cmpay.common.util.RedisUtil;
+import com.cmpay.gateway.dao.MerConfigMapper;
+import com.cmpay.gateway.model.MerConfig;
+import com.cmpay.gateway.model.MerConfigExample;
 
 /**
  * @author gengkangkang
@@ -22,7 +33,7 @@ import com.cmpay.common.security.util.RSAHelper;
  */
 public class BaseAction {
 
-	private Logger logger = Logger.getLogger(this.getClass());
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private RSAHelper rsaHelper;
 
 	@Value("#{env['PrivateKEY']}")
@@ -37,12 +48,27 @@ public class BaseAction {
 	@Value("#{env['capath']}")
 	private String capath;
 
+    @Autowired
+    private MerConfigMapper merConfigMapper;
+    @Autowired
+    private RedisUtil redisUtil;
+
 	@PostConstruct
 	public void initRZRsaHelper() {
 		rsaHelper = new RSAHelper();
 		logger.info("统一支付平台初始化秘钥===================");
 		try {
 				rsaHelper.initKey(capath+PrivateKEY, pfxPasswd, capath+PublicKEY);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+	}
+
+	public void initRsaHelper(String path,String pubKey,String priKey,String pwd) {
+		rsaHelper = new RSAHelper();
+		logger.info("手动初始化统一支付平台秘钥===================");
+		try {
+				rsaHelper.initKey(path+priKey, pwd, path+pubKey);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -55,7 +81,7 @@ public class BaseAction {
 
 		try {
 			String encMsg=JSON.toJSONString(obj);
-
+            logger.info("需要加密的报文为：{}",encMsg);
 			byte[] des_key = DESHelper.generateDesKey() ;
 	        String encBase64=DESHelper.desEncryptToBase64(encMsg, des_key);
 
@@ -73,6 +99,7 @@ public class BaseAction {
             String encstrJson=JSON.toJSONString(encmap);
             String encstrJsonToBase64=Base64.encodeBase64String(encstrJson.getBytes("UTF-8"));
              result=encstrJsonToBase64;
+             logger.info("加密返回报文：{}",result);
 		} catch (Exception e) {
 			logger.error("加密报文失败");
 			e.printStackTrace();
@@ -92,6 +119,76 @@ public class BaseAction {
 		}
 
 		return signFlag;
+	}
+
+	public boolean verifyMD5Sign(String sign,JSONObject msg,String merId){
+        try {
+            	String key=(String) redisUtil.get(RedisConstants.CMPAY_MD5KEY_+merId);
+            	if(StringUtils.isBlank(key)){
+            		logger.info("redis中没有key值，从数据库中读取");
+                    MerConfigExample merConfigExample=new MerConfigExample();
+                    merConfigExample.or().andMerchantidEqualTo(merId);
+            		List<MerConfig> merConfList=merConfigMapper.selectByExample(merConfigExample);
+            		if(merConfList!=null && merConfList.size()>0){
+            			key=merConfList.get(0).getPartnerkey();
+            			//添加到缓存中
+            			logger.info("数据库中查到数据，加入缓存中【{}】",key);
+            			try{
+                    	redisUtil.set(RedisConstants.CMPAY_MD5KEY_+merId, key);
+            			}catch(Exception e){
+            				e.printStackTrace();
+            			}
+            		}else{
+            			logger.info("数据库中无商户key信息");
+            			return false;
+            		}
+            	}
+              String msgSign=SignUtil.genMd5Sign(msg, key);
+              if(StringUtils.equals(msgSign, sign)){
+            	  return true;
+              }else{
+            	  return false;
+              }
+
+		} catch (Exception e) {
+			logger.error("验证签名失败");
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+
+	public String genMD5Sign(JSONObject msg,String merId){
+        try {
+            	String key=(String) redisUtil.get(RedisConstants.CMPAY_MD5KEY_+merId);
+            	if(StringUtils.isBlank(key)){
+            		logger.info("redis中没有key值，从数据库中读取");
+                    MerConfigExample merConfigExample=new MerConfigExample();
+                    merConfigExample.or().andMerchantidEqualTo(merId);
+            		List<MerConfig> merConfList=merConfigMapper.selectByExample(merConfigExample);
+            		if(merConfList!=null && merConfList.size()>0){
+            			key=merConfList.get(0).getPartnerkey();
+            			//添加到缓存中
+            			logger.info("数据库中查到数据，加入缓存中【{}】",key);
+            			try{
+                    	redisUtil.set(RedisConstants.CMPAY_MD5KEY_+merId, key);
+            			}catch(Exception e){
+            				e.printStackTrace();
+            			}
+            		}else{
+            			logger.info("数据库中无商户key信息");
+            			return null;
+            		}
+            	}
+              String msgSign=SignUtil.genMd5Sign(msg, key);
+
+             return msgSign;
+		} catch (Exception e) {
+			logger.error("生成签名失败");
+			e.printStackTrace();
+			return null;
+		}
+
 	}
 
 	//解密报文

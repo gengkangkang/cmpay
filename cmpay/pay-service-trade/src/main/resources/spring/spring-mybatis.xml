@@ -11,15 +11,51 @@
         http://www.springframework.org/schema/aop/spring-aop-4.3.xsd  
         ">  
         
-    <bean id="env"
+     <bean id="env"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="locations"
 			value="#{systemProperties['env.files'] ?: 'classpath:/conf/*.properties'}" />
 		<property name="fileEncoding" value="UTF-8" ></property>
-	</bean>
+	</bean>  	
   
     <!-- 配置数据源 使用的是Druid数据源 -->  
-   <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"  
+   
+<!--        <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"  
+        init-method="init" destroy-method="close"> 
+        <property name="driverClassName" value="${jdbcDriver}" /> 
+        <property name="url" value="${url}" />  
+        <property name="username" value="${username}" />  
+        <property name="password" value="${password}" />  
+  
+        <property name="initialSize" value="1" />  
+        <property name="maxActive" value="30" />  
+          
+        <property name="minIdle" value="1" />  
+        <property name="maxWait" value="60000" />  
+        <property name="poolPreparedStatements" value="true" />  
+        <property name="maxPoolPreparedStatementPerConnectionSize"  
+            value="33" />  
+        <property name="validationQuery" value="${validationQuery}" />  
+        <property name="testOnBorrow" value="false" />  
+        <property name="testOnReturn" value="false" />  
+        <property name="testWhileIdle" value="true" />  
+
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />  
+
+        <property name="minEvictableIdleTimeMillis" value="25200000" />  
+
+        <property name="removeAbandoned" value="true" />  
+
+        <property name="removeAbandonedTimeout" value="1800" />  
+
+        <property name="logAbandoned" value="true" />  
+
+        <property name="filters" value="mergeStat" />  
+    </bean>  --> 
+    
+    
+    
+       <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"  
         init-method="init" destroy-method="close"> 
        <property name="driverClassName" value="#{env['jdbcDriver']}" />
         <property name="url" value="#{env['url']}" />  
@@ -70,21 +106,33 @@
 
   
     <!-- myBatis文件 -->  
-    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
+<!--     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
         <property name="dataSource" ref="dataSource" />  
-        <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->  
+        自动扫描entity目录, 省掉Configuration.xml里的手工配置  
         <property name="mapperLocations" value="classpath:com/cmpay/service/trade/mapping/*.xml" />  
     </bean>  
   
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
         <property name="basePackage" value="com.cmpay.service.trade.dao" />  
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />  
-    </bean> 
+    </bean>  -->
     
-        <!-- myBatis文件 -->  
-    <bean id="sqlSessionFactory1" class="org.mybatis.spring.SqlSessionFactoryBean">  
+    
+     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
         <property name="dataSource" ref="dataSource" />  
         <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->  
+        <property name="mapperLocations" value="classpath*:com/cmpay/service/**/mapping/*.xml" />  
+    </bean>  
+  
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
+        <property name="basePackage" value="com.cmpay.service.**.dao" />  
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />  
+    </bean> 
+    
+  <!--       myBatis文件  
+    <bean id="sqlSessionFactory1" class="org.mybatis.spring.SqlSessionFactoryBean">  
+        <property name="dataSource" ref="dataSource" />  
+        自动扫描entity目录, 省掉Configuration.xml里的手工配置  
         <property name="mapperLocations" value="classpath*:com/cmpay/service/bank/mapping/*.xml" />  
     </bean>  
   
@@ -93,10 +141,10 @@
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory1" />  
     </bean>  
     
-            <!-- myBatis文件 -->  
+            myBatis文件  
     <bean id="sqlSessionFactory2" class="org.mybatis.spring.SqlSessionFactoryBean">  
         <property name="dataSource" ref="dataSource" />  
-        <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->  
+        自动扫描entity目录, 省掉Configuration.xml里的手工配置  
         <property name="mapperLocations" value="classpath*:com/cmpay/service/chinapay/mapping/*.xml" />  
     </bean>  
   
@@ -104,17 +152,29 @@
         <property name="basePackage" value="com.cmpay.service.chinapay.dao" />  
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory2" />  
     </bean> 
-                <!-- myBatis文件 -->  
+                myBatis文件  
     <bean id="sqlSessionFactory3" class="org.mybatis.spring.SqlSessionFactoryBean">  
         <property name="dataSource" ref="dataSource" />  
-        <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->  
-        <property name="mapperLocations" value="classpath*:org/pay/service/jytpay/mapping/*.xml" />  
+        自动扫描entity目录, 省掉Configuration.xml里的手工配置  
+        <property name="mapperLocations" value="classpath*:com/cmpay/service/jytpay/mapping/*.xml" />  
     </bean>  
   
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
-        <property name="basePackage" value="org.pay.service.jytpay.dao" />  
+        <property name="basePackage" value="com.cmpay.service.jytpay.dao" />  
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory3" />  
+    </bean> 
+    
+            myBatis文件  
+    <bean id="sqlSessionFactory4" class="org.mybatis.spring.SqlSessionFactoryBean">  
+        <property name="dataSource" ref="dataSource" />  
+        自动扫描entity目录, 省掉Configuration.xml里的手工配置  
+        <property name="mapperLocations" value="classpath*:com/cmpay/service/rule/mapping/*.xml" />  
     </bean>  
+  
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
+        <property name="basePackage" value="com.cmpay.service.rule.dao" />  
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory4" />  
+    </bean>  --> 
   
     <!-- 配置事务管理器 -->  
     <bean id="transactionManager"  
@@ -141,7 +201,7 @@
     <!-- Spring aop事务管理 -->  
     <aop:config>  
         <aop:pointcut id="transactionPointcut"  
-            expression="execution(* com.cmpay.service.trade.service..*Impl.*(..))" />  
+            expression="execution(* com.cmpay.service.*.service..*Impl.*(..))" />  
         <aop:advisor pointcut-ref="transactionPointcut"  
             advice-ref="transactionAdvice" />  
     </aop:config>  

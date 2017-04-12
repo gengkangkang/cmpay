@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cmpay.facade.trade.TestService;
 import com.cmpay.gateway.model.TestUser;
 import com.cmpay.gateway.service.UserService;
 
@@ -29,8 +28,8 @@ public class UserAction {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private TestService testService;
+//    @Autowired
+//    private TestService testService;
 
     @RequestMapping("/add/test.do")
     @ResponseBody
@@ -45,13 +44,13 @@ public class UserAction {
     }
 
 
-    @RequestMapping("/say.do")
-    public String sayHello(){
-    	logger.info("say hello================");
-        String str=testService.sayHello("gkk");
-        logger.info("str== "+str);
-        return str;
-    }
+//    @RequestMapping("/say.do")
+//    public String sayHello(){
+//    	logger.info("say hello================");
+//        String str=testService.sayHello("gkk");
+//        logger.info("str== "+str);
+//        return str;
+//    }
 
     @RequestMapping("/sayjson.do")
     @ResponseBody

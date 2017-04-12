@@ -11,7 +11,7 @@
     <context:component-scan base-package="com.cmpay.service.bank.service" />  
     
     
-    <import resource="classpath:spring/spring-mybatis.xml" />
-    <import resource="classpath:spring/spring-redis.xml" />
+  <!--   <import resource="classpath:spring/spring-mybatis.xml" />
+    <import resource="classpath:spring/spring-redis.xml" /> -->
   
 </beans> 

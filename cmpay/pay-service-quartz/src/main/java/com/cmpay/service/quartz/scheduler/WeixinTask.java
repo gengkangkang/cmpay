@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.cmpay.weixin.service.PaymentService;
+import com.cmpay.service.quartz.service.PaymentService;
+
+
 
 /**
  * 微信服务相关调度任务

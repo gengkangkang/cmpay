@@ -178,7 +178,19 @@
         <groupId>com.cmpay</groupId>
         <artifactId>pay-service-bank</artifactId>
         <version>${pay-service-bank.version}</version>        
-      </dependency>       
+      </dependency>
+      <dependency>
+        <groupId>com.cmpay</groupId>
+        <artifactId>pay-service-rule</artifactId>
+        <version>${pay-service-rule.version}</version>        
+      </dependency>  
+      
+      <!-- 测试分布式配置 -->
+        <dependency>
+            <groupId>com.baidu.disconf</groupId>
+            <artifactId>disconf-client</artifactId>
+            <version>2.6.36</version>
+        </dependency>      
     
   </dependencies>
   

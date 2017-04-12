@@ -27,23 +27,23 @@
         </javaTypeResolver>  
  
       <!--   <javaModelGenerator targetPackage="com.cmpay.gateway.model" targetProject="MAVEN">   -->
-        <javaModelGenerator targetPackage="org.pay.service.jytpay.model" targetProject="F:/cmpay/work/cmpay/cmpay/pay-service-jytpay/src/main/java">  
+        <javaModelGenerator targetPackage="org.pay.service.jytpay.model" targetProject="F:/cmpay/repo/cmpay/pay-service-jytpay/src/main/java">  
             <property name="enableSubPackages" value="true" />  
             <property name="trimStrings" value="true" />  
         </javaModelGenerator>  
   
-        <sqlMapGenerator targetPackage="org.pay.service.jytpay.mapping"  targetProject="F:/cmpay/work/cmpay/cmpay/pay-service-jytpay/src/main/java">  
+        <sqlMapGenerator targetPackage="org.pay.service.jytpay.mapping"  targetProject="F:/cmpay/repo/cmpay/pay-service-jytpay/src/main/java">  
             <property name="enableSubPackages" value="true" />  
         </sqlMapGenerator>  
   
-        <javaClientGenerator type="XMLMAPPER" targetPackage="org.pay.service.jytpay.dao"  targetProject="F:/cmpay/work/cmpay/cmpay/pay-service-jytpay/src/main/java">  
+        <javaClientGenerator type="XMLMAPPER" targetPackage="org.pay.service.jytpay.dao"  targetProject="F:/cmpay/repo/cmpay/pay-service-jytpay/src/main/java">  
             <property name="enableSubPackages" value="true" />  
         </javaClientGenerator>  
           
          <!--  <table tableName="TEST_USER" domainObjectName="TestUser" />  -->
           
-        <table tableName="TEST_USER" domainObjectName="TestUser" enableSelectByExample="false" enableDeleteByExample="false"  
-            enableCountByExample="false" enableUpdateByExample="false" />  
+        <table tableName="CMPAY_JYT_CUT_RECORD" domainObjectName="JytCutRecord" enableSelectByExample="true" enableDeleteByExample="true"  
+            enableCountByExample="true" enableUpdateByExample="true" />  
   
     </context>  
 </generatorConfiguration>  

@@ -27,23 +27,23 @@
         </javaTypeResolver>  
  
       <!--   <javaModelGenerator targetPackage="com.cmpay.gateway.model" targetProject="MAVEN">   -->
-        <javaModelGenerator targetPackage="com.cmpay.service.quartz.model" targetProject="F:/cmpay/work/cmpay/cmpay/pay-service-quartz/src/main/java">  
+        <javaModelGenerator targetPackage="com.cmpay.service.quartz.model" targetProject="F:/cmpay/repo/cmpay/pay-service-quartz/src/main/java">  
             <property name="enableSubPackages" value="true" />  
             <property name="trimStrings" value="true" />  
         </javaModelGenerator>  
   
-        <sqlMapGenerator targetPackage="com.cmpay.service.quartz.mapping"  targetProject="F:/cmpay/work/cmpay/cmpay/pay-service-quartz/src/main/java">  
+        <sqlMapGenerator targetPackage="com.cmpay.service.quartz.mapping"  targetProject="F:/cmpay/repo/cmpay/pay-service-quartz/src/main/java">  
             <property name="enableSubPackages" value="true" />  
         </sqlMapGenerator>  
   
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.cmpay.service.quartz.dao"  targetProject="F:/cmpay/work/cmpay/cmpay/pay-service-quartz/src/main/java">  
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.cmpay.service.quartz.dao"  targetProject="F:/cmpay/repo/cmpay/pay-service-quartz/src/main/java">  
             <property name="enableSubPackages" value="true" />  
         </javaClientGenerator>  
           
          <!--  <table tableName="TEST_USER" domainObjectName="TestUser" />  -->
           
-        <table tableName="TEST_USER" domainObjectName="TestUser" enableSelectByExample="false" enableDeleteByExample="false"  
-            enableCountByExample="false" enableUpdateByExample="false" />  
+       <!--  <table tableName="CMPAY_PAY_ORDER" domainObjectName="PayOrder" enableSelectByExample="true" enableDeleteByExample="true"  
+            enableCountByExample="true" enableUpdateByExample="true" />  --> 
   
     </context>  
 </generatorConfiguration>  

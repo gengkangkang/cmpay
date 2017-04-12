@@ -3,14 +3,14 @@ package com.cmpay.service.chinapay.model;
 import java.io.Serializable;
 
 public class CpSinCutQueryRespDef implements Serializable{
-	
-	
+
+
 	private static final long serialVersionUID = 7294052708921149455L;
 
 	private String responseCode;
-	
+
 	private String message;
-	
+
 	public String getResponseCode() {
 		return responseCode;
 	}
@@ -25,5 +25,10 @@ public class CpSinCutQueryRespDef implements Serializable{
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	@Override
+	public String toString() {
+		return "CpSinCutQueryRespDef [responseCode=" + responseCode + ", message=" + message + "]";
 	}
 }

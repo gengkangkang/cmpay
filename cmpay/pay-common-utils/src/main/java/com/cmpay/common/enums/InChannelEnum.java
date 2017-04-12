@@ -23,7 +23,9 @@ public enum InChannelEnum {
 	C0008("0008","OA"),
 	C0009("0009","昱胜"),
 	C0010("0010","三方支付"),
-	C0012("0012","UMP");
+	C0012("0012","UMP"),
+	C0013("0013","CMPAY"),
+	C9999("9999","一账通");
 
 
    private InChannelEnum(String code,String value){

@@ -16,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cmpay.common.enums.PayStatusEnum;
 import com.cmpay.common.enums.PayWayEnum;
+import com.cmpay.common.enums.TransTypeEnum;
 import com.cmpay.common.util.CmpayUtils;
+import com.cmpay.common.util.Constants;
 import com.cmpay.common.util.WXConstants;
 import com.cmpay.weixin.dao.CmpayChannelConfigMapper;
 import com.cmpay.weixin.dao.CmpayRecordDetailMapper;
@@ -70,6 +72,13 @@ public class PaymentServiceImpl implements PaymentService {
 //		CmpayRecordExample cmpayRecordExample=new CmpayRecordExample();
 //		cmpayRecordExample.createCriteria().andMerNoEqualTo(merchantId).andOrigOrderNoEqualTo(orderId);
 //		List<CmpayRecord> cr=cmpayRecordMapper.selectByExample(cmpayRecordExample);
+
+        TransTypeEnum transTypeEnum=TransTypeEnum.getByTransCode(transType);
+        if(transTypeEnum==null){
+       	 logger.info("不支持的交易类型！！！");
+    	    throw new TradeBizException(Constants.TRADE_ERROR_8809_CODE,Constants.TRADE_ERROR_8809_MSG);
+        }
+
 		CmpayRecord cmpaypara=new CmpayRecord();
 		cmpaypara.setMerNo(merchantId);
 		cmpaypara.setOrigOrderNo(orderId);
@@ -86,7 +95,7 @@ public class PaymentServiceImpl implements PaymentService {
 			cmpayRecord.setUserId(userId);
 			cmpayRecord.setOrigOrderNo(orderId);
 			cmpayRecord.setTransAmt(amount);
-			cmpayRecord.setTransType(transType);
+			cmpayRecord.setTransType(transTypeEnum.name());
 			cmpayRecord.setPayStatus(PayStatusEnum.WAIT.name());
 			cmpayRecord.setPeriod(WXConstants.PERIOD);
 			DateTime d=new DateTime();

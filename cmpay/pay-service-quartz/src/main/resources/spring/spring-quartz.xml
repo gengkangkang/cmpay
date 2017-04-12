@@ -20,6 +20,7 @@
       </task:scheduled-tasks>  -->
 
 
+   <bean class="com.cmpay.service.quartz.scheduler.SpringContextUtil" />
   
     
   

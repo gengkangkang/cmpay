@@ -218,11 +218,11 @@
 </dependency>
      
       <!-- 引入相关模块 -->
-      <dependency>
+<!--       <dependency>
         <groupId>com.cmpay</groupId>
         <artifactId>pay-facade-trade</artifactId>
         <version>${pay-facade-trade.version}</version>        
-      </dependency>  
+      </dependency>  --> 
       <dependency>
         <groupId>com.cmpay</groupId>
         <artifactId>pay-common-utils</artifactId>

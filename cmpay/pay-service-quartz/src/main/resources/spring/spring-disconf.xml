@@ -30,8 +30,10 @@
 				  <value>common.properties</value> 
 				  <value>cron.properties</value> 				  
 				  <value>jdbc.properties</value> 
-				  <value>jinyuntongpay.properties</value> 
+				  <value>jinyuntongpay.properties</value>
+				  <value>quartz.properties</value>  
 				  <value>redis-cluster.properties</value> 
+				  <value>disconf.properties</value>
 			</list>
 		</property> 
 	</bean>

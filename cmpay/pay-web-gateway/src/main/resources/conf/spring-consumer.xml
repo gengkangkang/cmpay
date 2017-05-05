@@ -25,6 +25,7 @@
         interface="com.cmpay.facade.trade.TestService" />   --> 
      
      <dubbo:reference id="upayService" interface="com.cmpay.facade.trade.UpayService"></dubbo:reference>   
+     <dubbo:reference id="queryService" interface="com.cmpay.facade.trade.QueryService"></dubbo:reference>   
    
  
 </beans>

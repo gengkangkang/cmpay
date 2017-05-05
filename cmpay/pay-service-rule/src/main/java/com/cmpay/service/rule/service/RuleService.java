@@ -21,6 +21,6 @@ public interface RuleService {
 	 */
 	public RuleResp queryIsSupByMer(String merchantId,String payCode,String bankCode);
 
-	public RuleResp payRule(String merchantId,String transAmt,String userId,String bankCode);
+	public RuleResp payRule(String merchantId,String transAmt,String userId,String bankCode,String cardNo);
 
 }

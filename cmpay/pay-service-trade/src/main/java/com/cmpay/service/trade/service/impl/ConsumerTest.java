@@ -29,7 +29,7 @@ public class ConsumerTest {
 
 
 	        //测试单笔代付
-	        Map<String,Object> map=upayService.SinPay("800010000001", "0000", "CMPAY0001", "6222620140009946277", "测试", "0005", "建行", "0.61", "333", "2017032810020006", "02", "notifyUrl", "10.17.5.102", "上海", "黄埔区", "remark");
+	        Map<String,Object> map=upayService.SinPay("800010000001", "0000", "CMPAY0001", "6222620140009946277", "测试", "0005", "建行", "0.61", "333", "201704170004", "02", "notifyUrl", "10.17.5.102", "上海", "黄埔区", "remark");
              System.out.println("map===="+map.toString());
 
 	}

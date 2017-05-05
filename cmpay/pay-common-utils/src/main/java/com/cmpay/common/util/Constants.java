@@ -59,7 +59,7 @@ public class Constants {
 	   public static String TRADE_ERROR_8815_CODE="8815";
 	   public static String TRADE_ERROR_8815_MSG="商户无支付渠道可用";
 	   public static String TRADE_ERROR_8816_CODE="8816";
-	   public static String TRADE_ERROR_8816_MSG="银行关闭";
+	   public static String TRADE_ERROR_8816_MSG="该银行无渠道或路由";
 	   public static String TRADE_ERROR_8817_CODE="8817";
 	   public static String TRADE_ERROR_8817_MSG="签名验证失败";
 

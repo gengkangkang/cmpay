@@ -327,7 +327,7 @@ public class UpayServiceImpl implements UpayService {
 //        PayWayEnum payWayEnum=null;
          if(StringUtils.isBlank(payCode)){
         	 //走路由
-        	 RuleResp resp=ruleService.payRule(merchantId, amount, userId, bankCode);
+        	 RuleResp resp=ruleService.payRule(merchantId, amount, userId, bankCode,cardNo);
         	 logger.info("resp=[{}]",resp.toString());
            	 if(StringUtils.equals(Constants.SUCCESS_CODE, resp.getCode())){
         		 payWayEnum=PayWayEnum.getByCode(resp.getPayWay());
@@ -392,8 +392,9 @@ public class UpayServiceImpl implements UpayService {
            if(StringUtils.equals(respayStatus, PayStatusEnum.SUCC.name())){
            //写入限额
            try{
-        	   redisUtil.add(RedisConstants.CMPAY_DAYAMOUNT_+userId+payWayEnum.name()+bankCode, Double.parseDouble(amount));
-        	   redisUtil.add(RedisConstants.CMPAY_MONTHAMOUNT_+userId+payWayEnum.name()+bankCode, Double.parseDouble(amount));
+        	   //日限额、月限额 改为根据卡号判断
+        	   redisUtil.add(RedisConstants.CMPAY_DAYAMOUNT_+cardNo+payWayEnum.name(), Double.parseDouble(amount));
+        	   redisUtil.add(RedisConstants.CMPAY_MONTHAMOUNT_+cardNo+payWayEnum.name(), Double.parseDouble(amount));
 
            }catch(Exception e){
         	   logger.info("写入日、月限额异常！！！！！！！",e);
@@ -553,7 +554,7 @@ public class UpayServiceImpl implements UpayService {
 //        PayWayEnum payWayEnum=null;
          if(StringUtils.isBlank(payCode)){
         	 //走路由
-        	 RuleResp resp=ruleService.payRule(merchantId, amount, userId, bankCode);
+        	 RuleResp resp=ruleService.payRule(merchantId, amount, userId, bankCode,cardNo);
         	 logger.info("resp=[{}]",resp.toString());
            	 if(StringUtils.equals(Constants.SUCCESS_CODE, resp.getCode())){
         		 payWayEnum=PayWayEnum.getByCode(resp.getPayWay());
@@ -614,8 +615,8 @@ public class UpayServiceImpl implements UpayService {
            if(StringUtils.equals(respayStatus, PayStatusEnum.SUCC.name())){
            //写入限额
            try{
-        	   redisUtil.add(RedisConstants.CMPAY_DAYAMOUNT_+userId+payWayEnum.name()+bankCode, Double.parseDouble(amount));
-        	   redisUtil.add(RedisConstants.CMPAY_MONTHAMOUNT_+userId+payWayEnum.name()+bankCode, Double.parseDouble(amount));
+        	   redisUtil.add(RedisConstants.CMPAY_DAYAMOUNT_+cardNo+payWayEnum.name(), Double.parseDouble(amount));
+        	   redisUtil.add(RedisConstants.CMPAY_MONTHAMOUNT_+cardNo+payWayEnum.name(), Double.parseDouble(amount));
 
            }catch(Exception e){
         	   logger.info("写入日、月限额异常！！！！！！！",e);

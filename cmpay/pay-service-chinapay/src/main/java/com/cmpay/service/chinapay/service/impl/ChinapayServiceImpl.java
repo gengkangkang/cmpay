@@ -956,22 +956,23 @@ public class ChinapayServiceImpl implements ChinapayService {
 			logger.info(e.getMessage());
 			e.printStackTrace();
 		}
-		logger.debug("转换成Base64后数据：" + plainData);
+		logger.info("转换成Base64后数据：" + plainData);
 		String chkValue = null;
 		// 初始化key文件：
 		chinapay.PrivateKey key = new chinapay.PrivateKey();
 		boolean flag = false;
 		try {
-			flag = key.buildKey(req.getMerId(), 0, chinaPaySinPay.getPay_merPrK()+req.getMerId()+"_MerPrk.key");
+			logger.info("key path:{}",chinaPaySinPay.getPay_merPrK()+req.getMerId()+"_MerPrk.key");
+			flag = key.buildKey(req.getMerId(), 0, chinaPaySinPay.getPay_merPrK()+req.getMerId()+"_MerPrK.key");
 		} catch (Exception e) {
 			logger.error("build key error!{}", e);
 			return null;
 		}
 		if(flag == false){
-			logger.error("build key error!");
+			logger.info("build key error!");
 			return null;
 		}else{
-			logger.debug("build key success!");
+			logger.info("build key success!");
 		}
 		SecureLink sl = new SecureLink(key);
 		chkValue = sl.Sign(plainData);

@@ -95,8 +95,8 @@ public class RuleServiceImpl implements RuleService {
 	}
 
 	@Override
-	public RuleResp payRule(String merchantId, String transAmt, String userId, String bankCode) {
-		logger.info("自动路由支付渠道，merchantId=[{}],userId=[{}],transAmt=[{}],bankCode=[{}]",merchantId,userId,transAmt,bankCode);
+	public RuleResp payRule(String merchantId, String transAmt, String userId, String bankCode,String cardNo) {
+		logger.info("自动路由支付渠道，merchantId=[{}],userId=[{}],transAmt=[{}],bankCode=[{}],cardNo=[{}]",merchantId,userId,transAmt,bankCode,cardNo);
 
 		RuleResp ruleResp=new RuleResp();
         List<CmpaySuppChannel> avilist=new ArrayList<CmpaySuppChannel>();
@@ -188,7 +188,7 @@ public class RuleServiceImpl implements RuleService {
         	String dayAmount=null;
         	CmpaySuppChannel cmpayPayChannel1=avilist.get(i);
         try{
-        	dayAmount=(String) redisUtil.getIncrValue(RedisConstants.CMPAY_DAYAMOUNT_+userId+cmpayPayChannel1.getCode()+bankCode);
+        	dayAmount=(String) redisUtil.getIncrValue(RedisConstants.CMPAY_DAYAMOUNT_+cardNo+cmpayPayChannel1.getCode());
         }catch(Exception e){
         	logger.info("获取用户单日消费金额失败！！！",e);
         }
@@ -223,7 +223,7 @@ public class RuleServiceImpl implements RuleService {
         	String monthAmount = null;
         	CmpaySuppChannel cmpayPayChannel1=avilist.get(i);
         try{
-        	monthAmount=(String) redisUtil.getIncrValue(RedisConstants.CMPAY_MONTHAMOUNT_+userId+cmpayPayChannel1.getCode()+bankCode);
+        	monthAmount=(String) redisUtil.getIncrValue(RedisConstants.CMPAY_MONTHAMOUNT_+cardNo+cmpayPayChannel1.getCode());
         }catch(Exception e){
         	logger.info("获取用户单月累计消费金额失败！！！",e);
         }

@@ -15,6 +15,7 @@ public enum TransTypeEnum {
 	WITHDRAW("02"),
 	CONSUME("03"),
 	CANCEL("04"),
+	PAYCUT("05"),
 	NONE("");
 
 

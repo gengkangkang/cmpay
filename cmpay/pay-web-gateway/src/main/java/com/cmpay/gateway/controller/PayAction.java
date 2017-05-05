@@ -129,7 +129,7 @@ public class PayAction extends BaseAction {
            String cardNo=jsonObject.getString("cardNo");
            String origiOrderId=jsonObject.getString("origiOrderId");
            String payCode=jsonObject.getString("payCode");
-           String transType="01";
+           String transType="05";
            String orderIp=jsonObject.getString("orderIp");
            String idNo=jsonObject.getString("idNo");
            String idType=jsonObject.getString("idType");

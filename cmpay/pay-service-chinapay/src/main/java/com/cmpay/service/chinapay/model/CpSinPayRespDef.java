@@ -3,9 +3,9 @@ package com.cmpay.service.chinapay.model;
 import java.io.Serializable;
 
 public class CpSinPayRespDef implements Serializable{
-	
+
 	private static final long serialVersionUID = 199799610866671745L;
-	
+
 	private String responseCode; //	4位	是	请求应答码，具体请见附录6.1.1
 	private String stat; //	1位	否	交易状态码，具体请参看附录6.1.2
 	private String respMsg;
@@ -14,7 +14,7 @@ public class CpSinPayRespDef implements Serializable{
 	private String cpDate;//ChinaPay接收到交易的日期
 	private String cpSeqId;//ChinaPay系统内部流水
 	private String thirdPartOrderNo;//第三方支付订单号
-	
+
 	public String getResponseCode() {
 		return responseCode;
 	}
@@ -63,7 +63,13 @@ public class CpSinPayRespDef implements Serializable{
 	public void setThirdPartOrderNo(String thirdPartOrderNo) {
 		this.thirdPartOrderNo = thirdPartOrderNo;
 	}
-	
-	
-	
+	@Override
+	public String toString() {
+		return "CpSinPayRespDef [responseCode=" + responseCode + ", stat=" + stat + ", respMsg=" + respMsg
+				+ ", transStat=" + transStat + ", payOrderNo=" + payOrderNo + ", cpDate=" + cpDate + ", cpSeqId="
+				+ cpSeqId + ", thirdPartOrderNo=" + thirdPartOrderNo + "]";
+	}
+
+
+
 }

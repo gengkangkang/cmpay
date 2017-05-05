@@ -38,6 +38,10 @@
                    
     <!-- 卡认证服务 -->               
      <bean id="upayService" class="com.cmpay.service.trade.service.impl.UpayServiceImpl" />
-     <dubbo:service interface="com.cmpay.facade.trade.UpayService" ref="upayService" cluster="failfast" loadbalance="random" retries="0" timeout="30000"></dubbo:service>
+     <dubbo:service interface="com.cmpay.facade.trade.UpayService" ref="upayService" cluster="failfast" loadbalance="random" retries="0" timeout="90000"></dubbo:service>
+ 
+     <!-- 查询相关服务 -->               
+     <bean id="queryService" class="com.cmpay.service.trade.service.impl.QueryServiceImpl" />
+     <dubbo:service interface="com.cmpay.facade.trade.QueryService" ref="queryService" cluster="failover" loadbalance="random" retries="1" timeout="60000"></dubbo:service>
  
 </beans>

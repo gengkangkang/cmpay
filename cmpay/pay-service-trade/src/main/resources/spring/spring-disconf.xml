@@ -30,6 +30,7 @@
 				  <value>jdbc.properties</value> 
 				  <value>jinyuntongpay.properties</value> 
 				  <value>redis-cluster.properties</value> 
+				  <value>disconf.properties</value>
 			</list>
 		</property> 
 	</bean>

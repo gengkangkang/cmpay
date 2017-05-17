@@ -410,8 +410,8 @@ public class PayAction extends BaseAction {
 		Map<String,String> res=new HashMap<String,String>();
 		try{
 			JSONObject jsonObject=JSONObject.parseObject(str);
-        	String sign=jsonObject.getString("sign").trim();
-            merchantId=jsonObject.getString("merchantId").trim();
+        	String sign=jsonObject.getString("sign");
+            merchantId=jsonObject.getString("merchantId");
             if(StringUtils.isBlank(merchantId)){
             	 logger.info("商户号不能为空");
             	 throw new TradeBizException(Constants.PARA_ERROR_8905_CODE,"商户号不能为空");
@@ -419,17 +419,23 @@ public class PayAction extends BaseAction {
          //验证签名
          boolean signFlag=this.verifyMD5Sign(sign, jsonObject, merchantId);
          if(signFlag){
-        	 String userId=jsonObject.getString("userId").trim();
-        	 String inchannel=jsonObject.getString("inchannel").trim();
-        	 String authChannel=jsonObject.getString("authChannel").trim();
-        	 String cardNo=jsonObject.getString("cardNo").trim();
-        	 String cardType=jsonObject.getString("cardType").trim();
-        	 String idNo=jsonObject.getString("idNo").trim();
-        	 String idType=jsonObject.getString("idType").trim();
-        	 String name=jsonObject.getString("name").trim();
-        	 String bankMobile=jsonObject.getString("bankMobile").trim();
-        	 String bankCode=jsonObject.getString("bankCode").trim();
-        	 String terminalType=jsonObject.getString("terminalType").trim();
+        	 String userId=jsonObject.getString("userId");
+        	 String inchannel=jsonObject.getString("inchannel");
+        	 String authChannel=jsonObject.getString("authChannel");
+        	 String cardNo=jsonObject.getString("cardNo");
+        	 String cardType=jsonObject.getString("cardType");
+        	 String idNo=jsonObject.getString("idNo");
+        	 String idType=jsonObject.getString("idType");
+        	 String name=jsonObject.getString("name");
+        	 String bankMobile=jsonObject.getString("bankMobile");
+        	 String bankCode=jsonObject.getString("bankCode");
+        	 String terminalType=jsonObject.getString("terminalType");
+
+        	  if(StringUtils.isBlank(inchannel)||StringUtils.isBlank(authChannel)||StringUtils.isBlank(cardNo)||StringUtils.isBlank(cardType)
+        			  ||StringUtils.isBlank(idNo)||StringUtils.isBlank(idType)||StringUtils.isBlank(name)
+        			  ||StringUtils.isBlank(bankMobile)){
+             	 throw new TradeBizException(Constants.PARA_ERROR_8905_CODE,Constants.PARA_ERROR_8905_MSG);
+              }
 
 
     		 res=upayService.payAuth(merchantId, userId, inchannel, authChannel, cardNo, cardType, idNo, idType, name, bankMobile, bankCode, terminalType);

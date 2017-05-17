@@ -28,13 +28,13 @@ public class Test extends BaseAction {
 //merchantId, inchannel, userId, amount, cardNo, origiOrderId, payCode, transType, orderIp, idNo, idType, name, bankMobile, bankCode
 
 		//代扣
-		//		Map<String,String> map=new HashMap<String,String>();
+//	 Map<String,String> map=new HashMap<String,String>();
 //        map.put("merchantId", "800010000001");
 //        map.put("inchannel", "0000");
 //        map.put("userId", "123456");
 //        map.put("amount", "16.01");
 //        map.put("cardNo", "6227001217450011115");
-//        map.put("origiOrderId", "20170414003");
+//        map.put("origiOrderId", "20170517001");
 //        map.put("payCode", "");
 //        map.put("transType", "01");
 //        map.put("orderIp", "10.17.1.30");
@@ -78,7 +78,7 @@ public class Test extends BaseAction {
 //        map.put("userId", "666666");
 //        map.put("amount", "15.01");
 //        map.put("cardNo", "6222620140009946277");
-//        map.put("origiOrderId", "201704170008");
+//        map.put("origiOrderId", "201705050001");
 //        map.put("payCode", "CMPAY0001");
 //        map.put("transType", "02");
 //        map.put("orderIp", "10.17.1.30");
@@ -105,7 +105,12 @@ public class Test extends BaseAction {
 		Map<String,String> map=new HashMap<String,String>();
         map.put("merId", "800010000001");
         map.put("inchannel", "0000");
-        map.put("cardNo", "6222620140009946277");
+        map.put("cardNo", "6226620607792207");
+
+
+
+
+
 
 
 

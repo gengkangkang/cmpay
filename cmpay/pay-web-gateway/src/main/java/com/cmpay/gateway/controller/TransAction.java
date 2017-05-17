@@ -33,7 +33,7 @@ public class TransAction extends BaseAction {
 
 	@RequestMapping(value="/queryLimtAmt",method=RequestMethod.POST)
     public String queryLimtAmt(@RequestBody String str){
-		logger.info("[queryLimtAmt]接受到的字符串================"+str.trim());
+		logger.info("[queryLimtAmt]接受到的字符串================"+str);
 		String merchantId=null;
 		JSONObject jsonObject=null;
 		QueryLimitAmtRq req=new QueryLimitAmtRq();
@@ -50,8 +50,8 @@ public class TransAction extends BaseAction {
          boolean signFlag=this.verifyMD5Sign(sign, jsonObject, merchantId);
          if(signFlag){
 
-             String inchannel=jsonObject.getString("inchannel").trim();
-             String cardNo=jsonObject.getString("cardNo").trim();
+             String inchannel=jsonObject.getString("inchannel");
+             String cardNo=jsonObject.getString("cardNo");
              String bankCode=jsonObject.getString("bankCode");
 
              if(StringUtils.isBlank(inchannel)||StringUtils.isBlank(cardNo)){

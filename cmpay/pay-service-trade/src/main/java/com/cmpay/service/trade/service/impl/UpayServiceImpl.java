@@ -679,6 +679,8 @@ public class UpayServiceImpl implements UpayService {
 //		 String cardno="6228482978638035076";
 		Map<String,String> data=null;
          logger.info("cardno="+cardNo);
+         try{
+
          for(int i=4;i<=10;i++){
       	   String cardBin=cardNo.substring(0,i);
       	   if(i==4 && !"9558".equals(cardBin))
@@ -694,6 +696,7 @@ public class UpayServiceImpl implements UpayService {
          CmpayCardBinKey cmpayCardBinKey=null;
          if(data==null){
            logger.info("缓存中没查到卡信息，去数据库中查询");
+           data=new HashMap<String,String>();
            for(int i=4;i<=10;i++){
           	   String cardBin=cardNo.substring(0,i);
           	   if(i==4 && !"9558".equals(cardBin))
@@ -719,6 +722,9 @@ public class UpayServiceImpl implements UpayService {
              }
 
          }
+         }catch(Exception e){
+        	 logger.error("根据卡号查询卡bin信息异常",e);
+         }
 
              return null;
 	}
@@ -730,6 +736,8 @@ public class UpayServiceImpl implements UpayService {
 
 		Map<String,String> data=new HashMap<String,String>();
         logger.info("cardno="+cardNo);
+
+        try{
 
         if(!CmpayUtils.isCardNo(cardNo)){
             logger.info("银行卡号非法");
@@ -755,6 +763,7 @@ public class UpayServiceImpl implements UpayService {
         CmpayCardBinKey cmpayCardBinKey=null;
         if(data==null){
           logger.info("缓存中没查到卡信息，去数据库中查询");
+          data=new HashMap<String,String>();
           for(int i=4;i<=10;i++){
          	   String cardBin=cardNo.substring(0,i);
          	   if(i==4 && !"9558".equals(cardBin))
@@ -781,8 +790,13 @@ public class UpayServiceImpl implements UpayService {
             }
 
         }
+        }catch(Exception e){
+        	logger.info("查询卡bin信息异常",e);
+        	 data.put(Constants.RESPCODE_KEY, Constants.EXCEPTION_CODE);
+             data.put(Constants.RESPMSG_KEY, Constants.EXCEPTION_MSG);
+        }
 
-            return null;
+            return data;
 	}
 
 	@Override

@@ -25,8 +25,7 @@
 		class="com.baidu.disconf.client.addons.properties.ReloadablePropertiesFactoryBean">
 	 	<property name="locations">
 			<list>
-				  <value>chinapay.properties</value> 
-				  <value>chinapaysinpay.properties</value> 				  
+				  <value>chinapay.properties</value> 								  
 				  <value>common.properties</value> 
 				  <value>cron.properties</value> 				  
 				  <value>jdbc.properties</value> 

@@ -2,6 +2,7 @@ package com.cmpay.common.enums;
 
 import org.apache.commons.lang3.StringUtils;
 
+
 /**
  * 接入渠道枚举类
  * @author gengkangkang
@@ -26,7 +27,10 @@ public enum InChannelEnum {
 	C0012("0012","UMP"),
 	C0013("0013","CMPAY"),
 	C0014("0014","小贷"),
-	C9999("9999","一账通");
+	C0015("0015","中民居家网"),
+	C9999("9999","一账通"),
+
+	CC9999("C9999","未知渠道");
 
 
    private InChannelEnum(String code,String value){
@@ -60,6 +64,19 @@ public enum InChannelEnum {
 	  }
 	  return false;
   }
+
+	public static String getInchannelByCode(String code){
+		if(StringUtils.isBlank(code)){
+			return InChannelEnum.CC9999.name();
+		}
+		code=code.trim();
+		for(InChannelEnum inchannelEnum:InChannelEnum.values()){
+			if(inchannelEnum.getCode().equalsIgnoreCase(code)){
+				return inchannelEnum.getValue();
+			}
+		}
+		return code;
+	}
 
   public static void main(String[] args){
 	  System.out.println(contains("0005"));

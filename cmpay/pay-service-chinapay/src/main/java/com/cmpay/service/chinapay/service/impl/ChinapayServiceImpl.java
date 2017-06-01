@@ -892,7 +892,9 @@ public class ChinapayServiceImpl implements ChinapayService {
 			e.printStackTrace();
 		}
 		// 处理内容
-		BufferedReader reader = new BufferedReader(new InputStreamReader(resInputStream));
+//		BufferedReader reader = new BufferedReader(new InputStreamReader(resInputStream));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(resInputStream,"GBK"));
+
 		String tempBf = null;
 		StringBuffer html=new StringBuffer();
 		while((tempBf = reader.readLine()) != null){
@@ -925,7 +927,7 @@ public class ChinapayServiceImpl implements ChinapayService {
 		chinapay.PrivateKey key = new chinapay.PrivateKey();
 		boolean flag = false;
 		try {
-			flag = key.buildKey(req.getMerId(), 0, chinaPaySinPay.getPay_merPrK()+req.getMerId()+"_MerPrk.key");
+			flag = key.buildKey(req.getMerId(), 0, chinaPaySinPay.getPay_merPrK()+req.getMerId()+"_MerPrK.key");
 		} catch (Exception e) {
 			logger.error("build key error!{}",e);
 			return null;

@@ -231,10 +231,52 @@ public class CmpayUtils {
 		return true;
 	}
 
+	/**
+	 * 判断是否为数字
+	 * @param str
+	 * @return
+	 */
 	public static boolean isNumeric(String str){
 	    Pattern pattern = Pattern.compile("[0-9]*");
 	    return pattern.matcher(str).matches();
 	 }
+
+    /**
+     * 隐藏手机号中间四位
+     * @param mobileNo
+     * @return
+     */
+	public static String hideMobile(String mobileNo){
+
+		return mobileNo.replaceAll("(\\d{3})\\d{4}(\\d{4})","$1****$2");
+	}
+
+	/**
+	 * 隐藏身份证号中间10位
+	 * @param idNo
+	 * @return
+	 */
+	public static String hideIdNo(String idNo){
+
+		return idNo.replaceAll("(\\d{4})\\d{10}(\\w{4})","$1*****$2");
+
+	}
+
+	/**
+	 * 隐藏卡号中间位数
+	 * @param cardNo
+	 * @return
+	 */
+	public static String hideCardNo(String cardNo){
+
+		if(cardNo.length()==16){
+			return cardNo.replaceAll("(\\d{4})\\d{8}(\\w{4})","$1*****$2");
+		}else if(cardNo.length()==19){
+			return cardNo.replaceAll("(\\d{4})\\d{11}(\\w{4})","$1*****$2");
+		}
+
+		return cardNo;
+	}
 
 	public static void main(String[] args){
 //		System.out.println(createOrderId("WX","98765","00"));
@@ -248,7 +290,12 @@ public class CmpayUtils {
 //		System.out.println(getCurrentTime("yyyyMMdd"));
 
 //		System.out.println(isNumber("100.369"));
-		System.out.println(isCardNo("1000000000"));
+//		System.out.println(isCardNo("1000000000"));
+//		System.out.println(hideMobile("18721359153"));
+//		System.out.println(hideIdNo("410221188008907701"));
+
+		System.out.println(hideCardNo("6226620607792207"));
+
 	}
 
 }

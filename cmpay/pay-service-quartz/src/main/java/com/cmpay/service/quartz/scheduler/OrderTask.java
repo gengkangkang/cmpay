@@ -41,7 +41,7 @@ public class OrderTask {
 	@Scheduled(cron = "#{env.cron_doExpireOrder}")
 	public void ExpireOrderJob() {
 		logger.info("定时任务之处理过期订单任务开始[{}]",new Date());
-		     paymentService.doExpireOrder();
+//		     paymentService.doExpireOrder();
 		logger.info("定时任务之处理过期订单任务结束[{}]",new Date());
 	}
 

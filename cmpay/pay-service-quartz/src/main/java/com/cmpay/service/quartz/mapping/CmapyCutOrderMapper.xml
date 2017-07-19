@@ -136,7 +136,7 @@
     <include refid="Base_Column_List" />
     from CMPAY_CUT_ORDER
     <![CDATA[
-    where PAY_STATUS='SUCC' AND IS_ACCT='1' AND IN_ACCT='0' AND  ROWNUM<=15
+    where TRANS_TYPE='01' AND PAY_STATUS='SUCC' AND IS_ACCT='1' AND IN_ACCT='0' AND  ROWNUM<=15
      ]]> 
   </select>
   

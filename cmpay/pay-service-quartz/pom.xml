@@ -213,7 +213,11 @@
         <artifactId>pay-service-jytpay</artifactId>
         <version>${pay-service-jytpay.version}</version>        
       </dependency>  
-      
+      <dependency>
+        <groupId>com.cmpay</groupId>
+        <artifactId>pay-service-htpay</artifactId>
+        <version>${pay-service-htpay.version}</version>        
+      </dependency>     
   </dependencies>
   
   <build>

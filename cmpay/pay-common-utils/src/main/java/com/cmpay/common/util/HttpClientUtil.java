@@ -60,9 +60,9 @@ public class HttpClientUtil {
 		    UrlEncodedFormEntity entity=new UrlEncodedFormEntity(params,inEncode);
 			HttpPost httppost=new HttpPost(url);
 			httppost.setEntity(entity);
-			httppost.setHeader("Content-Type", "application/x-www-form-urlencoded");
-
-			System.out.println("执行的post："+httppost.getURI()+"post参数为："+params);
+//			httppost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+//			httppost.setHeader("Referer", "http://www.baidu.com/testAction.html");
+			System.out.println("执行的post："+httppost.getURI()+"，post参数为："+params);
 			CloseableHttpResponse response=httpclient.execute(httppost);
 		    httpEntity=response.getEntity();
 		    if(httpEntity !=null){
@@ -77,7 +77,7 @@ public class HttpClientUtil {
 
 			httpclient.close();
 		}
-		System.out.println("post返回值为："+returnValue);
+//		System.out.println("post返回值为："+returnValue);
        return returnValue;
 	}
 

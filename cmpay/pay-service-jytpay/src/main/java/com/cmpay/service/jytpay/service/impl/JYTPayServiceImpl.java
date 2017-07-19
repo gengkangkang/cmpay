@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
@@ -210,18 +211,21 @@ public class JYTPayServiceImpl implements JYTPayService {
 
 
 	        	// 判断报文交易状态为01时 成功
-				if(tranState.equals("01")){
+				if(StringUtils.equals(tranState, "01")){
 					zmCpJinyuntongPay.setTranState("01");
 				// 判断报文交易状态为00或无返回时 受理中
-				}else if(tranState.equals("00") || tranState.equals("")){
+				}else if(StringUtils.equals(tranState,"00") || StringUtils.isBlank(tranState)){
+					cpJYTRespDef.setTran_state("00");
 					zmCpJinyuntongPay.setTranState("00");
-				}else if(tranState.equals("03")){
+				}else if(StringUtils.equals(tranState, "03")){
 					zmCpJinyuntongPay.setTranState("03");
 				}else{
 					//更新判断逻辑，不能判断的设置为处理中 gkk
+					cpJYTRespDef.setTran_state("00");
 					zmCpJinyuntongPay.setTranState("00");
 				}
 	        }else{
+	        	cpJYTRespDef.setTran_state("00");
 	        	zmCpJinyuntongPay.setTranState("00");
 	        	logger.info("返回报文异常，网络通讯问题");
 	        }

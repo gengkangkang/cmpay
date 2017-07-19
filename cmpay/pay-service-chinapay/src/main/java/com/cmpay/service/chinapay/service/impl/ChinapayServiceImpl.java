@@ -221,7 +221,7 @@ public class ChinapayServiceImpl implements ChinapayService {
 		/**
 		 * 发送
 		 */
-		HttpClient hc = new HttpClient(requestUrl, 30000, 30000);
+		HttpClient hc = new HttpClient(requestUrl, 60000, 60000);
 		try {
 			int status = hc.send(submitFromData, authEncoding);
 			if (200 == status) {
@@ -343,6 +343,8 @@ public class ChinapayServiceImpl implements ChinapayService {
 		cpSinCutRespDef.setMessage(message);
 		cpSinCutRespDef.setCutOrderNo(cutOrder.getCutOrderNo());
 		cpSinCutRespDef.setThirdPartyOrderNo(req.getOrderNo());
+
+		cpCutOrderMapper.updateByPrimaryKeySelective(cutOrder);
 
 		return cpSinCutRespDef;
 	}
@@ -739,8 +741,14 @@ public class ChinapayServiceImpl implements ChinapayService {
 		//FIXME   bankId应该对应的是银行全称
 		req.setOpenBank(bankName);//req.setOpenBank(toUnicode("光大银行"));
 		//FIXME   province连连支付中为省编码，在银联为全称
+		if(StringUtils.isBlank(province)){
+			province="上海市";
+		}
 		req.setProv(province);//req.setProv(toUnicode("湖北"));
 		//FIXME   city连连支付中为省编码，在银联为全称
+		if(StringUtils.isBlank(city)){
+			city="黄浦区";
+		}
 		req.setCity(city);//req.setCity(toUnicode("上海市"));
 		req.setTransAmt(AMT_FORMAT.format(transAmt.multiply(new BigDecimal(100)))); // 根据transAmt格式化
 		req.setPurpose(toUnicode(purpose));//req.setPurpose(toUnicode("测试代付"));  可空

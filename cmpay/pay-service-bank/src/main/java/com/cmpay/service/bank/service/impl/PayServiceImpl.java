@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.cmpay.common.enums.AuthChannelEnum;
 import com.cmpay.common.enums.CpErrorCodeEnum;
 import com.cmpay.common.enums.CpPayRespCodeEnum;
+import com.cmpay.common.enums.HtPayErrorCodeEnum;
 import com.cmpay.common.enums.IdTypeEnum;
 import com.cmpay.common.enums.JYTErrorCodeEnum;
 import com.cmpay.common.enums.PayStatusEnum;
@@ -39,6 +40,8 @@ import com.cmpay.service.chinapay.model.CpAuthBgRespDef;
 import com.cmpay.service.chinapay.model.CpSinCutRespDef;
 import com.cmpay.service.chinapay.model.CpSinPayRespDef;
 import com.cmpay.service.chinapay.service.ChinapayService;
+import com.cmpay.service.htpay.model.HtSinCutResp;
+import com.cmpay.service.htpay.service.HtpayService;
 import com.cmpay.service.jytpay.model.CpJYTRespDef;
 import com.cmpay.service.jytpay.service.JYTAuthService;
 import com.cmpay.service.jytpay.service.JYTPayService;
@@ -67,6 +70,8 @@ public class PayServiceImpl implements PayService {
     JYTAuthService jYTAuthService;
     @Autowired
     JYTPayService jYTPayService;
+    @Autowired
+    HtpayService htpayService;
     @Autowired
     CmpayCutOrderMapper cmpayCutOrderMapper;
 
@@ -351,14 +356,14 @@ public class PayServiceImpl implements PayService {
 
 		 				}
 
-		 				if(def != null && def.getTran_state().equals("01")){
+		 				if(def != null && StringUtils.equals(def.getTran_state(), "01")){
 
 		 					cmpayCutOrder.setPayStatus(PayStatusEnum.SUCC.name());
 		 					payStatus = PayStatusEnum.SUCC.name();
 		 					payMsg="交易成功";
 		 					cmpayCutOrder.setRespMsg(payMsg);
 
-		 				}else if(def!= null && def.getTran_state().equals("03")){
+		 				}else if(def!= null && StringUtils.equals(def.getTran_state(), "03")){
 		 					cmpayCutOrder.setPayStatus(PayStatusEnum.FAIL.name());
 		 					payStatus=PayStatusEnum.FAIL.name();
 
@@ -368,6 +373,46 @@ public class PayServiceImpl implements PayService {
 		 				}
 
 		           	  break;
+
+		             case  CMPAY0005:
+		            	 HtSinCutResp htSinCutResp=htpayService.sinCut(orderId, cardNo, userId, bankCode, bankName, transAmt, name, idNo, idType, bankMobile, "DEBIT", "C", remark, cmpayChannelConfig.getThirdMerid(), cmpayChannelConfig.getRsaprikey(), cmpayChannelConfig.getRsapubkey());
+		            	 logger.info("航天支付代扣返回对象为：[{}]",htSinCutResp.toString());
+
+		 				if (htSinCutResp == null || StringUtils.isBlank(htSinCutResp.getTransStat())) {
+		 					logger.info("航天支付无返回对象!");
+		 					payCode=Constants.TRADE_ERROR_8808_CODE;
+		 					payMsg=Constants.TRADE_ERROR_8808_MSG;
+		 					cmpayCutOrder.setPayStatus(PayStatusEnum.DEALING.name());
+		 					cmpayCutOrder.setRemark(Constants.TRADE_ERROR_8808_MSG);
+		 					cmpayCutOrder.setRespCode(payCode);
+		 					cmpayCutOrder.setRespMsg(payMsg);
+		 					payStatus=PayStatusEnum.DEALING.name();
+		 				}else{
+		 					//判断支付状态
+                             if(StringUtils.equals(htSinCutResp.getTransStat(), PayStatusEnum.SUCC.toString())){
+                            	 cmpayCutOrder.setPayStatus(PayStatusEnum.SUCC.name());
+     		 					 payStatus = PayStatusEnum.SUCC.name();
+                             }else if(StringUtils.equals(htSinCutResp.getTransStat(), PayStatusEnum.FAIL.toString())){
+                            	 HtPayErrorCodeEnum htPayErrorCodeEnum=HtPayErrorCodeEnum.getByRespCode(htSinCutResp.getRespCode());
+                            	 payCode=htPayErrorCodeEnum.getCoreRespCode();
+                            	 payMsg=htPayErrorCodeEnum.getCoreRespMsg();
+
+                            	 cmpayCutOrder.setPayStatus(PayStatusEnum.FAIL.name());
+     		 					 payStatus=PayStatusEnum.FAIL.name();
+                             }else{
+                            	 cmpayCutOrder.setPayStatus(PayStatusEnum.DEALING.name());
+     		 					 payStatus=PayStatusEnum.DEALING.name();
+
+                             }
+ 		 					cmpayCutOrder.setRespCode(payCode);
+ 		 					cmpayCutOrder.setRespMsg(payMsg);
+ 		 					cmpayCutOrder.setThirdRespCode(htSinCutResp.getRespCode());
+ 		 					cmpayCutOrder.setThirdRespMsg(htSinCutResp.getRespMsg());
+
+		 				}
+
+
+		            	 break;
 
 		             default:
 		            	 logger.info("不支持的渠道");
@@ -426,7 +471,7 @@ public class PayServiceImpl implements PayService {
 		order.setPayType(payWayEnum.name());
 		order.setPayChannel(payWayEnum.name());
 		order.setTransAmt(transAmt);
-		order.setPayStatus(PayStatusEnum.DEALING.name());
+		order.setPayStatus(PayStatusEnum.NEW.name());
 		order.setProv(province);
 		order.setCity(city);
 		order.setSubBank("");

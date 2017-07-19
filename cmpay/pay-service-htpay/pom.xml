@@ -7,10 +7,10 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <groupId>com.cmpay</groupId>
-  <artifactId>pay-service-bank</artifactId>
-  <version>${pay-service-bank.version}</version>
-  <name>pay-service-bank</name>
+  <artifactId>pay-service-htpay</artifactId>
+  <name>pay-service-trade</name>
   <url>http://maven.apache.org</url>
+  <version>${pay-service-htpay.version}</version>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -18,7 +18,13 @@
 
  <dependencies>
   
- 
+<dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>javax.servlet-api</artifactId>
+    <version>3.1.0</version>
+    <scope>provided</scope>
+</dependency>
+  
             <dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
@@ -118,6 +124,10 @@
             <artifactId>commons-io</artifactId>  
         </dependency>  
   
+        <dependency>  
+            <groupId>commons-fileupload</groupId>  
+            <artifactId>commons-fileupload</artifactId>  
+        </dependency> 
 
     <dependency>
       <groupId>junit</groupId>
@@ -133,20 +143,7 @@
     <artifactId>commons-lang3</artifactId>
  </dependency>
     
-   <dependency>  
-    <groupId>com.alibaba</groupId>  
-    <artifactId>dubbo</artifactId>  
-    <exclusions>  
-      <exclusion>  
-        <groupId>org.springframework</groupId>  
-        <artifactId>spring</artifactId>  
-      </exclusion>  
-    </exclusions>    
-  </dependency>
-  <dependency>
-    <groupId>com.101tec</groupId>
-    <artifactId>zkclient</artifactId>
-  </dependency>
+
   
    <!-- redis -->
  
@@ -158,33 +155,23 @@
     <groupId>redis.clients</groupId>
     <artifactId>jedis</artifactId>
 </dependency>
-
-<dependency>
-    <groupId>joda-time</groupId>
-    <artifactId>joda-time</artifactId>
-</dependency>
     
     <!-- 引入接口模块 -->
       <dependency>
         <groupId>com.cmpay</groupId>
+        <artifactId>pay-facade-trade</artifactId>
+        <version>${pay-facade-trade.version}</version>        
+      </dependency> 
+       <dependency>
+        <groupId>com.cmpay</groupId>
         <artifactId>pay-common-utils</artifactId>
         <version>${pay-common-utils.version}</version>        
-      </dependency>
-      <dependency>
-        <groupId>com.cmpay</groupId>
-        <artifactId>pay-service-chinapay</artifactId>
-        <version>${pay-service-chinapay.version}</version>        
-      </dependency> 
-      <dependency>
-        <groupId>com.cmpay</groupId>
-        <artifactId>pay-service-jytpay</artifactId>
-        <version>${pay-service-jytpay.version}</version>        
-      </dependency> 
+      </dependency>  
+      
         <dependency>
-        <groupId>com.cmpay</groupId>
-        <artifactId>pay-service-htpay</artifactId>
-        <version>${pay-service-htpay.version}</version>        
-      </dependency>        
+            <groupId>com.baidu.disconf</groupId>
+            <artifactId>disconf-client</artifactId>
+        </dependency> 
     
   </dependencies>
   

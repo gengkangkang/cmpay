@@ -43,6 +43,7 @@
 		<pay-web-cashier.version>0.0.1-SNAPSHOT</pay-web-cashier.version>
 		<pay-common-security.version>0.0.1-SNAPSHOT</pay-common-security.version>
 		<pay-service-weixin.version>0.0.1-SNAPSHOT</pay-service-weixin.version>
+		<pay-service-htpay.version>0.0.1-SNAPSHOT</pay-service-htpay.version>
 		
 		
 		
@@ -324,7 +325,7 @@
     <version>19.0</version>
 </dependency>
  
- <!-- ��ɶ�ά�� -->
+ <!-- ??????? -->
  <dependency>
     <groupId>com.google.zxing</groupId>
     <artifactId>core</artifactId>
@@ -448,6 +449,6 @@
 
     
     <module>pay-service-quartz</module>
-
+    <module>pay-service-htpay</module>
   </modules>
 </project>

@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cmpay.service.htpay.dao.CmpayHtCutOrderMapper" >
+  <resultMap id="BaseResultMap" type="com.cmpay.service.htpay.model.CmpayHtCutOrder" >
+    <id column="ORDER_NO" property="orderNo" jdbcType="VARCHAR" />
+    <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+    <result column="BANK_CODE" property="bankCode" jdbcType="VARCHAR" />
+    <result column="BANK_NAME" property="bankName" jdbcType="VARCHAR" />
+    <result column="CARD_NAME" property="cardName" jdbcType="VARCHAR" />
+    <result column="CARD_NO" property="cardNo" jdbcType="VARCHAR" />
+    <result column="CARD_TYPE" property="cardType" jdbcType="VARCHAR" />
+    <result column="CARD_ATTRIBUTE" property="cardAttribute" jdbcType="VARCHAR" />
+    <result column="CERT_ID" property="certId" jdbcType="VARCHAR" />
+    <result column="CERT_TYPE" property="certType" jdbcType="VARCHAR" />
+    <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="CURY_ID" property="curyId" jdbcType="VARCHAR" />
+    <result column="CUST_ID" property="custId" jdbcType="VARCHAR" />
+    <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+    <result column="JPA_VERSION" property="jpaVersion" jdbcType="DECIMAL" />
+    <result column="MER_ID" property="merId" jdbcType="VARCHAR" />
+    <result column="RES_CODE" property="resCode" jdbcType="VARCHAR" />
+    <result column="RES_MSG" property="resMsg" jdbcType="VARCHAR" />
+    <result column="RES_TRANS_STAT" property="resTransStat" jdbcType="VARCHAR" />
+    <result column="TRANS_DATE" property="transDate" jdbcType="VARCHAR" />
+    <result column="TRANS_ID" property="transId" jdbcType="VARCHAR" />
+    <result column="TRANS_STATUS" property="transStatus" jdbcType="VARCHAR" />
+    <result column="ORIG_ORDER_NO" property="origOrderNo" jdbcType="VARCHAR" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="FIELD1" property="field1" jdbcType="VARCHAR" />
+    <result column="FIELD2" property="field2" jdbcType="VARCHAR" />
+    <result column="FIELD3" property="field3" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    ORDER_NO, AMOUNT, BANK_CODE, BANK_NAME, CARD_NAME, CARD_NO, CARD_TYPE, CARD_ATTRIBUTE, 
+    CERT_ID, CERT_TYPE, MOBILE, CREATE_TIME, CURY_ID, CUST_ID, DESCRIPTION, JPA_VERSION, 
+    MER_ID, RES_CODE, RES_MSG, RES_TRANS_STAT, TRANS_DATE, TRANS_ID, TRANS_STATUS, ORIG_ORDER_NO, 
+    REMARK, FIELD1, FIELD2, FIELD3
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.cmpay.service.htpay.model.CmpayHtCutOrderExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from CMPAY_HT_CUT_ORDER
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from CMPAY_HT_CUT_ORDER
+    where ORDER_NO = #{orderNo,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from CMPAY_HT_CUT_ORDER
+    where ORDER_NO = #{orderNo,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.cmpay.service.htpay.model.CmpayHtCutOrderExample" >
+    delete from CMPAY_HT_CUT_ORDER
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.cmpay.service.htpay.model.CmpayHtCutOrder" >
+    insert into CMPAY_HT_CUT_ORDER (ORDER_NO, AMOUNT, BANK_CODE, 
+      BANK_NAME, CARD_NAME, CARD_NO, 
+      CARD_TYPE, CARD_ATTRIBUTE, CERT_ID, 
+      CERT_TYPE, MOBILE, CREATE_TIME, 
+      CURY_ID, CUST_ID, DESCRIPTION, 
+      JPA_VERSION, MER_ID, RES_CODE, 
+      RES_MSG, RES_TRANS_STAT, TRANS_DATE, 
+      TRANS_ID, TRANS_STATUS, ORIG_ORDER_NO, 
+      REMARK, FIELD1, FIELD2, 
+      FIELD3)
+    values (#{orderNo,jdbcType=VARCHAR}, #{amount,jdbcType=DECIMAL}, #{bankCode,jdbcType=VARCHAR}, 
+      #{bankName,jdbcType=VARCHAR}, #{cardName,jdbcType=VARCHAR}, #{cardNo,jdbcType=VARCHAR}, 
+      #{cardType,jdbcType=VARCHAR}, #{cardAttribute,jdbcType=VARCHAR}, #{certId,jdbcType=VARCHAR}, 
+      #{certType,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{curyId,jdbcType=VARCHAR}, #{custId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{jpaVersion,jdbcType=DECIMAL}, #{merId,jdbcType=VARCHAR}, #{resCode,jdbcType=VARCHAR}, 
+      #{resMsg,jdbcType=VARCHAR}, #{resTransStat,jdbcType=VARCHAR}, #{transDate,jdbcType=VARCHAR}, 
+      #{transId,jdbcType=VARCHAR}, #{transStatus,jdbcType=VARCHAR}, #{origOrderNo,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{field1,jdbcType=VARCHAR}, #{field2,jdbcType=VARCHAR}, 
+      #{field3,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.cmpay.service.htpay.model.CmpayHtCutOrder" >
+    insert into CMPAY_HT_CUT_ORDER
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="orderNo != null" >
+        ORDER_NO,
+      </if>
+      <if test="amount != null" >
+        AMOUNT,
+      </if>
+      <if test="bankCode != null" >
+        BANK_CODE,
+      </if>
+      <if test="bankName != null" >
+        BANK_NAME,
+      </if>
+      <if test="cardName != null" >
+        CARD_NAME,
+      </if>
+      <if test="cardNo != null" >
+        CARD_NO,
+      </if>
+      <if test="cardType != null" >
+        CARD_TYPE,
+      </if>
+      <if test="cardAttribute != null" >
+        CARD_ATTRIBUTE,
+      </if>
+      <if test="certId != null" >
+        CERT_ID,
+      </if>
+      <if test="certType != null" >
+        CERT_TYPE,
+      </if>
+      <if test="mobile != null" >
+        MOBILE,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="curyId != null" >
+        CURY_ID,
+      </if>
+      <if test="custId != null" >
+        CUST_ID,
+      </if>
+      <if test="description != null" >
+        DESCRIPTION,
+      </if>
+      <if test="jpaVersion != null" >
+        JPA_VERSION,
+      </if>
+      <if test="merId != null" >
+        MER_ID,
+      </if>
+      <if test="resCode != null" >
+        RES_CODE,
+      </if>
+      <if test="resMsg != null" >
+        RES_MSG,
+      </if>
+      <if test="resTransStat != null" >
+        RES_TRANS_STAT,
+      </if>
+      <if test="transDate != null" >
+        TRANS_DATE,
+      </if>
+      <if test="transId != null" >
+        TRANS_ID,
+      </if>
+      <if test="transStatus != null" >
+        TRANS_STATUS,
+      </if>
+      <if test="origOrderNo != null" >
+        ORIG_ORDER_NO,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+      <if test="field1 != null" >
+        FIELD1,
+      </if>
+      <if test="field2 != null" >
+        FIELD2,
+      </if>
+      <if test="field3 != null" >
+        FIELD3,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="orderNo != null" >
+        #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="bankCode != null" >
+        #{bankCode,jdbcType=VARCHAR},
+      </if>
+      <if test="bankName != null" >
+        #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="cardName != null" >
+        #{cardName,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNo != null" >
+        #{cardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="cardType != null" >
+        #{cardType,jdbcType=VARCHAR},
+      </if>
+      <if test="cardAttribute != null" >
+        #{cardAttribute,jdbcType=VARCHAR},
+      </if>
+      <if test="certId != null" >
+        #{certId,jdbcType=VARCHAR},
+      </if>
+      <if test="certType != null" >
+        #{certType,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="curyId != null" >
+        #{curyId,jdbcType=VARCHAR},
+      </if>
+      <if test="custId != null" >
+        #{custId,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="jpaVersion != null" >
+        #{jpaVersion,jdbcType=DECIMAL},
+      </if>
+      <if test="merId != null" >
+        #{merId,jdbcType=VARCHAR},
+      </if>
+      <if test="resCode != null" >
+        #{resCode,jdbcType=VARCHAR},
+      </if>
+      <if test="resMsg != null" >
+        #{resMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="resTransStat != null" >
+        #{resTransStat,jdbcType=VARCHAR},
+      </if>
+      <if test="transDate != null" >
+        #{transDate,jdbcType=VARCHAR},
+      </if>
+      <if test="transId != null" >
+        #{transId,jdbcType=VARCHAR},
+      </if>
+      <if test="transStatus != null" >
+        #{transStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="origOrderNo != null" >
+        #{origOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="field1 != null" >
+        #{field1,jdbcType=VARCHAR},
+      </if>
+      <if test="field2 != null" >
+        #{field2,jdbcType=VARCHAR},
+      </if>
+      <if test="field3 != null" >
+        #{field3,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.cmpay.service.htpay.model.CmpayHtCutOrderExample" resultType="java.lang.Integer" >
+    select count(*) from CMPAY_HT_CUT_ORDER
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update CMPAY_HT_CUT_ORDER
+    <set >
+      <if test="record.orderNo != null" >
+        ORDER_NO = #{record.orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.amount != null" >
+        AMOUNT = #{record.amount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.bankCode != null" >
+        BANK_CODE = #{record.bankCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.bankName != null" >
+        BANK_NAME = #{record.bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cardName != null" >
+        CARD_NAME = #{record.cardName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cardNo != null" >
+        CARD_NO = #{record.cardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cardType != null" >
+        CARD_TYPE = #{record.cardType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cardAttribute != null" >
+        CARD_ATTRIBUTE = #{record.cardAttribute,jdbcType=VARCHAR},
+      </if>
+      <if test="record.certId != null" >
+        CERT_ID = #{record.certId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.certType != null" >
+        CERT_TYPE = #{record.certType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mobile != null" >
+        MOBILE = #{record.mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        CREATE_TIME = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.curyId != null" >
+        CURY_ID = #{record.curyId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custId != null" >
+        CUST_ID = #{record.custId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null" >
+        DESCRIPTION = #{record.description,jdbcType=VARCHAR},
+      </if>
+      <if test="record.jpaVersion != null" >
+        JPA_VERSION = #{record.jpaVersion,jdbcType=DECIMAL},
+      </if>
+      <if test="record.merId != null" >
+        MER_ID = #{record.merId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resCode != null" >
+        RES_CODE = #{record.resCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resMsg != null" >
+        RES_MSG = #{record.resMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resTransStat != null" >
+        RES_TRANS_STAT = #{record.resTransStat,jdbcType=VARCHAR},
+      </if>
+      <if test="record.transDate != null" >
+        TRANS_DATE = #{record.transDate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.transId != null" >
+        TRANS_ID = #{record.transId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.transStatus != null" >
+        TRANS_STATUS = #{record.transStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.origOrderNo != null" >
+        ORIG_ORDER_NO = #{record.origOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null" >
+        REMARK = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.field1 != null" >
+        FIELD1 = #{record.field1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.field2 != null" >
+        FIELD2 = #{record.field2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.field3 != null" >
+        FIELD3 = #{record.field3,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update CMPAY_HT_CUT_ORDER
+    set ORDER_NO = #{record.orderNo,jdbcType=VARCHAR},
+      AMOUNT = #{record.amount,jdbcType=DECIMAL},
+      BANK_CODE = #{record.bankCode,jdbcType=VARCHAR},
+      BANK_NAME = #{record.bankName,jdbcType=VARCHAR},
+      CARD_NAME = #{record.cardName,jdbcType=VARCHAR},
+      CARD_NO = #{record.cardNo,jdbcType=VARCHAR},
+      CARD_TYPE = #{record.cardType,jdbcType=VARCHAR},
+      CARD_ATTRIBUTE = #{record.cardAttribute,jdbcType=VARCHAR},
+      CERT_ID = #{record.certId,jdbcType=VARCHAR},
+      CERT_TYPE = #{record.certType,jdbcType=VARCHAR},
+      MOBILE = #{record.mobile,jdbcType=VARCHAR},
+      CREATE_TIME = #{record.createTime,jdbcType=TIMESTAMP},
+      CURY_ID = #{record.curyId,jdbcType=VARCHAR},
+      CUST_ID = #{record.custId,jdbcType=VARCHAR},
+      DESCRIPTION = #{record.description,jdbcType=VARCHAR},
+      JPA_VERSION = #{record.jpaVersion,jdbcType=DECIMAL},
+      MER_ID = #{record.merId,jdbcType=VARCHAR},
+      RES_CODE = #{record.resCode,jdbcType=VARCHAR},
+      RES_MSG = #{record.resMsg,jdbcType=VARCHAR},
+      RES_TRANS_STAT = #{record.resTransStat,jdbcType=VARCHAR},
+      TRANS_DATE = #{record.transDate,jdbcType=VARCHAR},
+      TRANS_ID = #{record.transId,jdbcType=VARCHAR},
+      TRANS_STATUS = #{record.transStatus,jdbcType=VARCHAR},
+      ORIG_ORDER_NO = #{record.origOrderNo,jdbcType=VARCHAR},
+      REMARK = #{record.remark,jdbcType=VARCHAR},
+      FIELD1 = #{record.field1,jdbcType=VARCHAR},
+      FIELD2 = #{record.field2,jdbcType=VARCHAR},
+      FIELD3 = #{record.field3,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cmpay.service.htpay.model.CmpayHtCutOrder" >
+    update CMPAY_HT_CUT_ORDER
+    <set >
+      <if test="amount != null" >
+        AMOUNT = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="bankCode != null" >
+        BANK_CODE = #{bankCode,jdbcType=VARCHAR},
+      </if>
+      <if test="bankName != null" >
+        BANK_NAME = #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="cardName != null" >
+        CARD_NAME = #{cardName,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNo != null" >
+        CARD_NO = #{cardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="cardType != null" >
+        CARD_TYPE = #{cardType,jdbcType=VARCHAR},
+      </if>
+      <if test="cardAttribute != null" >
+        CARD_ATTRIBUTE = #{cardAttribute,jdbcType=VARCHAR},
+      </if>
+      <if test="certId != null" >
+        CERT_ID = #{certId,jdbcType=VARCHAR},
+      </if>
+      <if test="certType != null" >
+        CERT_TYPE = #{certType,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        MOBILE = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="curyId != null" >
+        CURY_ID = #{curyId,jdbcType=VARCHAR},
+      </if>
+      <if test="custId != null" >
+        CUST_ID = #{custId,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        DESCRIPTION = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="jpaVersion != null" >
+        JPA_VERSION = #{jpaVersion,jdbcType=DECIMAL},
+      </if>
+      <if test="merId != null" >
+        MER_ID = #{merId,jdbcType=VARCHAR},
+      </if>
+      <if test="resCode != null" >
+        RES_CODE = #{resCode,jdbcType=VARCHAR},
+      </if>
+      <if test="resMsg != null" >
+        RES_MSG = #{resMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="resTransStat != null" >
+        RES_TRANS_STAT = #{resTransStat,jdbcType=VARCHAR},
+      </if>
+      <if test="transDate != null" >
+        TRANS_DATE = #{transDate,jdbcType=VARCHAR},
+      </if>
+      <if test="transId != null" >
+        TRANS_ID = #{transId,jdbcType=VARCHAR},
+      </if>
+      <if test="transStatus != null" >
+        TRANS_STATUS = #{transStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="origOrderNo != null" >
+        ORIG_ORDER_NO = #{origOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="field1 != null" >
+        FIELD1 = #{field1,jdbcType=VARCHAR},
+      </if>
+      <if test="field2 != null" >
+        FIELD2 = #{field2,jdbcType=VARCHAR},
+      </if>
+      <if test="field3 != null" >
+        FIELD3 = #{field3,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ORDER_NO = #{orderNo,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cmpay.service.htpay.model.CmpayHtCutOrder" >
+    update CMPAY_HT_CUT_ORDER
+    set AMOUNT = #{amount,jdbcType=DECIMAL},
+      BANK_CODE = #{bankCode,jdbcType=VARCHAR},
+      BANK_NAME = #{bankName,jdbcType=VARCHAR},
+      CARD_NAME = #{cardName,jdbcType=VARCHAR},
+      CARD_NO = #{cardNo,jdbcType=VARCHAR},
+      CARD_TYPE = #{cardType,jdbcType=VARCHAR},
+      CARD_ATTRIBUTE = #{cardAttribute,jdbcType=VARCHAR},
+      CERT_ID = #{certId,jdbcType=VARCHAR},
+      CERT_TYPE = #{certType,jdbcType=VARCHAR},
+      MOBILE = #{mobile,jdbcType=VARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      CURY_ID = #{curyId,jdbcType=VARCHAR},
+      CUST_ID = #{custId,jdbcType=VARCHAR},
+      DESCRIPTION = #{description,jdbcType=VARCHAR},
+      JPA_VERSION = #{jpaVersion,jdbcType=DECIMAL},
+      MER_ID = #{merId,jdbcType=VARCHAR},
+      RES_CODE = #{resCode,jdbcType=VARCHAR},
+      RES_MSG = #{resMsg,jdbcType=VARCHAR},
+      RES_TRANS_STAT = #{resTransStat,jdbcType=VARCHAR},
+      TRANS_DATE = #{transDate,jdbcType=VARCHAR},
+      TRANS_ID = #{transId,jdbcType=VARCHAR},
+      TRANS_STATUS = #{transStatus,jdbcType=VARCHAR},
+      ORIG_ORDER_NO = #{origOrderNo,jdbcType=VARCHAR},
+      REMARK = #{remark,jdbcType=VARCHAR},
+      FIELD1 = #{field1,jdbcType=VARCHAR},
+      FIELD2 = #{field2,jdbcType=VARCHAR},
+      FIELD3 = #{field3,jdbcType=VARCHAR}
+    where ORDER_NO = #{orderNo,jdbcType=VARCHAR}
+  </update>
+</mapper>

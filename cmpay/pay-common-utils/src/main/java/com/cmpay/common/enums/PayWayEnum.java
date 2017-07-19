@@ -13,7 +13,8 @@ public enum PayWayEnum {
 	CMPAY0001("银联"),
 	CMPAY0002("金运通"),
 	CMPAY0003("连连支付"),
-	CMPAY0004("微信支付");
+	CMPAY0004("微信支付"),
+	CMPAY0005("航天支付");
 
    private PayWayEnum(String value){
 	   this.value=value;

@@ -23,6 +23,8 @@ import com.cmpay.common.util.WXConstants;
 import com.cmpay.service.chinapay.model.CpSinCutQueryRespDef;
 import com.cmpay.service.chinapay.model.CpSinPayQueryRespDef;
 import com.cmpay.service.chinapay.service.ChinapayService;
+import com.cmpay.service.htpay.model.HtSinCutQueryResp;
+import com.cmpay.service.htpay.service.HtpayService;
 import com.cmpay.service.jytpay.model.CpJYTRespDef;
 import com.cmpay.service.jytpay.service.JYTPayService;
 import com.cmpay.service.jytpay.utils.XmlMsgConstant;
@@ -91,6 +93,8 @@ public class PaymentServiceImpl implements PaymentService {
 	CmapyOrderRefundMapper cmapyOrderRefundMapper;
 	@Autowired
 	private PayOrderMapper payOrderMapper;
+	@Autowired
+	private HtpayService htpayService;
 
 	@Override
 	@Transactional
@@ -238,7 +242,8 @@ public class PaymentServiceImpl implements PaymentService {
 			long diffMinute = differencesTime/(60*1000);//差异分钟
 			if(diffMinute > Long.parseLong(upayOrderValid)){
 				//超过时效
-				isOverDue = true;
+				logger.info("[{}]由于支付平台暂时没有退款机制，故暂时取消订单超时机制！",cmapyCutOrder.getOrderId());
+//				isOverDue = true;
 			}
 
 			PayWayEnum payWayEnum=PayWayEnum.getByCode(cmapyCutOrder.getPayChannel());
@@ -282,10 +287,10 @@ public class PaymentServiceImpl implements PaymentService {
             	    	CpSinCutQueryRespDef cpSinCutQueryRespDef=chinapayService.sinCutQuery(cmapyCutOrder.getOrderId(), cmpayChannelConfig.getThirdMerid(), cmpayChannelConfig.getRsaprikey(), cmpayChannelConfig.getRsapubkey());
             	    	 logger.info("cpSinCutQueryRespDef={}",cpSinCutQueryRespDef.toString());
             	    if(cpSinCutQueryRespDef!=null){
-            	    	if (cpSinCutQueryRespDef.getResponseCode().equals("00")) {
+            	    	if (StringUtils.equals(cpSinCutQueryRespDef.getResponseCode(), "00")) {
             	    		cmpayRecord.setPayStatus(PayStatusEnum.SUCC.name());
             	    		cmapyCutOrder.setPayStatus(PayStatusEnum.SUCC.name());
-						} else if (cpSinCutQueryRespDef.getResponseCode().equals("45") || cpSinCutQueryRespDef.getResponseCode().equals("") || cpSinCutQueryRespDef.getResponseCode().equals("09")) {
+						} else if (StringUtils.equals(cpSinCutQueryRespDef.getResponseCode(),"45") || StringUtils.isBlank(cpSinCutQueryRespDef.getResponseCode())|| StringUtils.equals(cpSinCutQueryRespDef.getResponseCode(), "09")|| StringUtils.equals(cpSinCutQueryRespDef.getResponseCode(),"94")) {
             	    		cmpayRecord.setPayStatus(PayStatusEnum.DEALING.name());
             	    		cmapyCutOrder.setPayStatus(PayStatusEnum.DEALING.name());
 						} else {
@@ -311,10 +316,10 @@ public class PaymentServiceImpl implements PaymentService {
 						if(cpJYTRespDef!=null){
 						logger.info("响应码:{},交易响应码:{}",cpJYTRespDef.getResp_code(),cpJYTRespDef.getTran_resp_code());
 						if (XmlMsgConstant.MSG_RES_CODE_SUCCESS.equals(cpJYTRespDef.getResp_code())) {
-							if (cpJYTRespDef.getTran_state().equals("01")) {
+							if (StringUtils.equals(cpJYTRespDef.getTran_state(), "01")) {
 								cmpayRecord.setPayStatus(PayStatusEnum.SUCC.name());
 	            	    		cmapyCutOrder.setPayStatus(PayStatusEnum.SUCC.name());
-							} else if (cpJYTRespDef.getTran_state().equals("03")) {
+							} else if (StringUtils.equals(cpJYTRespDef.getTran_state(), "03")) {
 								cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
 	            	    		cmapyCutOrder.setPayStatus(PayStatusEnum.FAIL.name());
 							}
@@ -339,6 +344,32 @@ public class PaymentServiceImpl implements PaymentService {
 						}
 
             	    	break;
+            	    case CMPAY0005:
+            	    	HtSinCutQueryResp htResp=htpayService.sinCutQuery(cmapyCutOrder.getOrderId(), cmpayChannelConfig.getThirdMerid(), cmpayChannelConfig.getRsaprikey(), cmpayChannelConfig.getRsapubkey());
+            	    	 logger.info("htResp={}",htResp.toString());
+                         if(null != htResp){
+
+                        	 if(StringUtils.equals(htResp.getTransStat(), PayStatusEnum.SUCC.toString())){
+                        		 cmpayRecord.setPayStatus(PayStatusEnum.SUCC.name());
+                 	    		 cmapyCutOrder.setPayStatus(PayStatusEnum.SUCC.name());
+                        	 }else if(StringUtils.equals(htResp.getTransStat(), PayStatusEnum.FAIL.toString())){
+                        		 cmpayRecord.setPayStatus(PayStatusEnum.FAIL.name());
+                 	    		 cmapyCutOrder.setPayStatus(PayStatusEnum.FAIL.name());
+                        	 }else{
+                        		 //处理中
+                        		 logger.info("【{}】航天支付订单处理中！",cmapyCutOrder.getOrderId());
+                        	 }
+                        	cmpayRecord.setRespCode(htResp.getRespCode());
+ 							cmpayRecord.setRespMsg(htResp.getRespMsg());
+ 							cmpayRecord.setModifyTime(new Date());
+
+ 							cmapyCutOrder.setRespCode(htResp.getRespCode());
+ 							cmapyCutOrder.setRespMsg(htResp.getRespMsg());
+ 							cmapyCutOrder.setModifyTime(new Date());
+                         }
+            	    	break;
+
+
             	    default:
             	    	logger.info("==================无此支付渠道==============");
         				break;
@@ -480,7 +511,9 @@ public class PaymentServiceImpl implements PaymentService {
 			long diffMinute = differencesTime/(60*1000);//差异分钟
 			if(diffMinute > Long.parseLong(upayOrderValid)){
 				//超过时效
-				isOverDue = true;
+				logger.info("[{}]由于支付平台暂时没有退款机制，故暂时取消订单超时机制！",payOrder.getOrderId());
+
+//				isOverDue = true;
 			}
 
 			PayWayEnum payWayEnum=PayWayEnum.getByCode(payOrder.getPayChannel());

@@ -1,7 +1,12 @@
 package com.cmpay.common.security;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -23,17 +28,40 @@ import com.cmpay.common.security.util.RSAHelper;
 public class Demo {
 
          public static void main(String[] args){
+        	 
         	 RSAHelper rsaHelper=new RSAHelper();
         	 //初始化秘钥
         	 try {
-				rsaHelper.initKey("D:/zmcf/cmpay/cmpay.pfx", "gkk@cmpay", "D:/zmcf/cmpay/cmpay.cer");
+				rsaHelper.initKey("D:/chinapay/651311906210001_chinapay1.pfx", "123456", "D:/chinapay/cp.cer");
 			} catch (Exception e) {
 				System.out.println("初始化秘钥失败");
 				e.printStackTrace();
 			}
 
-           String msg="{'name':'张三','sex':'man'}";
+         	Map<String,Object> paraMap = new HashMap<String,Object>();
+	    	paraMap.put("Version", 20140728);
+	    	paraMap.put("MerId", merId);
+	    	paraMap.put("MerOrderNo", bizRequestBO.getRequestContentBO().getPayOrderNo());
+	    	paraMap.put("TranDate", bizRequestBO.getRequestContentBO().getOrderDate());
+	    	paraMap.put("TranTime", bizRequestBO.getRequestContentBO().getOrderTime());
+
+	    	paraMap.put("OrderAmt", bizRequestBO.getRequestContentBO().getPayAmount());
+	    	paraMap.put("BusiType", "0001");
+	    	paraMap.put("MerBgUrl", backurl);
+	    	paraMap.put("PayTimeOut", "30");
+
+	    	paraMap.put("TranReserved", "{\"AppId\":\"wx2dc4df89ef659f03\"}");
+	    	paraMap.put("RemoteAddr", "172.0.0.1");
+	    	
 			try {
+				
+				//生成字符串，排序
+				// 不参与签名的参数
+				Set<String> removeKey = new HashSet<String>();
+				removeKey.add("signMethod");
+				removeKey.add("Signature");
+				
+				String sendstr=getURLParam(paraMap,true,removeKey);
 
 				//2.生成随机DES密码
 				byte[] des_key = DESHelper.generateDesKey() ;
@@ -97,5 +125,44 @@ public class Demo {
 
          }
 
+         
+     	/**
+     	 * 转换成url参数
+     	 * 
+     	 * @param map
+     	 * @param isSort
+     	 *            是否排序
+     	 * @param removeKey
+     	 *            不包含的key元素集
+     	 * @return
+     	 */
+     	public static String getURLParam(Map map, boolean isSort, Set removeKey) {
+     		StringBuffer param = new StringBuffer();
+     		List msgList = new ArrayList();
+     		for (Iterator it = map.keySet().iterator(); it.hasNext();) {
+     			String key = (String) it.next();
+     			String value = (String) map.get(key);
+     			if (removeKey != null && removeKey.contains(key)) {
+     				continue;
+     			}
+     			msgList.add(key + "=" + value);
+     		}
+
+     		if (isSort) {
+     			// 排序
+     			Collections.sort(msgList);
+     		}
+
+     		for (int i = 0; i < msgList.size(); i++) {
+     			String msg = (String) msgList.get(i);
+     			if (i > 0) {
+     				param.append("&");
+     			}
+     			param.append(msg);
+     		}
+
+     		return param.toString();
+     	}
+         
 
 }
